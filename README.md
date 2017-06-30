@@ -1,5 +1,5 @@
 # PROSECO
-Table of Contents
+## Table of Contents
 * [Introduction and Usage](#introduction-and-usage)
 * [Setup of a Prototype Folder](#setup-of-a-prototype-folder)
 
