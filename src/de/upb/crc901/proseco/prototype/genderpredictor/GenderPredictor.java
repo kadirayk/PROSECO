@@ -127,20 +127,10 @@ public class GenderPredictor implements Classifier, Serializable {
 				train.remove(inst);
 			}
 		}
-		System.out.println(labelCount);
 
 		/* create classifier object */
 		/** ## PLACE COMPOSITION CODE HERE ## **/
 		/* $buildclassifier$ */
-		final weka.classifiers.trees.J48 newVar9 = new weka.classifiers.trees.J48();
-		final List<String> newVar48 = new ArrayList<>();
-		// newVar48.add("-R");
-		// newVar48.add("-M");
-		// newVar48.add("16");
-		final String[] newVar49 = new String[newVar48.size()];
-		newVar48.toArray(newVar49);
-		newVar9.setOptions(newVar49);
-		this.c = newVar9;
 
 		try {
 			this.c.buildClassifier(train);

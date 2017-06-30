@@ -7,6 +7,14 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.lang.ProcessBuilder.Redirect;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
+import java.util.stream.IntStream;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
@@ -30,17 +38,26 @@ public class Benchmark extends Thread {
 	private static final File BENCHMARK_INSTANCES_FILE = new File(PROPS.getProperty("benchmark_instances"));
 	private static final File SOURCE_INPUT_FOLDER = new File(PROPS.getProperty("prototype_source_code"));
 
+	private static final int NUMBER_OF_THREADS = Integer.parseInt(PROPS.getProperty("number_of_threads"));
 	private static final String TASK_FILE_EXT = "task";
 
 	private volatile boolean keepRunning = true;
+	private final List<String> processedFileNames;
+	private final Lock fileNameListLock;
+
+	public Benchmark(final String pName, final List<String> processedFileNames, final Lock fileNameListLock) {
+		super(pName);
+		this.processedFileNames = processedFileNames;
+		this.fileNameListLock = fileNameListLock;
+	}
 
 	@Override
 	public void run() {
-		Thread.currentThread().setName("BenchmarkService Thread");
 
 		try {
 			PerformanceLogger.logStart("Uptime");
-			System.err.println("Service up and running");
+
+			System.out.println(Thread.currentThread().getName() + ": Thread is running.");
 
 			while (this.keepRunning) {
 				final File[] fileList = WAITING_TASK_DIR.listFiles();
@@ -55,10 +72,23 @@ public class Benchmark extends Thread {
 						continue;
 					}
 
+					this.fileNameListLock.lock();
+					try {
+						if(this.processedFileNames.contains(taskFile.getName())) {
+							continue;
+						} else {
+							this.processedFileNames.add(taskFile.getName());
+						}
+					}finally {
+						this.fileNameListLock.unlock();
+					}
+
 					final String taskOutputFolder = FileUtil.readFileAsString(taskFile.getAbsolutePath()).trim();
 					if (taskOutputFolder.equals("")) {
 						continue;
 					}
+
+					System.err.println(taskFile.getName());
 
 					final File candidateFolder = new File(taskOutputFolder);
 					PerformanceLogger.logStart("PerformBenchmarkForCandidate");
@@ -104,19 +134,23 @@ public class Benchmark extends Thread {
 
 				if (numberOfProcessedTasks == 0) {
 					// wait for new tasks and go to sleep for some millis
-					log("No new task...so take a rest and wait for a second.");
 					Thread.sleep(1000);
 				}
 			}
 		} catch (final IOException e) {
 			e.printStackTrace();
 		} catch (final InterruptedException e) {
-			e.printStackTrace();
+			log("Woke up by interrupt.");
 		} finally {
 			log("Service shutting down, saving global performance log to file");
 			PerformanceLogger.logEnd("Uptime");
 			PerformanceLogger.saveGlobalLogToFile(new File("../InternalBenchmark.log"));
 		}
+	}
+
+	@Override
+	public void interrupt() {
+		this.keepRunning = false;
 	}
 
 	private void computeFValue() {
@@ -152,17 +186,23 @@ public class Benchmark extends Thread {
 		}
 	}
 
-	public static void main(final String[] args) {
-		final Benchmark b = new Benchmark();
-		b.start();
+	private static boolean lastLineBreak = true;
 
+	public static void main(final String[] args) {
+		ExecutorService threadPool = Executors.newFixedThreadPool(NUMBER_OF_THREADS);
+		List<String> taskFilenameList = new LinkedList<>();
+		Lock taskFileLock = new ReentrantLock(true);
+
+		IntStream.range(0, NUMBER_OF_THREADS).forEach(x -> threadPool.submit(new Benchmark("BenchmarkWorker#" + x, taskFilenameList, taskFileLock)));
+
+		System.err.println("Service up and running");
 		String line;
 		try (BufferedReader br = new BufferedReader(new InputStreamReader(System.in))) {
 			while ((line = br.readLine()) != null) {
 				switch (line.trim()) {
 				case "q":
-					b.keepRunning = false;
-					b.join();
+					threadPool.shutdownNow();
+					threadPool.awaitTermination(2000, TimeUnit.MILLISECONDS);
 					System.exit(0);
 				}
 			}
@@ -173,14 +213,12 @@ public class Benchmark extends Thread {
 		}
 	}
 
-	private static boolean lastLineBreak = true;
-
 	private static void log(final String msg) {
 		log(msg, true);
 	}
 
 	private static void log(final String msg, final boolean linebreak) {
-		final String prefix = "Benchmark Service: ";
+		final String prefix = "[" + Thread.currentThread().getName() + "] Benchmark Service: ";
 		String printString;
 		if (lastLineBreak) {
 			printString = prefix + msg;

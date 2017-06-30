@@ -19,8 +19,6 @@ public class GroundingRoutine {
 
 	public static void main(final String[] args) {
 
-		Thread.currentThread().setName("Grounding Routin Main Thread");
-
 		if (args.length != 3) {
 			// TODO: Correct usage message
 			log("Correct usage: ");

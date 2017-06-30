@@ -11,6 +11,6 @@
 	<classpathentry kind="lib" path="lib/slf4j-api-1.7.5.jar"/>
 	<classpathentry kind="lib" path="lib/slf4j-log4j12-1.7.5.jar"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/CrcTaskBasedConfigurator"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/Util"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/JAICore"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

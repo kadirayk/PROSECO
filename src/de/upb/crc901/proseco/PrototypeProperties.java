@@ -27,6 +27,10 @@ public class PrototypeProperties extends HashMap<String, List<String>> {
 		try (BufferedReader br = new BufferedReader(new FileReader(propertiesFile))) {
 			String line;
 			while ((line = br.readLine()) != null) {
+				if(line.trim().startsWith("#")) {
+					continue;
+				}
+
 				if (line.contains("=")) {
 					final String[] lineSplit = line.split("=");
 					if (lineSplit.length != 2) {

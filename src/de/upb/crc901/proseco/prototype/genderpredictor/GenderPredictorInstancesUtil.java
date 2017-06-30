@@ -70,7 +70,7 @@ public class GenderPredictorInstancesUtil {
 		final Instances dataset = getEmptyDataset();
 		final AtomicInteger i = new AtomicInteger(0);
 		try (Stream<Path> paths = Files.walk(folder)) {
-			paths.filter(Files::isRegularFile).forEach(f -> {
+			paths.parallel().filter(Files::isRegularFile).forEach(f -> {
 				if (f.toFile().getName().equals("labels.txt")) {
 					return;
 				}

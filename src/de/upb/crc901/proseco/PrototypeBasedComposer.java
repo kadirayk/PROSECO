@@ -97,8 +97,6 @@ public class PrototypeBasedComposer {
 	/**
 	 * Instantiate a new PrototypeBasedComposer for executing the prototype composition pipeline.
 	 *
-	 * TODO find a way to kill subprocesses when main process is killed.
-	 *
 	 * @param prototypeName
 	 *            The name of the prototype which shall be used.
 	 * @param dataFilePath
@@ -257,7 +255,7 @@ public class PrototypeBasedComposer {
 		System.out.print("Boot up internal benchmark service...");
 
 		final File benchmarkExec = new File(this.executionDirectory.getAbsolutePath() + "/" + INTERNAL_BENCHMARK_FOLDER + BENCHMARK_SERVICE);
-		final ProcessBuilder pb = new ProcessBuilder(benchmarkExec.getAbsolutePath()).redirectOutput(Redirect.INHERIT);
+		final ProcessBuilder pb = new ProcessBuilder(benchmarkExec.getAbsolutePath()).redirectError(Redirect.INHERIT);
 
 		try {
 			this.internalBenchmarkService = pb.start();
@@ -356,6 +354,7 @@ public class PrototypeBasedComposer {
 		}
 
 		final File winningStrategy = new File(this.strategyDirectory + File.separator + winningStrategyName + File.separator + OUTPUT_DIR);
+		System.out.println(winningStrategy);
 		for (final File strategyFile : winningStrategy.listFiles()) {
 			if (strategyFile.isFile()) {
 				final File groundingFolderFile = new File(this.groundingDirectory.getAbsolutePath() + File.separator + strategyFile.getName());
@@ -407,7 +406,6 @@ public class PrototypeBasedComposer {
 				}
 			}
 
-			// System.out.println("(Still at least one process running)");
 			try {
 				Thread.sleep(2000);
 			} catch (final InterruptedException e) {
