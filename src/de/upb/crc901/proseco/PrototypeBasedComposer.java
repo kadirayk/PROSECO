@@ -255,7 +255,7 @@ public class PrototypeBasedComposer {
 		System.out.print("Boot up internal benchmark service...");
 
 		final File benchmarkExec = new File(this.executionDirectory.getAbsolutePath() + "/" + INTERNAL_BENCHMARK_FOLDER + BENCHMARK_SERVICE);
-		final ProcessBuilder pb = new ProcessBuilder(benchmarkExec.getAbsolutePath()).redirectError(Redirect.INHERIT);
+		final ProcessBuilder pb = new ProcessBuilder(benchmarkExec.getAbsolutePath()).redirectOutput(Redirect.INHERIT).redirectError(Redirect.INHERIT);
 
 		try {
 			this.internalBenchmarkService = pb.start();

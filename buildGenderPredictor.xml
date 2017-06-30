@@ -56,7 +56,7 @@
             </manifest>
             <fileset dir="${dir.buildfile}/bin"/>
             <fileset dir="${dir.workspace}/CrcTaskBasedConfigurator/bin"/>
-            <fileset dir="${dir.workspace}/Util/bin"/>
+            <fileset dir="${dir.workspace}/JAICore/bin"/>
             <fileset dir="${dir.workspace}/CrcConfigurationSetting/bin"/>
             <fileset dir="${dir.workspace}/CrcConfigurationFramework/bin"/>
         </jar>
