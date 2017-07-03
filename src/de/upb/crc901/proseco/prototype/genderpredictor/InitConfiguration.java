@@ -61,6 +61,7 @@ public class InitConfiguration {
 		writeInstances(contTrainingInstances, CONT_TRAINING_INSTANCES_FILE);
 		System.out.println("DONE.");
 
+
 		PerformanceLogger.logEnd("TotalInit");
 	}
 

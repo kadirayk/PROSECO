@@ -21,6 +21,23 @@
         </jar>
         <delete dir="${dir.jarfile}/libs"/>
         <mkdir dir="${dir.jarfile}/libs"/>
+    	
+    	<copy file="${dir.workspace}/PROSECO/lib/Catalano.Image.jar" todir="${dir.jarfile}/libs"/>
+        <copy file="${dir.workspace}/PROSECO/lib/Catalano.Math.jar" todir="${dir.jarfile}/libs"/>
+        <copy file="${dir.workspace}/PROSECO/lib/Catalano.Statistics.jar" todir="${dir.jarfile}/libs"/>
+        <copy file="${dir.workspace}/PROSECO/lib/commons-collections4-4.1.jar" todir="${dir.jarfile}/libs"/>
+        <copy file="${dir.workspace}/PROSECO/lib/commons-io-2.5.jar" todir="${dir.jarfile}/libs"/>
+        <copy file="${dir.workspace}/PROSECO/lib/org.hamcrest.core_1.3.0.v201303031735.jar" todir="${dir.jarfile}/libs"/>
+        <copy file="${dir.workspace}/CrcConfigurationSetting/lib/commons-lang3-3.4.jar" todir="${dir.jarfile}/libs"/>
+        <copy file="${dir.workspace}/JAICore/lib/pddl4j.jar" todir="${dir.jarfile}/libs"/>
+        <copy file="${dir.workspace}/JAICore/lib/guava-18.0.jar" todir="${dir.jarfile}/libs"/>
+        <copy file="${dir.workspace}/JAICore/lib/weka.jar" todir="${dir.jarfile}/libs"/>
+        <copy file="${dir.workspace}/JAICore/lib/gs-core-1.3.jar" todir="${dir.jarfile}/libs"/>
+        <copy file="${dir.workspace}/JAICore/lib/gs-ui-1.3.jar" todir="${dir.jarfile}/libs"/>
+        <copy file="${dir.workspace}/JAICore/lib/slf4j-log4j12-1.7.5.jar" todir="${dir.jarfile}/libs"/>
+        <copy file="${dir.workspace}/JAICore/lib/slf4j-api-1.7.5.jar" todir="${dir.jarfile}/libs"/>
+        <copy file="${dir.workspace}/JAICore/lib/log4j-1.2.17.jar" todir="${dir.jarfile}/libs"/>
+    	
         <delete dir="${dir.jarfile}/config"/>
         <mkdir dir="${dir.jarfile}/config"/>
         <delete dir="${dir.jarfile}/prototypes"/>
@@ -99,7 +116,7 @@
             </manifest>
             <fileset dir="${dir.buildfile}/bin"/>
             <fileset dir="${dir.workspace}/CrcTaskBasedConfigurator/bin"/>
-            <fileset dir="${dir.workspace}/Util/bin"/>
+            <fileset dir="${dir.workspace}/JAICore/bin"/>
             <fileset dir="${dir.workspace}/CrcConfigurationSetting/bin"/>
             <fileset dir="${dir.workspace}/CrcConfigurationFramework/bin"/>
         </jar>
