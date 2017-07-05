@@ -32,8 +32,8 @@ public class Benchmark extends Thread {
 	private static final File FINISHED_TASK_DIR = new File(PROPS.getProperty("finished_task_dir"));
 	private static final File TESTBED_DIR = new File(PROPS.getProperty("testbed_dir"));
 
-	private static final File FVALUE_FILE = new File(TESTBED_DIR.getAbsolutePath() + File.separator + PROPS.getProperty("name_fvaluefile"));
-	private static final File CLASSIFIER_MODEL_FILE = new File(TESTBED_DIR.getAbsolutePath() + File.separator + PROPS.getProperty("classifier_model_file"));
+	private static final String FVALUE_FILE = PROPS.getProperty("name_fvaluefile");
+	private static final String CLASSIFIER_MODEL_FILE = PROPS.getProperty("classifier_model_file");
 
 	private static final File BENCHMARK_INSTANCES_FILE = new File(PROPS.getProperty("benchmark_instances"));
 	private static final File SOURCE_INPUT_FOLDER = new File(PROPS.getProperty("prototype_source_code"));
@@ -44,6 +44,7 @@ public class Benchmark extends Thread {
 	private volatile boolean keepRunning = true;
 	private final List<String> processedFileNames;
 	private final Lock fileNameListLock;
+	private File taskTempFolder;
 
 	public Benchmark(final String pName, final List<String> processedFileNames, final Lock fileNameListLock) {
 		super(pName);
@@ -88,15 +89,18 @@ public class Benchmark extends Thread {
 						continue;
 					}
 
-					System.err.println(taskFile.getName());
 
 					final File candidateFolder = new File(taskOutputFolder);
+
+					this.taskTempFolder = new File(TESTBED_DIR.getAbsoluteFile() + "_" + candidateFolder.getName());
+					FileUtils.copyDirectory(TESTBED_DIR, this.taskTempFolder);
+
 					PerformanceLogger.logStart("PerformBenchmarkForCandidate");
 					log("Start to benchmark task " + taskFile.getAbsolutePath() + " for candidate " + candidateFolder.getAbsolutePath());
 
 					// Execute grounding => code assembly + compile + training
 					log("Execute Grounding routine...");
-					final String[] groundingParams = { candidateFolder.getAbsolutePath(), SOURCE_INPUT_FOLDER.getCanonicalPath(), TESTBED_DIR.getAbsolutePath() };
+					final String[] groundingParams = { candidateFolder.getAbsolutePath(), SOURCE_INPUT_FOLDER.getCanonicalPath(), this.taskTempFolder.getAbsolutePath() };
 					GroundingRoutine.main(groundingParams);
 					log("Grounding routine finished.");
 
@@ -109,7 +113,7 @@ public class Benchmark extends Thread {
 
 					// move task specific files to task directory
 					log("Benchmark Service: Move files...", false);
-					for (final File testBedFile : TESTBED_DIR.listFiles()) {
+					for (final File testBedFile : this.taskTempFolder.listFiles()) {
 						switch (testBedFile.getName()) {
 						case "classifier.model":
 						case "GenderPredictor.java":
@@ -120,13 +124,14 @@ public class Benchmark extends Thread {
 							if (candidateFile.exists()) {
 								candidateFile.delete();
 							}
-							FileUtils.moveFile(testBedFile, candidateFile);
+							FileUtils.copyFile(testBedFile, candidateFile);
 							break;
 						}
 					}
-					FileUtils.moveFile(taskFile, new File(FINISHED_TASK_DIR.getAbsolutePath() + File.separator + taskFile.getName()));
+					FileUtils.copyFile(taskFile, new File(FINISHED_TASK_DIR.getAbsolutePath() + File.separator + taskFile.getName()));
 					log("DONE.");
 
+					FileUtils.deleteDirectory(this.taskTempFolder);
 					PerformanceLogger.logEnd("PerformBenchmarkForCandidate");
 					log("Finished task " + taskFile.getName());
 					numberOfProcessedTasks++;
@@ -155,8 +160,8 @@ public class Benchmark extends Thread {
 
 	private void computeFValue() {
 		double f = 0;
-		if (CLASSIFIER_MODEL_FILE.exists()) {
-			final ProcessBuilder pb = new ProcessBuilder(TESTBED_DIR.getAbsolutePath() + File.separator + "test.bat", BENCHMARK_INSTANCES_FILE.getAbsolutePath());
+		if (new File(this.taskTempFolder + File.separator + CLASSIFIER_MODEL_FILE).exists()) {
+			final ProcessBuilder pb = new ProcessBuilder(this.taskTempFolder.getAbsolutePath() + File.separator + "test.bat", BENCHMARK_INSTANCES_FILE.getAbsolutePath());
 			pb.redirectError(Redirect.INHERIT);
 
 			try {
@@ -179,7 +184,7 @@ public class Benchmark extends Thread {
 			}
 		}
 
-		try (BufferedWriter bw = new BufferedWriter(new FileWriter(FVALUE_FILE))) {
+		try (BufferedWriter bw = new BufferedWriter(new FileWriter(this.taskTempFolder + File.separator + FVALUE_FILE))) {
 			bw.write(f + "\n");
 		} catch (final IOException e) {
 			e.printStackTrace();
