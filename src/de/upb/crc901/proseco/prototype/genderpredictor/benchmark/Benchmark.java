@@ -21,8 +21,8 @@ import org.apache.commons.io.FilenameUtils;
 
 import de.upb.crc901.proseco.PrototypeProperties;
 import de.upb.crc901.proseco.prototype.genderpredictor.GroundingRoutine;
-import util.basic.FileUtil;
-import util.basic.PerformanceLogger;
+import jaicore.basic.FileUtil;
+import jaicore.basic.PerformanceLogger;
 
 public class Benchmark extends Thread {
 

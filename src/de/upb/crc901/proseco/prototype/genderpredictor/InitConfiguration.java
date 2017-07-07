@@ -10,7 +10,7 @@ import java.io.ObjectOutputStream;
 import java.util.Collections;
 
 import de.upb.crc901.proseco.PrototypeProperties;
-import util.basic.PerformanceLogger;
+import jaicore.basic.PerformanceLogger;
 import weka.core.Instances;
 
 public class InitConfiguration {

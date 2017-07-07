@@ -20,8 +20,8 @@ import java.util.Random;
 
 import de.upb.crc901.proseco.prototype.genderpredictor.GenderPredictor;
 import de.upb.crc901.proseco.prototype.genderpredictor.GenderPredictorInstancesUtil;
-import util.basic.FileUtil;
-import util.ml.WekaUtil;
+import jaicore.basic.FileUtil;
+import jaicore.ml.WekaUtil;
 import weka.classifiers.Evaluation;
 import weka.core.Instances;
 

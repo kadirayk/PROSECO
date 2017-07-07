@@ -22,7 +22,7 @@ import Catalano.Imaging.Filters.Resize;
 import Catalano.Imaging.Filters.Photometric.SelfQuocientImage;
 import Catalano.Imaging.Texture.BinaryPattern.ImprovedLocalBinaryPattern;
 import Catalano.Imaging.Tools.ImageHistogram;
-import util.ml.WekaUtil;
+import jaicore.ml.WekaUtil;
 import weka.classifiers.Classifier;
 import weka.core.Attribute;
 import weka.core.Capabilities;

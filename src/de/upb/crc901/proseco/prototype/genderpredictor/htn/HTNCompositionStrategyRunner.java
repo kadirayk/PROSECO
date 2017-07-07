@@ -21,10 +21,10 @@ import de.upb.crc901.taskconfigurator.core.MLUtil;
 import de.upb.crc901.taskconfigurator.search.algorithms.BestFirstPipelineOptimizer;
 import de.upb.crc901.taskconfigurator.search.evaluators.IInterleavedRandomCompletionEvaluator;
 import de.upb.crc901.taskconfigurator.search.evaluators.InterleavedRandomCompletionEvaluatorFrame;
-import util.basic.PerformanceLogger;
-import util.planning.graphgenerators.task.tfd.TFDNode;
-import util.planning.model.ceoc.CEOCAction;
-import util.search.core.NodeEvaluator;
+import jaicore.basic.PerformanceLogger;
+import jaicore.planning.graphgenerators.task.tfd.TFDNode;
+import jaicore.planning.model.ceoc.CEOCAction;
+import jaicore.search.algorithms.standard.core.NodeEvaluator;
 import weka.core.Instances;
 
 /**

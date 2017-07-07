@@ -15,8 +15,8 @@ import java.util.List;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 
-import util.basic.FileUtil;
-import util.basic.PerformanceLogger;
+import jaicore.basic.FileUtil;
+import jaicore.basic.PerformanceLogger;
 
 public class PrototypeBasedComposer {
 	private static final PrototypeProperties PROPS = new PrototypeProperties("config/PrototypeBasedComposer.conf");
