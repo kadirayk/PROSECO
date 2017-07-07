@@ -1,1 +1,1 @@
-includeFlat 'JAICore'
+includeFlat 'JAICore', 'CrcTaskBasedConfigurator'

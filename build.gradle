@@ -24,6 +24,8 @@ artifacts {
 }
 
 dependencies {
+	compile project(':JAICore')
+	compile project(':CrcTaskBasedConfigurator')
 
 	// Graph Stream
 	compile group: 'org.graphstream', name: 'gs-core', version: '1.1.1'

@@ -16,7 +16,5 @@
 	<classpathentry kind="lib" path="lib/Catalano.Math.jar"/>
 	<classpathentry kind="lib" path="lib/Catalano.Statistics.jar"/>
 	<classpathentry kind="lib" path="lib/commons-collections4-4.1.jar"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/CrcTaskBasedConfigurator"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/JAICore"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
