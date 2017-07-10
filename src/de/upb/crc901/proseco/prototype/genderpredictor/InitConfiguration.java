@@ -2,9 +2,11 @@ package de.upb.crc901.proseco.prototype.genderpredictor;
 
 import static de.upb.crc901.proseco.prototype.genderpredictor.GenderPredictorInstancesUtil.getInstances;
 
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.util.Collections;
@@ -61,6 +63,12 @@ public class InitConfiguration {
 		writeInstances(contTrainingInstances, CONT_TRAINING_INSTANCES_FILE);
 		System.out.println("DONE.");
 
+		File arffExport = new File(BASE_FOLDER + "allInstances.arff");
+		try(BufferedWriter bw = new BufferedWriter(new FileWriter(arffExport))) {
+			bw.write(allInstances.toString());
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 
 		PerformanceLogger.logEnd("TotalInit");
 	}

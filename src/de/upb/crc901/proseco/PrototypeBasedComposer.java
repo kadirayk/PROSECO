@@ -393,6 +393,7 @@ public class PrototypeBasedComposer {
 	 *
 	 */
 	private void waitForStrategiesToTerminate() {
+		System.out.println("PBC: Wait for strategies to terminate.");
 		boolean oneRunning = true;
 		while (oneRunning) {
 			oneRunning = false;
@@ -403,13 +404,13 @@ public class PrototypeBasedComposer {
 					break;
 				}
 			}
-
 			try {
 				Thread.sleep(2000);
 			} catch (final InterruptedException e) {
 				e.printStackTrace();
 			}
 		}
+		System.out.println("PBC: Wait for strategies to terminate.");
 	}
 
 	/**

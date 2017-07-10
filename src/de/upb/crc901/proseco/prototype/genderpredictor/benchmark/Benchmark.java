@@ -54,11 +54,9 @@ public class Benchmark extends Thread {
 
 	@Override
 	public void run() {
-
 		try {
-			PerformanceLogger.logStart("Uptime");
-
 			System.out.println(Thread.currentThread().getName() + ": Thread is running.");
+			PerformanceLogger.logStart("Uptime");
 
 			while (this.keepRunning) {
 				final File[] fileList = WAITING_TASK_DIR.listFiles();
@@ -89,27 +87,55 @@ public class Benchmark extends Thread {
 						continue;
 					}
 
-
 					final File candidateFolder = new File(taskOutputFolder);
+
+					long totalBenchmarkStartTime = System.currentTimeMillis();
 
 					this.taskTempFolder = new File(TESTBED_DIR.getAbsoluteFile() + "_" + candidateFolder.getName());
 					FileUtils.copyDirectory(TESTBED_DIR, this.taskTempFolder);
+
+
+					try (BufferedWriter bw = new BufferedWriter(new FileWriter(this.taskTempFolder.getAbsolutePath() + File.separator + "runtime.value"))) {
+						bw.write(candidateFolder.getName()+"\n");
+					} catch(IOException ioE) {
+						ioE.printStackTrace();
+					}
+					long startTime;
 
 					PerformanceLogger.logStart("PerformBenchmarkForCandidate");
 					log("Start to benchmark task " + taskFile.getAbsolutePath() + " for candidate " + candidateFolder.getAbsolutePath());
 
 					// Execute grounding => code assembly + compile + training
 					log("Execute Grounding routine...");
+					startTime = System.currentTimeMillis();
 					final String[] groundingParams = { candidateFolder.getAbsolutePath(), SOURCE_INPUT_FOLDER.getCanonicalPath(), this.taskTempFolder.getAbsolutePath() };
 					GroundingRoutine.main(groundingParams);
+
+					try (BufferedWriter bw = new BufferedWriter(new FileWriter(this.taskTempFolder.getAbsolutePath() + File.separator + "runtime.value",true))) {
+						bw.write("totalGrounding="+(System.currentTimeMillis()-startTime)+"ms\n");
+					} catch(IOException ioE) {
+						ioE.printStackTrace();
+					}
 					log("Grounding routine finished.");
 
 					// Test trained instance against validation set
 					PerformanceLogger.logStart("computeFValue");
 					log("Compute f value for current testbed...", false);
+					startTime = System.currentTimeMillis();
 					this.computeFValue();
 					log("DONE");
 					PerformanceLogger.logEnd("computeFValue");
+					try (BufferedWriter bw = new BufferedWriter(new FileWriter(this.taskTempFolder.getAbsolutePath() + File.separator + "runtime.value",true))) {
+						bw.write("fValueComputation="+(System.currentTimeMillis()-startTime)+"ms\n");
+					} catch(IOException ioE) {
+						ioE.printStackTrace();
+					}
+
+					try (BufferedWriter bw = new BufferedWriter(new FileWriter(this.taskTempFolder.getAbsolutePath() + File.separator + "runtime.value",true))) {
+						bw.write("totalBenchmark="+(System.currentTimeMillis()-totalBenchmarkStartTime)+"ms\n");
+					} catch(IOException ioE) {
+						ioE.printStackTrace();
+					}
 
 					// move task specific files to task directory
 					log("Benchmark Service: Move files...", false);
@@ -119,6 +145,7 @@ public class Benchmark extends Thread {
 						case "GenderPredictor.java":
 						case "GenderPredictor.class":
 						case "f.value":
+						case "runtime.value":
 							final File candidateFile = new File(candidateFolder.getAbsolutePath() + File.separator + testBedFile.getName());
 
 							if (candidateFile.exists()) {
@@ -206,9 +233,11 @@ public class Benchmark extends Thread {
 			while ((line = br.readLine()) != null) {
 				switch (line.trim()) {
 				case "q":
+					System.err.println("Blaa");
 					threadPool.shutdownNow();
 					threadPool.awaitTermination(2000, TimeUnit.MILLISECONDS);
 					System.exit(0);
+					break;
 				}
 			}
 		} catch (final IOException e) {

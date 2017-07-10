@@ -931,7 +931,7 @@ wekaKStarOptsMissingMode		; getWekaKStarConfig2(o);	o,type; KStarMissingMode(typ
 # Decision Tables
 #wekaDecTable;	wekaCreateRawBaseClassifier(cn,c); cn,c; ; weka.classifiers.rules.DecisionTable:__construct(c) -> assignTo('weka.classifiers.rules.DecisionTable',cn)
 #wekaDecTable;	wekaCreateGivenBaseClassifier(cn,c); cn,c,oList,oArray; assigned('weka.classifiers.rules.DecisionTable',cn) ; weka.classifiers.rules.DecisionTable:__construct(c) -> getOptionList(oList) -> getWekaDecTableConfig0(oList) -> compileOptionListToArray(oList,oArray) -> weka.classifiers.rules.DecisionTable:setOptions(c,oArray)
-#wekaDecTable;	wekaCreateBaseClassifier(c); c,oList,oArray; ; weka.classifiers.rules.DecisionTable:__construct(c) -> getOptionList(oList) -> getWekaDecTableConfig0(oList) -> compileOptionListToArray(oList,oArray) -> weka.classifiers.rules.DecisionTable:setOptions(c,oArray)
+wekaDecTable;	wekaCreateBaseClassifier(c); c,oList,oArray; ; weka.classifiers.rules.DecisionTable:__construct(c) -> getOptionList(oList) -> getWekaDecTableConfig0(oList) -> compileOptionListToArray(oList,oArray) -> weka.classifiers.rules.DecisionTable:setOptions(c,oArray)
 wekaDecTable;	wekaParametrizeBaseClassifier(cn,oList); cn,oList; ; assignTo('weka.classifiers.rules.DecisionTable',cn) -> getWekaDecTableConfig0(oList)
 wekaDecTable;	wekaSelectBaseClassifier(cn); cn; ; assignTo('weka.classifiers.rules.DecisionTable',cn)
 wekaDecTable;	wekaParametrizeGivenBaseClassifier(cn,oList); cn,oList; assigned('weka.classifiers.rules.DecisionTable',cn) ; getWekaDecTableConfig0(oList)

@@ -15,6 +15,7 @@
                 <attribute name="Class-Path" value=". libs/weka.jar libs/commons-io-2.5.jar libs/Catalano.Image.jar libs/Catalano.Math.jar libs/Catalano.Statistics.jar libs/slf4j-api-1.7.5.jar libs/slf4j-log4j12-1.7.5.jar libs/crcutil.jar"/>
             </manifest>
             <fileset dir="${dir.buildfile}/bin"/>
+            <fileset dir="${dir.workspace}/JAICore/bin"/>
         </jar>
     </target>
 	
@@ -45,6 +46,7 @@
                 <attribute name="Class-Path" value=". ../libs/weka.jar ../libs/commons-io-2.5.jar ../libs/Catalano.Image.jar ../libs/Catalano.Math.jar ../libs/Catalano.Statistics.jar ../libs/slf4j-api-1.7.5.jar ../libs/slf4j-log4j12-1.7.5.jar ../libs/crcutil.jar"/>
             </manifest>
             <fileset dir="${dir.buildfile}/bin"/>
+            <fileset dir="${dir.workspace}/JAICore/bin"/>
         </jar>
     </target>
 

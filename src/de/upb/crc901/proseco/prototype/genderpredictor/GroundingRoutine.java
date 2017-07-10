@@ -18,7 +18,7 @@ public class GroundingRoutine {
 	private static final String TRAIN_SCRIPT = "train.bat";
 
 	public static void main(final String[] args) {
-
+		long startTime;
 		if (args.length != 3) {
 			// TODO: Correct usage message
 			log("Correct usage: ");
@@ -55,6 +55,7 @@ public class GroundingRoutine {
 			System.exit(-1);
 		}
 
+		startTime = System.currentTimeMillis();
 		log("Start code assembly");
 		PerformanceLogger.logStart("CodeAssembly");
 		for (final File placeholder : placeholderFolder.listFiles()) {
@@ -86,7 +87,13 @@ public class GroundingRoutine {
 			e.printStackTrace();
 		}
 		PerformanceLogger.logEnd("CodeAssembly");
+		try (BufferedWriter bw = new BufferedWriter(new FileWriter(sourceOutputFolder.getAbsolutePath() + File.separator + "runtime.value", true))) {
+			bw.write("assembly="+(System.currentTimeMillis()-startTime)+"ms\n");
+		} catch(IOException ioE) {
+			ioE.printStackTrace();
+		}
 
+		startTime = System.currentTimeMillis();
 		PerformanceLogger.logStart("CodeCompilation");
 		try {
 			final ProcessBuilder pb = new ProcessBuilder(sourceOutputFolder.getAbsolutePath() + "/" + COMPILE_SCRIPT);
@@ -103,7 +110,13 @@ public class GroundingRoutine {
 			e.printStackTrace();
 		}
 		PerformanceLogger.logEnd("CodeCompilation");
+		try (BufferedWriter bw = new BufferedWriter(new FileWriter(sourceOutputFolder.getAbsolutePath() + File.separator + "runtime.value", true))) {
+			bw.write("compiling="+(System.currentTimeMillis()-startTime)+"ms\n");
+		} catch(IOException ioE) {
+			ioE.printStackTrace();
+		}
 
+		startTime = System.currentTimeMillis();
 		PerformanceLogger.logStart("TrainModel");
 		try {
 			final ProcessBuilder pb = new ProcessBuilder(sourceOutputFolder.getAbsolutePath() + "/" + TRAIN_SCRIPT);
@@ -120,6 +133,12 @@ public class GroundingRoutine {
 			e.printStackTrace();
 		}
 		PerformanceLogger.logEnd("TrainModel");
+
+		try (BufferedWriter bw = new BufferedWriter(new FileWriter(sourceOutputFolder.getAbsolutePath() + File.separator + "runtime.value", true))) {
+			bw.write("training="+(System.currentTimeMillis()-startTime)+"ms\n");
+		} catch(IOException ioE) {
+			ioE.printStackTrace();
+		}
 
 		PerformanceLogger.saveGlobalLogToFile(new File("GroundingRoutine.log"));
 	}
