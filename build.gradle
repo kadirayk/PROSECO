@@ -25,6 +25,11 @@ artifacts {
 dependencies {
 	compile project(':JAICore')
 	compile project(':CrcTaskBasedConfigurator')
+	
+	// Catalano libraries for image filters and preprocessing
+	compile name: 'Catalano.Image'
+	compile name: 'Catalano.Math'
+	compile name: 'Catalano.Statistics'
 
 	// Graph Stream
 	compile group: 'org.graphstream', name: 'gs-core', version: '1.1.1'
@@ -32,6 +37,10 @@ dependencies {
 	
 	// Weka
 	compile group: 'nz.ac.waikato.cms.weka', name: 'weka-dev', version: '3.9.1'
+
+	compile 'org.apache.commons:commons-collections4:4.1'
+	compile group: 'commons-io', name: 'commons-io', version: '2.5'
+	
 	
 	// Basics
 	compile 'junit:junit:4.12'
@@ -40,7 +49,7 @@ dependencies {
 	compile 'org.apache.commons:commons-collections4:4.1'
 	compile group: 'commons-io', name: 'commons-io', version: '2.5'
 
-	compile fileTree(dir: "${project.projectDir}/lib/", include: '*.jar')
+	//compile fileTree(dir: "${project.projectDir}/lib/", include: '*.jar')
 }
 
 repositories {
@@ -48,5 +57,8 @@ repositories {
 	mavenLocal()
 	maven {
         url "http://clojars.org/repo/"
+    }
+    flatDir {
+    	dirs 'lib'
     }
 }
