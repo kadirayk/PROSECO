@@ -1,5 +1,4 @@
 apply plugin: 'java'
-apply plugin: 'eclipse-wtp'
 
 sourceSets {
     main {
@@ -36,12 +35,12 @@ dependencies {
 	
 	// Basics
 	compile 'junit:junit:4.12'
-	compile 'com.google.guava:guava:18.0'
 	compile 'org.slf4j:slf4j-api:1.7.13'
-	
-	// 'com.google.guava:guava:18.0', 'org.apache.commons:commons-lang3:3.4', 'org.sat4j:org.sat4j.core:2.3.1', 'net.sf.trove4j:trove4j:3.0.3','junit:junit:4.12'
-	//	runtime 'org.slf4j:slf4j-log4j12:1.7.13', 'log4j:log4j:1.2.17'
-	// compile fileTree(dir: "${project.projectDir}/lib/", include: '*.jar')
+	compile 'org.apache.commons:commons-lang3:3.4'
+	compile 'org.apache.commons:commons-collections4:4.1'
+	compile group: 'commons-io', name: 'commons-io', version: '2.5'
+
+	compile fileTree(dir: "${project.projectDir}/lib/", include: '*.jar')
 }
 
 repositories {
@@ -50,8 +49,4 @@ repositories {
 	maven {
         url "http://clojars.org/repo/"
     }
-}
-
-eclipse {
-    project.natures 'org.eclipse.buildship.core.gradleprojectnature'
 }

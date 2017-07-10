@@ -18,9 +18,9 @@ import java.util.regex.Pattern;
 
 import de.upb.crc901.proseco.PrototypeProperties;
 import de.upb.crc901.taskconfigurator.core.MLUtil;
+import de.upb.crc901.taskconfigurator.core.SolutionEvaluator;
 import de.upb.crc901.taskconfigurator.search.algorithms.BestFirstPipelineOptimizer;
-import de.upb.crc901.taskconfigurator.search.evaluators.IInterleavedRandomCompletionEvaluator;
-import de.upb.crc901.taskconfigurator.search.evaluators.InterleavedRandomCompletionEvaluatorFrame;
+import de.upb.crc901.taskconfigurator.search.evaluators.RandomCompletionEvaluator;
 import jaicore.basic.PerformanceLogger;
 import jaicore.planning.graphgenerators.task.tfd.TFDNode;
 import jaicore.planning.model.ceoc.CEOCAction;
@@ -36,8 +36,8 @@ import weka.core.Instances;
  * In a final step, this chain is serialized into Java code that is stored to "classifierdef" of the "outputs" folder
  *
  */
-public class HTNCompositionStrategyRunner implements IInterleavedRandomCompletionEvaluator {
-
+public class HTNCompositionStrategyRunner implements SolutionEvaluator {
+	
 	private static final PrototypeProperties PROPS = new PrototypeProperties("conf/htncompositionstrategyrunner.conf");
 
 	private static final boolean SHOW_GRAPH = Boolean.parseBoolean(PROPS.getProperty("show_graph"));
@@ -51,7 +51,7 @@ public class HTNCompositionStrategyRunner implements IInterleavedRandomCompletio
 	private final File benchmarkFile;
 	private final File outputFolder;
 	private final Map<String, Integer> fValueMap = new HashMap<>();
-
+	
 	public HTNCompositionStrategyRunner(final File outputFolder, final File benchmarkFile) {
 		super();
 		this.outputFolder = outputFolder;
@@ -93,8 +93,7 @@ public class HTNCompositionStrategyRunner implements IInterleavedRandomCompletio
 		/* solve composition problem */
 		final Random random = new Random(0);
 
-		final NodeEvaluator<TFDNode, Integer> nodeEval = new InterleavedRandomCompletionEvaluatorFrame(random, EVALUATION_SAMPLE_SIZE, this);
-		// NodeEvaluator<TFDNode, Integer> nodeEval = new RandomizedDepthFirstEvaluator<>(random);
+		final NodeEvaluator<TFDNode, Integer> nodeEval = new RandomCompletionEvaluator(random, EVALUATION_SAMPLE_SIZE, this);
 		final BestFirstPipelineOptimizer optimizer = new BestFirstPipelineOptimizer(new File("htn.searchspace"), nodeEval, random, NUMBER_OF_CONSIDERED_SOLUTIONS, SHOW_GRAPH);
 		final List<CEOCAction> pipelineDescription = optimizer.getPipelineDescription(data);
 
@@ -103,7 +102,7 @@ public class HTNCompositionStrategyRunner implements IInterleavedRandomCompletio
 	}
 
 	@Override
-	public int getF(final List<CEOCAction> plan) {
+	public int getSolutionScore(final List<CEOCAction> plan) throws Exception {
 		PerformanceLogger.logStart("getF");
 		/* write down solution */
 		final String javaCode = MLUtil.getJavaCodeFromPlan(plan);
@@ -189,5 +188,17 @@ public class HTNCompositionStrategyRunner implements IInterleavedRandomCompletio
 			System.err.println("No classifier definition found. Cannot assign variable to c.");
 		}
 		return code;
+	}
+
+	@Override
+	public void setTrainingData(Instances train) {
+		
+		/* we ignore this here, because the training and test data is already contained in the benchmark anyway */
+	}
+
+	@Override
+	public void setControlData(Instances validation) {
+		
+		/* we ignore this here, because the training and test data is already contained in the benchmark anyway */
 	}
 }

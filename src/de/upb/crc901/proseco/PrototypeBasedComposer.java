@@ -131,9 +131,6 @@ public class PrototypeBasedComposer {
 			this.initConfigurationRoutine();
 			PerformanceLogger.logEnd("initConfigurationRoutine");
 
-			System.exit(0);
-			// boot up internal benchmark service for strategies to evaluate their nodes
-
 			PerformanceLogger.logStart("bootUpInternalBenchmarkService");
 			this.bootUpInternalBenchmarkService();
 			PerformanceLogger.logEnd("bootUpInternalBenchmarkService");
