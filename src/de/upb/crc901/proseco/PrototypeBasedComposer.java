@@ -128,7 +128,7 @@ public class PrototypeBasedComposer {
 			this.initializeExecutionEnvironment(prototypeName, dataFile);
 
 			PerformanceLogger.logStart("initConfigurationRoutine");
-			this.initConfigurationRoutine();
+			//			this.initConfigurationRoutine();
 			PerformanceLogger.logEnd("initConfigurationRoutine");
 
 			PerformanceLogger.logStart("bootUpInternalBenchmarkService");

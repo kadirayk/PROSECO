@@ -9,6 +9,7 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.ObjectInputStream;
+import java.lang.ProcessBuilder.Redirect;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -17,6 +18,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import de.upb.crc901.proseco.PrototypeProperties;
+import de.upb.crc901.proseco.prototype.genderpredictor.benchmark.BenchmarkTask.EBuildPhase;
+import de.upb.crc901.proseco.prototype.genderpredictor.benchmark.BenchmarkTask.EDataFraction;
 import de.upb.crc901.taskconfigurator.core.MLUtil;
 import de.upb.crc901.taskconfigurator.core.SolutionEvaluator;
 import de.upb.crc901.taskconfigurator.search.algorithms.BestFirstPipelineOptimizer;
@@ -37,7 +40,7 @@ import weka.core.Instances;
  *
  */
 public class HTNCompositionStrategyRunner implements SolutionEvaluator {
-	
+
 	private static final PrototypeProperties PROPS = new PrototypeProperties("conf/htncompositionstrategyrunner.conf");
 
 	private static final boolean SHOW_GRAPH = Boolean.parseBoolean(PROPS.getProperty("show_graph"));
@@ -51,7 +54,7 @@ public class HTNCompositionStrategyRunner implements SolutionEvaluator {
 	private final File benchmarkFile;
 	private final File outputFolder;
 	private final Map<String, Integer> fValueMap = new HashMap<>();
-	
+
 	public HTNCompositionStrategyRunner(final File outputFolder, final File benchmarkFile) {
 		super();
 		this.outputFolder = outputFolder;
@@ -113,7 +116,7 @@ public class HTNCompositionStrategyRunner implements SolutionEvaluator {
 		System.out.println("Compute f value for current testbed");
 
 		final File candidateFolder = new File(this.outputFolder.getAbsolutePath() + File.separator + key);
-		final ProcessBuilder pb = new ProcessBuilder(this.benchmarkFile.getAbsolutePath(), candidateFolder.getAbsolutePath());
+		final ProcessBuilder pb = new ProcessBuilder(this.benchmarkFile.getAbsolutePath(), EBuildPhase.CLASSIFIER_DEF.toString(), candidateFolder.getAbsolutePath(), EDataFraction.FULL.toString()).redirectError(Redirect.INHERIT).redirectOutput(Redirect.INHERIT);
 		Process fValueProcess;
 		try {
 			fValueProcess = pb.start();
@@ -191,14 +194,14 @@ public class HTNCompositionStrategyRunner implements SolutionEvaluator {
 	}
 
 	@Override
-	public void setTrainingData(Instances train) {
-		
+	public void setTrainingData(final Instances train) {
+
 		/* we ignore this here, because the training and test data is already contained in the benchmark anyway */
 	}
 
 	@Override
-	public void setControlData(Instances validation) {
-		
+	public void setControlData(final Instances validation) {
+
 		/* we ignore this here, because the training and test data is already contained in the benchmark anyway */
 	}
 }
