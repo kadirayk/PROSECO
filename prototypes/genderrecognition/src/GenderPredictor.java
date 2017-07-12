@@ -214,7 +214,7 @@ public class GenderPredictor implements Classifier, Serializable {
 
 				/* create fast bitmap and apply ilbp */
 				fb = new FastBitmap(exerpt);
-				final ImprovedLocalBinaryPattern ilbp = new ImprovedLocalBinaryPattern();
+				final IBinaryPattern ilbp = new ImprovedLocalBinaryPattern();
 				final ImageHistogram hist = ilbp.ComputeFeatures(fb);
 				final int[] attributesForSquare = hist.getValues();
 				for (final int val : attributesForSquare) {
