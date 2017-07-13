@@ -3,19 +3,39 @@ package de.upb.crc901.proseco.prototype.genderpredictor;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.lang.ProcessBuilder.Redirect;
+import java.util.Collections;
+import java.util.List;
+import java.util.Random;
 
 import jaicore.basic.PerformanceLogger;
+import jaicore.ml.WekaUtil;
+import weka.core.Instances;
 
 public class GroundingRoutine {
 
 	private static final String SERVICE_SRC_FILE = "GenderPredictor.java";
 	private static final String COMPILE_SCRIPT = "compile.bat";
 	private static final String TRAIN_SCRIPT = "train.bat";
+	private static final String BUILD_INSTANCES_SCRIPT = "buildInstances.bat";
+
+	private static final String INSTANCES_PT_OUT = "instances.serialized";
+
+	private static final String TRAINING_INSTANCES_FILE = "train.serialized";
+	private static final String CONT_TRAINING_INSTANCES_FILE = "contTrain.serialized";
+	private static final String VALIDATION_INSTANCES_FILE = "validation.serialized";
+	private static final String TEST_INSTANCES_FILE = "test.serialized";
+
+	private static final double VALIDATION_INSTANCES_FRACTION = 0.25;
+	private static final double TEST_INSTANCES_FRACTION = 0.25;
 
 	private final File placeHolderDir;
 	private final File sourceInputDir;
@@ -25,7 +45,7 @@ public class GroundingRoutine {
 	private String serviceSourceFileContent;
 
 	public GroundingRoutine(final File placeHolderDir, final File sourceInputDir, final File sourceOutputDir) {
-		this.placeHolderDir= placeHolderDir;
+		this.placeHolderDir = placeHolderDir;
 		this.sourceInputDir = sourceInputDir;
 		this.sourceOutputDir = sourceOutputDir;
 		this.serviceSourceFile = new File(this.sourceInputDir.getAbsolutePath() + "/" + SERVICE_SRC_FILE);
@@ -67,7 +87,8 @@ public class GroundingRoutine {
 						while ((line = br.readLine()) != null) {
 							placeholderValue += line + "\n";
 						}
-						this.serviceSourceFileContent = this.serviceSourceFileContent.replace(placeholderVar, placeholderValue);
+						this.serviceSourceFileContent = this.serviceSourceFileContent.replace(placeholderVar,
+								placeholderValue);
 					} catch (final FileNotFoundException e) {
 						e.printStackTrace();
 					} catch (final IOException e) {
@@ -105,10 +126,11 @@ public class GroundingRoutine {
 		PerformanceLogger.logEnd("CodeCompilation");
 	}
 
-	public void trainModel() {
+	public void trainModel(final File trainingData) {
 		PerformanceLogger.logStart("TrainModel");
 		try {
-			final ProcessBuilder pb = new ProcessBuilder(this.sourceOutputDir.getAbsolutePath() + "/" + TRAIN_SCRIPT);
+			final ProcessBuilder pb = new ProcessBuilder(this.sourceOutputDir.getAbsolutePath() + "/" + TRAIN_SCRIPT,
+					trainingData.getAbsolutePath());
 			pb.redirectError(Redirect.INHERIT);
 			pb.redirectOutput(Redirect.INHERIT);
 
@@ -122,6 +144,83 @@ public class GroundingRoutine {
 			e.printStackTrace();
 		}
 		PerformanceLogger.logEnd("TrainModel");
+	}
+
+	/**
+	 *
+	 * @param numberOfInstancesToBuild
+	 *            zero or negative value to build all instances
+	 */
+	public void buildInstances(final int numberOfInstancesToBuild) {
+		PerformanceLogger.logStart("BuildInstances");
+		try {
+			final ProcessBuilder pb = new ProcessBuilder(
+					this.sourceOutputDir.getAbsolutePath() + File.separator + BUILD_INSTANCES_SCRIPT);
+			pb.redirectError(Redirect.INHERIT);
+			pb.redirectOutput(Redirect.INHERIT);
+
+			final Process buildInstancesProcess = pb.start();
+			buildInstancesProcess.waitFor();
+
+			if (numberOfInstancesToBuild <= 0) {
+				try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(
+						this.sourceOutputDir.getAbsolutePath() + File.separator + INSTANCES_PT_OUT))) {
+					Instances allInstances = (Instances) ois.readObject();
+					Collections.shuffle(allInstances);
+
+					List<Instances> stratifiedInstances = WekaUtil.getStratifiedSplit(allInstances, new Random(123),
+							(1 - VALIDATION_INSTANCES_FRACTION - TEST_INSTANCES_FRACTION),
+							VALIDATION_INSTANCES_FRACTION);
+
+					final Instances trainingInstances = stratifiedInstances.get(0);
+					final Instances validationInstances = stratifiedInstances.get(1);
+					final Instances testInstances = stratifiedInstances.get(2);
+
+					final Instances contTrainingInstances = new Instances(trainingInstances);
+					contTrainingInstances.addAll(validationInstances);
+
+					System.out.print("GroundingRoutine: Serialize instances...");
+					writeInstances(trainingInstances,
+							new File(this.sourceOutputDir + File.separator + TRAINING_INSTANCES_FILE));
+					writeInstances(validationInstances,
+							new File(this.sourceOutputDir + File.separator + VALIDATION_INSTANCES_FILE));
+					writeInstances(testInstances,
+							new File(this.sourceOutputDir + File.separator + TEST_INSTANCES_FILE));
+					writeInstances(contTrainingInstances,
+							new File(this.sourceOutputDir + File.separator + CONT_TRAINING_INSTANCES_FILE));
+					System.out.println("DONE.");
+
+					File arffExport = new File(this.sourceOutputDir + File.separator + "allInstances.arff");
+					try (BufferedWriter bw = new BufferedWriter(new FileWriter(arffExport))) {
+						bw.write(allInstances.toString());
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
+
+				} catch (ClassNotFoundException e) {
+					e.printStackTrace();
+				}
+			}
+		} catch (final IOException e) {
+			e.printStackTrace();
+		} catch (final InterruptedException e) {
+			e.printStackTrace();
+		}
+		PerformanceLogger.logEnd("BuildInstances");
+	}
+
+	private static void writeInstances(final Instances instances, final File file) {
+		if (file.getParentFile() != null) {
+			file.getParentFile().mkdirs();
+		}
+
+		try (final ObjectOutputStream objectStream = new ObjectOutputStream(new FileOutputStream(file))) {
+			objectStream.writeObject(instances);
+		} catch (final FileNotFoundException e) {
+			e.printStackTrace();
+		} catch (final IOException e) {
+			e.printStackTrace();
+		}
 	}
 
 	public static void main(final String[] args) {
@@ -143,24 +242,26 @@ public class GroundingRoutine {
 		/* Assemble the code by substituting the placeholders */
 		startTime = System.currentTimeMillis();
 		gr.codeAssembly();
-		runtimeLog(sourceOutputFolder, "assembly="+(System.currentTimeMillis()-startTime)+"ms");
+		runtimeLog(sourceOutputFolder, "assembly=" + (System.currentTimeMillis() - startTime) + "ms");
 
 		/* Compile the assembled code */
 		startTime = System.currentTimeMillis();
 		gr.compile();
-		runtimeLog(sourceOutputFolder, "compiling="+(System.currentTimeMillis()-startTime)+"ms");
+		runtimeLog(sourceOutputFolder, "compiling=" + (System.currentTimeMillis() - startTime) + "ms");
 
 		startTime = System.currentTimeMillis();
-		gr.trainModel();
-		runtimeLog(sourceOutputFolder, "training="+(System.currentTimeMillis()-startTime)+"ms");
+		gr.trainModel(new File(".." + File.separator + "params" + File.separator + "classifierdef" + File.separator
+				+ "instances.serialized"));
+		runtimeLog(sourceOutputFolder, "training=" + (System.currentTimeMillis() - startTime) + "ms");
 
 		PerformanceLogger.saveGlobalLogToFile(new File("GroundingRoutine.log"));
 	}
 
 	private static void runtimeLog(final File outputFolder, final String logMessage) {
-		try (BufferedWriter bw = new BufferedWriter(new FileWriter(outputFolder.getAbsolutePath() + File.separator + "runtime.value", true))) {
-			bw.write(logMessage+"\n");
-		} catch(IOException ioE) {
+		try (BufferedWriter bw = new BufferedWriter(
+				new FileWriter(outputFolder.getAbsolutePath() + File.separator + "runtime.value", true))) {
+			bw.write(logMessage + "\n");
+		} catch (IOException ioE) {
 			ioE.printStackTrace();
 		}
 	}
