@@ -22,11 +22,12 @@ import de.upb.crc901.proseco.prototype.genderpredictor.benchmark.BenchmarkTask.E
 import de.upb.crc901.proseco.prototype.genderpredictor.benchmark.BenchmarkTask.EDataFraction;
 import de.upb.crc901.taskconfigurator.core.MLUtil;
 import de.upb.crc901.taskconfigurator.core.SolutionEvaluator;
-import de.upb.crc901.taskconfigurator.search.algorithms.BestFirstPipelineOptimizer;
+import de.upb.crc901.taskconfigurator.search.algorithms.BestFirstPipelineOptimizerMaster;
 import de.upb.crc901.taskconfigurator.search.evaluators.RandomCompletionEvaluator;
 import jaicore.basic.PerformanceLogger;
 import jaicore.planning.graphgenerators.task.tfd.TFDNode;
 import jaicore.planning.model.ceoc.CEOCAction;
+import jaicore.search.algorithms.parallel.parallelexploration.distributed.interfaces.SerializableNodeEvaluator;
 import jaicore.search.algorithms.standard.core.NodeEvaluator;
 import weka.core.Instances;
 
@@ -96,9 +97,9 @@ public class HTNCompositionStrategyRunner implements SolutionEvaluator {
 		/* solve composition problem */
 		final Random random = new Random(0);
 
-		final NodeEvaluator<TFDNode, Integer> nodeEval = new RandomCompletionEvaluator(random, EVALUATION_SAMPLE_SIZE, this);
-		final BestFirstPipelineOptimizer optimizer = new BestFirstPipelineOptimizer(new File("htn.searchspace"), nodeEval, random, NUMBER_OF_CONSIDERED_SOLUTIONS, SHOW_GRAPH);
-		final List<CEOCAction> pipelineDescription = optimizer.getPipelineDescription(data);
+		final SerializableNodeEvaluator<TFDNode, Integer> nodeEval = new RandomCompletionEvaluator(random, EVALUATION_SAMPLE_SIZE, this);
+		final BestFirstPipelineOptimizerMaster optimizer = new BestFirstPipelineOptimizerMaster(new File("htn.searchspace"), nodeEval, random, NUMBER_OF_CONSIDERED_SOLUTIONS, SHOW_GRAPH);
+		final List<CEOCAction> pipelineDescription = optimizer.getPipelineDescription();
 
 		/* derive Java code from the plan (this is the recipe) */
 		return MLUtil.getJavaCodeFromPlan(pipelineDescription);

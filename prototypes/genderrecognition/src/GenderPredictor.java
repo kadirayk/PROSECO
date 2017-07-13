@@ -234,4 +234,5 @@ public class GenderPredictor implements Classifier, Serializable {
 	private static void log(String msg) {
 		System.out.println("Gender Predictor: " + msg);
 	}
+
 }
