@@ -20,15 +20,22 @@ public class BenchmarkRcv {
 			System.exit(1);
 		}
 
-		BenchmarkTask task = new BenchmarkTaskBuilder().setCandidateFolder(new File(args[1])).setBuildPhase(EBuildPhase.valueOf(args[0])).setDataFraction(EDataFraction.valueOf(args[2])).build();
+		BenchmarkTask task = new BenchmarkTaskBuilder().setCandidateFolder(new File(args[1]))
+				.setBuildPhase(EBuildPhase.valueOf(args[0])).setDataFraction(EDataFraction.valueOf(args[2])).build();
 
-		if(!task.getCandidateFolder().exists() || !task.getCandidateFolder().isDirectory()) {
+		if (!task.getCandidateFolder().exists() || !task.getCandidateFolder().isDirectory()) {
 			System.out.println("Given candidate directory does not exist or is not a directory.");
 		}
 
-		final File taskTempFile = new File(TASK_DIRECTORY + TASK_FILE_PREFIX + System.currentTimeMillis() + TASK_FILE_TEMP_EXT);
+		String taskFilename = TASK_DIRECTORY + TASK_FILE_PREFIX + task.getCandidateFolder().getName();
+
+		final File taskTempFile = new File(taskFilename + TASK_FILE_TEMP_EXT);
+		final File taskFile = new File(taskFilename + TASK_FILE_EXT);
 		taskTempFile.getParentFile().mkdirs();
 
+		if (taskFile.exists()) {
+			return;
+		}
 
 		try {
 			BenchmarkTask.writeTaskToFile(task, taskTempFile);
@@ -36,14 +43,11 @@ public class BenchmarkRcv {
 			e1.printStackTrace();
 		}
 
-		final File taskFile = new File(TASK_DIRECTORY + TASK_FILE_PREFIX + System.currentTimeMillis() + TASK_FILE_EXT);
-
 		try {
 			FileUtils.moveFile(taskTempFile, taskFile);
 		} catch (final IOException e) {
 			e.printStackTrace();
 		}
-
 	}
 
 }

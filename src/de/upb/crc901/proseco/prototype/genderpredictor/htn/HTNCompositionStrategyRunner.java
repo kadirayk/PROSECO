@@ -17,6 +17,8 @@ import java.util.Random;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.commons.io.FileUtils;
+
 import de.upb.crc901.proseco.PrototypeProperties;
 import de.upb.crc901.proseco.prototype.genderpredictor.benchmark.BenchmarkTask.EBuildPhase;
 import de.upb.crc901.proseco.prototype.genderpredictor.benchmark.BenchmarkTask.EDataFraction;
@@ -28,16 +30,17 @@ import jaicore.basic.PerformanceLogger;
 import jaicore.planning.graphgenerators.task.tfd.TFDNode;
 import jaicore.planning.model.ceoc.CEOCAction;
 import jaicore.search.algorithms.parallel.parallelexploration.distributed.interfaces.SerializableNodeEvaluator;
-import jaicore.search.algorithms.standard.core.NodeEvaluator;
 import weka.core.Instances;
 
 /**
- * This program searches the "inputs/classifierdef" folder of its execution for a file called "instances.serialized". This file is supposed to store a serialized object of the WEKA
- * class Instances.
+ * This program searches the "inputs/classifierdef" folder of its execution for
+ * a file called "instances.serialized". This file is supposed to store a
+ * serialized object of the WEKA class Instances.
  *
  * It then invokes the AutoML machine to construct a good chain of WEKA tools.
  *
- * In a final step, this chain is serialized into Java code that is stored to "classifierdef" of the "outputs" folder
+ * In a final step, this chain is serialized into Java code that is stored to
+ * "classifierdef" of the "outputs" folder
  *
  */
 public class HTNCompositionStrategyRunner implements SolutionEvaluator {
@@ -45,7 +48,8 @@ public class HTNCompositionStrategyRunner implements SolutionEvaluator {
 	private static final PrototypeProperties PROPS = new PrototypeProperties("conf/htncompositionstrategyrunner.conf");
 
 	private static final boolean SHOW_GRAPH = Boolean.parseBoolean(PROPS.getProperty("show_graph"));
-	private static final int NUMBER_OF_CONSIDERED_SOLUTIONS = Integer.parseInt(PROPS.getProperty("number_of_considered_solutions"));
+	private static final int NUMBER_OF_CONSIDERED_SOLUTIONS = Integer
+			.parseInt(PROPS.getProperty("number_of_considered_solutions"));
 	private static final int EVALUATION_SAMPLE_SIZE = Integer.parseInt(PROPS.getProperty("evaluation_sample_size"));
 
 	private final static String NAME_PLACEHOLDER = PROPS.getProperty("name_placeholder");
@@ -67,15 +71,19 @@ public class HTNCompositionStrategyRunner implements SolutionEvaluator {
 
 		/* read in input and output folder specifications */
 		if (args.length != 3) {
-			System.err.println("Invalid usage of composition Strategy. Provide three params: \"input folder\", \"output folder\", and \"benchmark executable\"");
+			System.err.println(
+					"Invalid usage of composition Strategy. Provide three params: \"input folder\", \"output folder\", and \"benchmark executable\"");
 			return;
 		}
 		final File paramFile = new File(args[0] + File.separator + NAME_PLACEHOLDER + File.separator + NAME_PARAM);
 		if (!paramFile.exists()) {
 			if (!paramFile.getParentFile().exists()) {
-				System.err.println("Invalid usage of composition Strategy. Please make sure that the first param (input folder) exists");
+				System.err.println(
+						"Invalid usage of composition Strategy. Please make sure that the first param (input folder) exists");
 			} else {
-				System.err.println("Invalid usage of composition Strategy. Please make sure that the input folder contains the file " + NAME_PLACEHOLDER);
+				System.err.println(
+						"Invalid usage of composition Strategy. Please make sure that the input folder contains the file "
+								+ NAME_PLACEHOLDER);
 			}
 			return;
 		}
@@ -83,10 +91,12 @@ public class HTNCompositionStrategyRunner implements SolutionEvaluator {
 
 		/* get data */
 		@SuppressWarnings("resource")
-		final Instances data = (Instances) new ObjectInputStream(new BufferedInputStream(new FileInputStream(paramFile))).readObject();
+		final Instances data = (Instances) new ObjectInputStream(
+				new BufferedInputStream(new FileInputStream(paramFile))).readObject();
 
 		/* compute java code */
-		final HTNCompositionStrategyRunner strategy = new HTNCompositionStrategyRunner(new File(args[1]), new File(args[2]));
+		final HTNCompositionStrategyRunner strategy = new HTNCompositionStrategyRunner(new File(args[1]),
+				new File(args[2]));
 		final String javaCode = strategy.getPlaceholderValue(data);
 		strategy.writeSolution(javaCode);
 		PerformanceLogger.logEnd("StrategyTotalRun");
@@ -97,8 +107,10 @@ public class HTNCompositionStrategyRunner implements SolutionEvaluator {
 		/* solve composition problem */
 		final Random random = new Random(0);
 
-		final SerializableNodeEvaluator<TFDNode, Integer> nodeEval = new RandomCompletionEvaluator(random, EVALUATION_SAMPLE_SIZE, this);
-		final BestFirstPipelineOptimizerMaster optimizer = new BestFirstPipelineOptimizerMaster(new File("htn.searchspace"), nodeEval, random, NUMBER_OF_CONSIDERED_SOLUTIONS, SHOW_GRAPH);
+		final SerializableNodeEvaluator<TFDNode, Integer> nodeEval = new RandomCompletionEvaluator(random,
+				EVALUATION_SAMPLE_SIZE, this);
+		final BestFirstPipelineOptimizerMaster optimizer = new BestFirstPipelineOptimizerMaster(
+				new File("htn.searchspace"), nodeEval, random, NUMBER_OF_CONSIDERED_SOLUTIONS, SHOW_GRAPH);
 		final List<CEOCAction> pipelineDescription = optimizer.getPipelineDescription();
 
 		/* derive Java code from the plan (this is the recipe) */
@@ -117,7 +129,9 @@ public class HTNCompositionStrategyRunner implements SolutionEvaluator {
 		System.out.println("Compute f value for current testbed");
 
 		final File candidateFolder = new File(this.outputFolder.getAbsolutePath() + File.separator + key);
-		final ProcessBuilder pb = new ProcessBuilder(this.benchmarkFile.getAbsolutePath(), EBuildPhase.CLASSIFIER_DEF.toString(), candidateFolder.getAbsolutePath(), EDataFraction.FULL.toString()).redirectError(Redirect.INHERIT).redirectOutput(Redirect.INHERIT);
+		final ProcessBuilder pb = new ProcessBuilder(this.benchmarkFile.getAbsolutePath(),
+				EBuildPhase.CLASSIFIER_DEF.toString(), candidateFolder.getAbsolutePath(), EDataFraction.FULL.toString())
+						.redirectError(Redirect.INHERIT).redirectOutput(Redirect.INHERIT);
 		Process fValueProcess;
 		try {
 			fValueProcess = pb.start();
@@ -168,12 +182,20 @@ public class HTNCompositionStrategyRunner implements SolutionEvaluator {
 	}
 
 	public void writeSolution(final String code, final String subfolder) {
-
 		/* write code to output */
-		final File targetFile = new File(this.outputFolder + (!(subfolder.equals("")) ? File.separator + subfolder : "") + File.separator + NAME_PLACEHOLDER);
+		final File targetFile = new File(this.outputFolder + (!(subfolder.equals("")) ? File.separator + subfolder : "")
+				+ File.separator + NAME_PLACEHOLDER);
 		if (!targetFile.getParentFile().exists()) {
 			targetFile.getParentFile().mkdirs();
 		}
+
+		try {
+			FileUtils.copyFile(new File("imagefilter"),
+					new File(targetFile.getParentFile() + File.separator + "imagefilter"));
+		} catch (IOException e1) {
+			e1.printStackTrace();
+		}
+
 		try (FileWriter fw = new FileWriter(targetFile)) {
 			fw.write(this.rewriteJavaCode(code));
 		} catch (final IOException e) {
@@ -197,12 +219,18 @@ public class HTNCompositionStrategyRunner implements SolutionEvaluator {
 	@Override
 	public void setTrainingData(final Instances train) {
 
-		/* we ignore this here, because the training and test data is already contained in the benchmark anyway */
+		/*
+		 * we ignore this here, because the training and test data is already contained
+		 * in the benchmark anyway
+		 */
 	}
 
 	@Override
 	public void setControlData(final Instances validation) {
 
-		/* we ignore this here, because the training and test data is already contained in the benchmark anyway */
+		/*
+		 * we ignore this here, because the training and test data is already contained
+		 * in the benchmark anyway
+		 */
 	}
 }

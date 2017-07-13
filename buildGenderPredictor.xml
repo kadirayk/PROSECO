@@ -43,7 +43,7 @@
         <jar destfile="${dir.jarfile}/benchmarks/Benchmark.jar">
             <manifest>
                 <attribute name="Main-Class" value="de.upb.crc901.proseco.prototype.genderpredictor.benchmark.Benchmark"/>
-                <attribute name="Class-Path" value=". ../libs/weka.jar ../libs/commons-io-2.5.jar ../libs/Catalano.Image.jar ../libs/Catalano.Math.jar ../libs/Catalano.Statistics.jar ../libs/slf4j-api-1.7.5.jar ../libs/slf4j-log4j12-1.7.5.jar ../libs/crcutil.jar"/>
+                <attribute name="Class-Path" value=". ../libs/weka.jar ../libs/commons-io-2.5.jar ../libs/commons-lang3-3.4.jar ../libs/Catalano.Image.jar ../libs/Catalano.Math.jar ../libs/Catalano.Statistics.jar ../libs/slf4j-api-1.7.5.jar ../libs/slf4j-log4j12-1.7.5.jar ../libs/crcutil.jar"/>
             </manifest>
             <fileset dir="${dir.buildfile}/bin"/>
             <fileset dir="${dir.workspace}/JAICore/bin"/>
