@@ -168,19 +168,13 @@ public class Benchmark extends Thread {
 	}
 
 	private InstancesTuple getInstances(final BenchmarkTask benchmarkTask) {
-		// XXX sysout
-		System.out.println(Thread.currentThread().getName() + ": get instances");
 		Integer instancesHashValue = this.getHashValueForBenchmarkTask(benchmarkTask);
 		// get lock for the instances tuple
 		Lock instancesTupleLock;
 		this.instancesLockMapLock.lock();
 		try {
-			// XXX sysout
-			System.out.println("instancesLockMapLock locked");
 			instancesTupleLock = this.instancesLockMap.get(instancesHashValue);
 			if (instancesTupleLock == null) {
-				// XXX sysout
-				System.out.println("create new lock");
 				instancesTupleLock = new ReentrantLock();
 				this.instancesLockMap.put(instancesHashValue, instancesTupleLock);
 			}
@@ -188,16 +182,12 @@ public class Benchmark extends Thread {
 			this.instancesLockMapLock.unlock();
 		}
 
-		// XXX sysout
-		System.out.println("get instances tuple");
 		InstancesTuple instances;
 		// lock the instancesTupleLock and get instancesTuple
 		instancesTupleLock.lock();
 		try {
 			instances = this.instancesTupleMap.get(instancesHashValue);
 			if (instances == null) {
-				// XXX syout
-				System.out.println("serialize instances for benchmark task from scratch");
 				instances = this.serializeInstancesForBenchmarkTask(benchmarkTask, instancesHashValue);
 				this.instancesTupleMap.put(instancesHashValue, instances);
 			}
@@ -210,8 +200,6 @@ public class Benchmark extends Thread {
 
 	private InstancesTuple serializeInstancesForBenchmarkTask(final BenchmarkTask benchmarkTask,
 			final Integer instancesHashValue) {
-		// XXX sysout
-		System.out.println("Serialize Instances For Benchmark");
 		File buildInstancesDir = new File(instancesHashValue + "");
 		File instancesCacheDir = new File("cashedInstances" + File.separator + instancesHashValue);
 		instancesCacheDir.mkdirs();
