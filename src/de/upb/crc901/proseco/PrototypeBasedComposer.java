@@ -14,11 +14,16 @@ import java.util.List;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
+import org.omg.CORBA.SystemException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import jaicore.basic.FileUtil;
 import jaicore.basic.PerformanceLogger;
 
 public class PrototypeBasedComposer {
+	private static final Logger logger = LoggerFactory.getLogger(PrototypeBasedComposer.class);
+	
 	private static final PrototypeProperties PROPS = new PrototypeProperties("config/PrototypeBasedComposer.conf");
 
 	private static final boolean FINAL_CLEAN_UP = Boolean.parseBoolean(PROPS.getProperty("pbc.final_clean_up"));
@@ -75,7 +80,7 @@ public class PrototypeBasedComposer {
 			System.out.println("Correct usage: java PrototypeBasedComposer [prototype name] [path to data file]");
 			System.exit(1);
 		}
-
+		
 		// copy prototype name from arguments
 		prototypeName = args[0];
 		// copy data file path from arguments
