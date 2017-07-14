@@ -390,11 +390,7 @@ public class GenderPredictor implements Classifier, Serializable {
 		/* create matrix representation of image */
 		FastBitmap fb = new FastBitmap(imageFile.getAbsolutePath());
 		// Placeholder for applying image filters to the fast bitmap object
-		final int min = Math.min(fb.getWidth(), fb.getHeight());
-		new Catalano.Imaging.Filters.Grayscale().applyInPlace(fb);
-		new Catalano.Imaging.Filters.Photometric.SelfQuocientImage(17, 3).applyInPlace(fb);
-		new Catalano.Imaging.Filters.Crop(0, 0, min, min).ApplyInPlace(fb);
-		new Catalano.Imaging.Filters.Resize(250, 250).applyInPlace(fb);
+		/* $imagefilter$ */
 
 		Instance inst = applyFeatureExtraction(fb, dataset, classValue);
 		dataset.add(inst);

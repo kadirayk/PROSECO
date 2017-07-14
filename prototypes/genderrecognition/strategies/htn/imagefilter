@@ -1,0 +1,9 @@
+final int min = Math.min(fb.getWidth(), fb.getHeight());
+new Catalano.Imaging.Filters.Crop(0, 0, min, min).ApplyInPlace(fb);
+new Catalano.Imaging.Filters.Resize(120, 120).applyInPlace(fb);
+new Catalano.Imaging.Filters.Grayscale().applyInPlace(fb);
+new Catalano.Imaging.Filters.Photometric.SelfQuocientImage(17,5).applyInPlace(fb);
+new Catalano.Imaging.Filters.Photometric.GradientFaces().applyInPlace(fb);
+//new Catalano.Imaging.Filters.SobelEdgeDetector().applyInPlace(fb);
+//new Catalano.Imaging.Filters.Artistic.PencilSketch().applyInPlace(fb);
+//new Catalano.Imaging.Filters.Artistic.PencilSketch().applyInPlace(fb);
