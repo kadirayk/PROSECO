@@ -201,7 +201,7 @@ public class Benchmark extends Thread {
 	private InstancesTuple serializeInstancesForBenchmarkTask(final BenchmarkTask benchmarkTask,
 			final Integer instancesHashValue) {
 		File buildInstancesDir = new File(instancesHashValue + "");
-		File instancesCacheDir = new File("cashedInstances" + File.separator + instancesHashValue);
+		File instancesCacheDir = new File("cachedInstances" + File.separator + instancesHashValue);
 		instancesCacheDir.mkdirs();
 
 		try {
@@ -294,6 +294,33 @@ public class Benchmark extends Thread {
 		Lock instancesLockMapLock = new ReentrantLock();
 		Map<Integer, Lock> instancesLockMap = new HashMap<>();
 		Map<Integer, InstancesTuple> instancesTupleMap = new HashMap<>();
+
+		File cachedInstancesCache = new File("cachedInstances");
+		if (cachedInstancesCache.exists() && cachedInstancesCache.listFiles() != null) {
+			log("Detected cached instances folder now search for cached data");
+			for (File cachedInstancesDir : cachedInstancesCache.listFiles()) {
+				Integer index = Integer.parseInt(cachedInstancesDir.getName());
+				log("Index: " + index);
+
+				InstancesTuple tuple = new InstancesTuple(
+						new File(cachedInstancesDir.getAbsolutePath() + File.separator + "train.serialized"),
+						new File(cachedInstancesDir.getAbsolutePath() + File.separator + "validation.serialized"),
+						new File(cachedInstancesDir.getAbsolutePath() + File.separator + "contTrain.serialized"),
+						new File(cachedInstancesDir.getAbsolutePath() + File.separator + "test.serialized"));
+
+				if (!tuple.trainingData.exists() || !tuple.validationData.exists()
+						|| !tuple.continuedTrainingData.exists() || !tuple.testData.exists()) {
+					System.err.println("WARN: skipped cached instances with index " + index
+							+ ", because some required files do not exist.");
+					continue;
+				}
+				instancesLockMap.put(index, new ReentrantLock());
+				instancesTupleMap.put(index, tuple);
+				System.out.println("Read in cached instances entry with index " + index);
+			}
+		} else {
+			log("No cached instances folder, so continue.");
+		}
 
 		IntStream.range(0, NUMBER_OF_THREADS).forEach(x -> threadPool.submit(new Benchmark("BenchmarkWorker#" + x,
 				taskFilenameList, taskFileLock, instancesLockMapLock, instancesLockMap, instancesTupleMap)));
