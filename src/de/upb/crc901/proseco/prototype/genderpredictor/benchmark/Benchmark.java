@@ -130,7 +130,8 @@ public class Benchmark extends Thread {
 							.collect(Collectors.toSet());
 
 					// move task specific files to task directory
-					log("Benchmark Service: Move files from " + this.taskTempFolder + " to " + task.getCandidateFolder().getAbsolutePath(), false);
+					log("Benchmark Service: Move files from " + this.taskTempFolder + " to "
+							+ task.getCandidateFolder().getAbsolutePath(), false);
 					for (final File testBedFile : this.taskTempFolder.listFiles()) {
 						if (!ignoreFilesForMovingSet.contains(testBedFile.getName())) {
 							final File candidateFile = new File(task.getCandidateFolder().getAbsolutePath()
@@ -218,7 +219,7 @@ public class Benchmark extends Thread {
 
 			grounding.compile();
 
-			grounding.buildInstances(-1);
+			grounding.buildInstances(DATA_FILE.getCanonicalFile(), -1);
 
 			// move files from buildinstancesdir to cache dir
 			String[] filesToMove = { "allInstances.arff", "contTrain.serialized", "instances.serialized",

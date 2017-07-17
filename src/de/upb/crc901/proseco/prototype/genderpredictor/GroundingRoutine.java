@@ -12,7 +12,6 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.lang.ProcessBuilder.Redirect;
-import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 
@@ -157,22 +156,27 @@ public class GroundingRoutine {
 	 * @param numberOfInstancesToBuild
 	 *            zero or negative value to build all instances
 	 */
-	public void buildInstances(final int numberOfInstancesToBuild) {
+	public void buildInstances(final File dataFile, final int numberOfInstancesToBuild) {
 		PerformanceLogger.logStart("BuildInstances");
 		try {
 			final ProcessBuilder pb = new ProcessBuilder(
-					this.sourceOutputDir.getAbsolutePath() + File.separator + BUILD_INSTANCES_SCRIPT);
+					this.sourceOutputDir.getAbsolutePath() + File.separator + BUILD_INSTANCES_SCRIPT,
+					dataFile.getCanonicalPath());
 			pb.redirectError(Redirect.INHERIT);
 			pb.redirectOutput(Redirect.INHERIT);
 
+			System.out.println("Start building instances...");
 			final Process buildInstancesProcess = pb.start();
 			buildInstancesProcess.waitFor();
+			System.out.println("DONE");
 
 			if (numberOfInstancesToBuild <= 0) {
 				try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(
 						this.sourceOutputDir.getAbsolutePath() + File.separator + INSTANCES_PT_OUT))) {
 					Instances allInstances = (Instances) ois.readObject();
-					Collections.shuffle(allInstances);
+					if (allInstances.size() == 0) {
+						System.exit(0);
+					}
 
 					List<Instances> stratifiedInstances = WekaUtil.getStratifiedSplit(allInstances, new Random(123),
 							(1 - VALIDATION_INSTANCES_FRACTION - TEST_INSTANCES_FRACTION),

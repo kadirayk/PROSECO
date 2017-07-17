@@ -1,5 +1,8 @@
 package de.upb.crc901.proseco.prototype.genderpredictor.benchmark.featureextraction;
 
+import java.util.Random;
+
+import weka.classifiers.evaluation.Evaluation;
 import weka.classifiers.lazy.IBk;
 import weka.core.Instances;
 
@@ -8,21 +11,12 @@ public class FeaturekNNEvaluator implements FeatureExtractionEvaluator {
 	@Override
 	public double evaluate(final Instances instancesToEvaluate) {
 		IBk classifier = new IBk();
-		classifier.setKNN(5);
+		classifier.setKNN(instancesToEvaluate.size() / 2);
 		try {
-			int correctCounter = 0;
-			for (int i = 0; i < instancesToEvaluate.size(); i++) {
-				Instances copyOfInstances = new Instances(instancesToEvaluate);
-				copyOfInstances.remove(i);
-
-				classifier.buildClassifier(copyOfInstances);
-				if (instancesToEvaluate.get(i).classValue() == classifier
-						.classifyInstance(instancesToEvaluate.get(i))) {
-					correctCounter++;
-				}
-			}
-
-			return (double) correctCounter / instancesToEvaluate.size();
+			Evaluation eval = new Evaluation(instancesToEvaluate);
+			eval.crossValidateModel(classifier, instancesToEvaluate, 5, new Random(123), new Object[] {});
+			System.out.println("Error-rate: " + eval.errorRate());
+			return 1 - eval.errorRate();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

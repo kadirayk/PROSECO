@@ -90,17 +90,17 @@ scaleP; createScalingImagePreprocessor(x); x; ; scale(x) -> createImagePreproces
 #pScaleP; createScalingImagePreprocessor(x); x; ; createImagePreprocessor(x) -> scale(x) -> createImagePreprocessor(x)
 
 ### IMAGE FILTERS ###
-#sqi; createImagePreprocessor(x); x, size, sigma, f; SQI_SIZE(size) & SQI_SIGMA(sigma) ; Catalano.Imaging.Filters.Photometric.SelfQuocientImage:__construct(size,sigma,f) -> Catalano.Imaging.Filters.Photometric.SelfQuocientImage:applyInPlace(f,x) 
+sqi; createImagePreprocessor(x); x, size, sigma, f; SQI_SIZE(size) & SQI_SIGMA(sigma) ; Catalano.Imaging.Filters.Photometric.SelfQuocientImage:__construct(size,sigma,f) -> Catalano.Imaging.Filters.Photometric.SelfQuocientImage:applyInPlace(f,x) 
 #ret; createImagePreprocessor(x); x, f;; Catalano.Imaging.Filters.Photometric.RetinaModel:__construct(f) -> Catalano.Imaging.Filters.Photometric.RetinaModel:applyInPlace(f,x)
 
 ### FEATURE EXTRACTORS ###
 #lbp; createFeatureExtractor(x); x, f; ; Catalano.Imaging.Texture.BinaryPattern.LocalBinaryPattern:__construct(f)
-#glbp; createFeatureExtractor(x); x, f; ; Catalano.Imaging.Texture.BinaryPattern.GradientLocalBinaryPattern:__construct(f)
+glbp; createFeatureExtractor(x); x, f; ; Catalano.Imaging.Texture.BinaryPattern.GradientLocalBinaryPattern:__construct(f)
 #ilbp; createFeatureExtractor(x); x, f; ; Catalano.Imaging.Texture.BinaryPattern.ImprovedLocalBinaryPattern:__construct(f)
 #lgr; createFeatureExtractor(x); x, f; ; Catalano.Imaging.Texture.BinaryPattern.LocalGradientCoding:__construct(f) 
 #cslbp; createFeatureExtractor(x); x, f; ; Catalano.Imaging.Texture.BinaryPattern.CenterSymmetricLocalBinaryPattern:__construct(f)
 #mbp; createFeatureExtractor(x); x, f; ; Catalano.Imaging.Texture.BinaryPattern.MedianBinaryPattern:__construct(f)
-mlbp; createFeatureExtractor(x); x, f; ; Catalano.Imaging.Texture.BinaryPattern.MultiblockLocalBinaryPattern:__construct(f)
+#mlbp; createFeatureExtractor(x); x, f; ; Catalano.Imaging.Texture.BinaryPattern.MultiblockLocalBinaryPattern:__construct(f)
 
 [Rules]
 # a good combination is 15/3 or 13/0. A bad one is 17/3 or 17/0

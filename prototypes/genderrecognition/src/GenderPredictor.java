@@ -136,7 +136,7 @@ public class GenderPredictor implements Classifier, Serializable {
 	 * @param data
 	 * @param numberOfInstances
 	 */
-	public static void buildInstances(final File data, final int numberOfInstances) {
+	public static void buildInstances(final File data, int numberOfInstances) {
 		final Path folder = Paths.get("tmp");
 		unzipPhotos(data, folder);
 
@@ -168,6 +168,10 @@ public class GenderPredictor implements Classifier, Serializable {
 				return true;
 			}
 		});
+		
+		if(numberOfInstances <= 0) {
+			numberOfInstances = fileArray.length;
+		}
 
 		int numberOfInstancesToDraw = Math.min(fileArray.length - numberOfInstances, numberOfInstances);
 		Set<File> sampledFiles = new HashSet<>();
@@ -183,6 +187,7 @@ public class GenderPredictor implements Classifier, Serializable {
 		final AtomicInteger i = new AtomicInteger(0);
 		Arrays.stream(fileArray).parallel().forEach(f -> {
 			if ((addSampledFiles && sampledFiles.contains(f)) || (!addSampledFiles && !sampledFiles.contains(f))) {
+				System.err.println("JUHUUUUU");
 				processDataAndAddToDataset(f, dataset, labels.get(f.getName()));
 				System.out.print("[add item " + (i.incrementAndGet()) + "]");
 			}
@@ -190,6 +195,7 @@ public class GenderPredictor implements Classifier, Serializable {
 
 		try (ObjectOutputStream bw = new ObjectOutputStream(new BufferedOutputStream(new FileOutputStream(INSTANCES_OUT)))) {
 			FileUtils.deleteDirectory(folder.toFile());
+			System.out.println("dataset size: "+ dataset.size());
 			bw.writeObject(dataset);
 			System.out.println("DONE.");
 		} catch (final IOException e) {
