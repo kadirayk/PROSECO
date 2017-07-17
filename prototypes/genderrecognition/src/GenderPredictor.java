@@ -389,6 +389,7 @@ public class GenderPredictor implements Classifier, Serializable {
 			final String classValue) {
 		/* create matrix representation of image */
 		FastBitmap fb = new FastBitmap(imageFile.getAbsolutePath());
+		final int min = Math.min(fb.getWidth(), fb.getHeight());
 		// Placeholder for applying image filters to the fast bitmap object
 		/* $imagefilter$ */
 

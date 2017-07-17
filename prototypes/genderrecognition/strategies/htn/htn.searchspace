@@ -931,7 +931,7 @@ wekaKStarOptsMissingMode		; getWekaKStarConfig2(o);	o,type; KStarMissingMode(typ
 # Decision Tables
 #wekaDecTable;	wekaCreateRawBaseClassifier(cn,c); cn,c; ; weka.classifiers.rules.DecisionTable:__construct(c) -> assignTo('weka.classifiers.rules.DecisionTable',cn)
 #wekaDecTable;	wekaCreateGivenBaseClassifier(cn,c); cn,c,oList,oArray; assigned('weka.classifiers.rules.DecisionTable',cn) ; weka.classifiers.rules.DecisionTable:__construct(c) -> getOptionList(oList) -> getWekaDecTableConfig0(oList) -> compileOptionListToArray(oList,oArray) -> weka.classifiers.rules.DecisionTable:setOptions(c,oArray)
-wekaDecTable;	wekaCreateBaseClassifier(c); c,oList,oArray; ; weka.classifiers.rules.DecisionTable:__construct(c) -> getOptionList(oList) -> getWekaDecTableConfig0(oList) -> compileOptionListToArray(oList,oArray) -> weka.classifiers.rules.DecisionTable:setOptions(c,oArray)
+#wekaDecTable;	wekaCreateBaseClassifier(c); c,oList,oArray; ; weka.classifiers.rules.DecisionTable:__construct(c) -> getOptionList(oList) -> getWekaDecTableConfig0(oList) -> compileOptionListToArray(oList,oArray) -> weka.classifiers.rules.DecisionTable:setOptions(c,oArray)
 wekaDecTable;	wekaParametrizeBaseClassifier(cn,oList); cn,oList; ; assignTo('weka.classifiers.rules.DecisionTable',cn) -> getWekaDecTableConfig0(oList)
 wekaDecTable;	wekaSelectBaseClassifier(cn); cn; ; assignTo('weka.classifiers.rules.DecisionTable',cn)
 wekaDecTable;	wekaParametrizeGivenBaseClassifier(cn,oList); cn,oList; assigned('weka.classifiers.rules.DecisionTable',cn) ; getWekaDecTableConfig0(oList)
@@ -945,7 +945,7 @@ wekaDecTableOptsCrossVal	; getWekaDecTableConfig3(o);	o,type; DecTableCrossVal(t
 # RIPPER
 #wekaRipper;	wekaCreateRawBaseClassifier(cn,c); cn,c; ; weka.classifiers.rules.JRip:__construct(c) -> assignTo('weka.classifiers.rules.JRip',cn)
 #wekaRipper;	wekaCreateGivenBaseClassifier(cn,c); cn,c,oList,oArray; assigned('weka.classifiers.rules.JRip',cn) ; weka.classifiers.rules.JRip:__construct(c) -> getOptionList(oList) -> getWekaRipperConfig0(oList) -> compileOptionListToArray(oList,oArray) -> weka.classifiers.rules.JRip:setOptions(c,oArray)
-wekaRipper;	wekaCreateBaseClassifier(c); c,oList,oArray; ; weka.classifiers.rules.JRip:__construct(c) -> getOptionList(oList) -> getWekaRipperConfig0(oList) -> compileOptionListToArray(oList,oArray) -> weka.classifiers.rules.JRip:setOptions(c,oArray)
+#wekaRipper;	wekaCreateBaseClassifier(c); c,oList,oArray; ; weka.classifiers.rules.JRip:__construct(c) -> getOptionList(oList) -> getWekaRipperConfig0(oList) -> compileOptionListToArray(oList,oArray) -> weka.classifiers.rules.JRip:setOptions(c,oArray)
 wekaRipper;	wekaParametrizeBaseClassifier(cn,oList); cn,oList; ; assignTo('weka.classifiers.rules.JRip',cn) -> getWekaRipperConfig0(oList)
 wekaRipper;	wekaSelectBaseClassifier(cn); cn; ; assignTo('weka.classifiers.rules.JRip',cn)
 wekaRipper;	wekaParametrizeGivenBaseClassifier(cn,oList); cn,oList; assigned('weka.classifiers.rules.JRip',cn) ; getWekaRipperConfig0(oList)

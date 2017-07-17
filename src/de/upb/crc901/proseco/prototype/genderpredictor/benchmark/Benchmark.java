@@ -25,7 +25,7 @@ import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 import de.upb.crc901.proseco.PrototypeProperties;
 import de.upb.crc901.proseco.prototype.genderpredictor.GroundingRoutine;
-import de.upb.crc901.proseco.prototype.genderpredictor.benchmark.featureextraction.FeatureClustererEvaluator;
+import de.upb.crc901.proseco.prototype.genderpredictor.benchmark.featureextraction.FeaturekNNEvaluator;
 import jaicore.basic.FileUtil;
 import jaicore.basic.PerformanceLogger;
 
@@ -45,7 +45,7 @@ public class Benchmark extends Thread {
 
 	private static final String[] INSTANCES_HASH_PLACEHOLDERS = { "imagefilter" };
 
-	private static final File DATA_FILE = new File("data.zip");
+	private static final File DATA_FILE = new File(".." + File.separator + "data.zip");
 
 	private volatile boolean keepRunning = true;
 	private final List<String> processedFileNames;
@@ -111,7 +111,7 @@ public class Benchmark extends Thread {
 					switch (task.getBuildPhase()) {
 					case FEATURE_EXTRACTION:
 						benchmarkRunner = new FeatureExtractionBenchmarkRunner(task, groundingRoutine,
-								this.taskTempFolder, DATA_FILE, new FeatureClustererEvaluator());
+								this.taskTempFolder, DATA_FILE.getCanonicalFile(), new FeaturekNNEvaluator());
 						break;
 					case CLASSIFIER_DEF:
 						InstancesTuple tuple = this.getInstances(task);
@@ -138,14 +138,18 @@ public class Benchmark extends Thread {
 							if (candidateFile.exists()) {
 								candidateFile.delete();
 							}
-							FileUtils.copyFile(testBedFile, candidateFile);
+
+							if (testBedFile.isFile()) {
+								FileUtils.copyFile(testBedFile, candidateFile);
+							}
 						}
 					}
 					FileUtils.copyFile(taskFile,
 							new File(FINISHED_TASK_DIR.getAbsolutePath() + File.separator + taskFile.getName()));
 					log("DONE.");
 
-					FileUtils.deleteDirectory(this.taskTempFolder);
+					// XXX delete temporary directory
+					// FileUtils.deleteDirectory(this.taskTempFolder);
 					PerformanceLogger.logEnd("PerformBenchmarkForCandidate");
 					log("Finished task " + taskFile.getName());
 					numberOfProcessedTasks++;

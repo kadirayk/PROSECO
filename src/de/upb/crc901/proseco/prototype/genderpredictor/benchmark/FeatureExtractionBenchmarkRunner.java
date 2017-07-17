@@ -34,7 +34,7 @@ public class FeatureExtractionBenchmarkRunner extends AbstractBenchmarkRunner {
 
 		try {
 			Process createInstances = new ProcessBuilder()
-					.command(this.getTaskTempFolder().getAbsolutePath() + File.separator + "instances.bat",
+					.command(this.getTaskTempFolder().getAbsolutePath() + File.separator + "buildInstances.bat",
 							this.dataFile.getAbsolutePath(), this.NUMBER_OF_INSTANCES + "")
 					.redirectError(Redirect.INHERIT).redirectOutput(Redirect.INHERIT).start();
 			createInstances.waitFor();
@@ -59,6 +59,7 @@ public class FeatureExtractionBenchmarkRunner extends AbstractBenchmarkRunner {
 		}
 
 		this.writeFValue(fValue);
+
 	}
 
 	private void writeFValue(final double fValue) {
