@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.lang.ProcessBuilder.Redirect;
 
+import de.upb.crc901.proseco.PrototypeProperties;
 import de.upb.crc901.proseco.prototype.genderpredictor.GroundingRoutine;
 import de.upb.crc901.proseco.prototype.genderpredictor.benchmark.featureextraction.FeatureExtractionEvaluator;
 import weka.core.Instances;
@@ -18,6 +19,10 @@ public class FeatureExtractionBenchmarkRunner extends AbstractBenchmarkRunner {
 	private final File dataFile;
 	private final int NUMBER_OF_INSTANCES = 50;
 	private final FeatureExtractionEvaluator evaluator;
+	
+	private static final PrototypeProperties PROPS = new PrototypeProperties(
+			".." + File.separator + "config" + File.separator + "benchmarkservice.conf");
+	private static final String FVALUE_FILE = PROPS.getProperty("name_fvaluefile");
 
 	public FeatureExtractionBenchmarkRunner(final BenchmarkTask pTask, final GroundingRoutine pGroundingRoutine,
 			final File pTaskTempFolder, final File pDataFile, final FeatureExtractionEvaluator pEvaluator) {
@@ -64,7 +69,7 @@ public class FeatureExtractionBenchmarkRunner extends AbstractBenchmarkRunner {
 
 	private void writeFValue(final double fValue) {
 		try (BufferedWriter bw = new BufferedWriter(new FileWriter(
-				new File(this.getTaskTempFolder().getAbsolutePath() + File.separator + "instances.value")))) {
+				new File(this.getTaskTempFolder().getAbsolutePath() + File.separator + FVALUE_FILE)))) {
 			bw.write(fValue + "\n");
 		} catch (IOException e) {
 			e.printStackTrace();

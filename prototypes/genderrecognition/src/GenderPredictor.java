@@ -22,17 +22,19 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.Set;
+import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
-
-import javax.swing.JOptionPane;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 
 import Catalano.Imaging.FastBitmap;
+import Catalano.Imaging.Texture.BinaryPattern.IBinaryPattern;
 import Catalano.Imaging.Texture.BinaryPattern.ImprovedLocalBinaryPattern;
+import Catalano.Imaging.Texture.BinaryPattern.LocalAdaptiveTernaryPattern;
+import Catalano.Imaging.Texture.BinaryPattern.LocalBinaryPattern;
 import Catalano.Imaging.Tools.ImageHistogram;
 import jaicore.ml.WekaUtil;
 import weka.classifiers.Classifier;
@@ -52,6 +54,7 @@ public class GenderPredictor implements Classifier, Serializable {
 	private static final String INSTANCES_OUT = "instances.serialized";
 	private static final int ILBP_GRANULARITY = 5;
 
+	private static IBinaryPattern bp = null;
 	private Classifier c;
 
 	public GenderPredictor() {
@@ -74,6 +77,9 @@ public class GenderPredictor implements Classifier, Serializable {
 			log("-i [pathToFile data.zip] [numberOfInstancesToBuild] to build instances");
 			log("-f [pathToFile testdataInstances.serialized] to test classifier");
 		}
+		
+		/* setup feature extractor */
+		/* $featureextraction$ */;
 
 		if (args[0].equals("-t")) {
 			buildPredictor(new File(args[1]));
@@ -102,8 +108,7 @@ public class GenderPredictor implements Classifier, Serializable {
 		Map<String, String> labels = new HashMap<>();
 
 		try {
-			final BufferedReader br = new BufferedReader(
-					new FileReader(new File(folder.toFile().getAbsolutePath() + File.separator + "labels.txt")));
+			final BufferedReader br = new BufferedReader(new FileReader(new File(folder.toFile().getAbsolutePath() + File.separator + "labels.txt")));
 			String line;
 			while ((line = br.readLine()) != null) {
 				final String[] split = line.split(",");
@@ -131,7 +136,7 @@ public class GenderPredictor implements Classifier, Serializable {
 	 * @param data
 	 * @param numberOfInstances
 	 */
-	public static void buildInstances(final File data, int numberOfInstances) {
+	public static void buildInstances(final File data, final int numberOfInstances) {
 		final Path folder = Paths.get("tmp");
 		unzipPhotos(data, folder);
 
@@ -163,9 +168,6 @@ public class GenderPredictor implements Classifier, Serializable {
 				return true;
 			}
 		});
-		if(numberOfInstances <= 0) {
-			numberOfInstances = fileArray.length;
-		}
 
 		int numberOfInstancesToDraw = Math.min(fileArray.length - numberOfInstances, numberOfInstances);
 		Set<File> sampledFiles = new HashSet<>();
@@ -185,9 +187,8 @@ public class GenderPredictor implements Classifier, Serializable {
 				System.out.print("[add item " + (i.incrementAndGet()) + "]");
 			}
 		});
-		
-		try (ObjectOutputStream bw = new ObjectOutputStream(
-				new BufferedOutputStream(new FileOutputStream(INSTANCES_OUT)))) {
+
+		try (ObjectOutputStream bw = new ObjectOutputStream(new BufferedOutputStream(new FileOutputStream(INSTANCES_OUT)))) {
 			FileUtils.deleteDirectory(folder.toFile());
 			bw.writeObject(dataset);
 			System.out.println("DONE.");
@@ -236,8 +237,7 @@ public class GenderPredictor implements Classifier, Serializable {
 
 		for (int i = 0; i < testInstances.numInstances(); i++) {
 			double pred = this.classifyInstance(testInstances.instance(i));
-			if (testInstances.classAttribute().value((int) testInstances.instance(i).classValue())
-					.equals(testInstances.classAttribute().value((int) pred))) {
+			if (testInstances.classAttribute().value((int) testInstances.instance(i).classValue()).equals(testInstances.classAttribute().value((int) pred))) {
 				fValue += 1;
 			}
 		}
@@ -249,8 +249,7 @@ public class GenderPredictor implements Classifier, Serializable {
 		final GenderPredictor p = new GenderPredictor();
 
 		log("Read in instances and build classifier...");
-		try (ObjectInputStream ois = new ObjectInputStream(
-				new BufferedInputStream(new FileInputStream(instancesFile)))) {
+		try (ObjectInputStream ois = new ObjectInputStream(new BufferedInputStream(new FileInputStream(instancesFile)))) {
 			final Instances train = (Instances) ois.readObject();
 			p.buildClassifier(train);
 		} catch (final Exception e) {
@@ -259,8 +258,7 @@ public class GenderPredictor implements Classifier, Serializable {
 
 		/* store the trained classifier in the file */
 		log("Store trained classifier...");
-		try (ObjectOutputStream bw = new ObjectOutputStream(
-				new BufferedOutputStream(new FileOutputStream(CLASSIFIER_OUT)))) {
+		try (ObjectOutputStream bw = new ObjectOutputStream(new BufferedOutputStream(new FileOutputStream(CLASSIFIER_OUT)))) {
 			bw.writeObject(p.c);
 			System.out.println("DONE.");
 		} catch (final IOException e) {
@@ -322,7 +320,23 @@ public class GenderPredictor implements Classifier, Serializable {
 	}
 
 	private static ArrayList<Attribute> getILBPAttributes() {
-		final int n = 511 * ILBP_GRANULARITY * ILBP_GRANULARITY; // 511 is the numbe of features in each square
+		
+		/* compute number of features */
+		int numberOfFeatures;
+		if (
+				bp instanceof LocalBinaryPattern ||
+				bp instanceof Catalano.Imaging.Texture.BinaryPattern.GradientLocalBinaryPattern ||
+				bp instanceof Catalano.Imaging.Texture.BinaryPattern.LocalGradientCoding ||
+				bp instanceof Catalano.Imaging.Texture.BinaryPattern.MultiblockLocalBinaryPattern) {
+			numberOfFeatures = 256;
+		}
+		else if (bp instanceof Catalano.Imaging.Texture.BinaryPattern.CenterSymmetricLocalBinaryPattern) {
+			numberOfFeatures = 16;
+		}
+			
+		else numberOfFeatures = 511;
+		
+		final int n = numberOfFeatures * ILBP_GRANULARITY * ILBP_GRANULARITY; // 511 is the number of features in each square
 		final ArrayList<Attribute> attributes = new ArrayList<>(n + 1);
 		for (int i = 0; i < n; i++) {
 			attributes.add(new Attribute("p" + i));
@@ -343,14 +357,11 @@ public class GenderPredictor implements Classifier, Serializable {
 		}
 	}
 
-	public static Instance applyFeatureExtraction(final FastBitmap fb, final Instances dataset,
-			final String classValue) {
+	public static Instance applyBP(final FastBitmap fb, final Instances dataset, final String classValue) {
 		/* go through boxes and compute ilbp */
 
 		final int[][] matrix = fb.toMatrixGrayAsInt();
-		final Instance inst = new DenseInstance(ILBP_GRANULARITY * ILBP_GRANULARITY * 511 + 1);
-		inst.setDataset(dataset);
-		int f = 0;
+		List<Integer> attributeVals = new ArrayList<>();
 
 		/* compute ilbp histogram for each square */
 		final int length = Math.min(fb.getWidth(), fb.getHeight());
@@ -368,37 +379,47 @@ public class GenderPredictor implements Classifier, Serializable {
 
 				/* create fast bitmap and apply ilbp */
 				FastBitmap fb2 = new FastBitmap(excerpt);
-				ImprovedLocalBinaryPattern ilbp = new ImprovedLocalBinaryPattern();
-				final ImageHistogram hist = ilbp.ComputeFeatures(fb2);
+				final ImageHistogram hist = bp.ComputeFeatures(fb2);
 				final int[] attributesForSquare = hist.getValues();
 				for (final int val : attributesForSquare) {
-					inst.setValue(f++, val);
+					attributeVals.add(val);
+					// JOptionPane.showMessageDialog(null, fb.toIcon(), "Result", JOptionPane.PLAIN_MESSAGE);
 				}
 			}
 		}
 
+		/* now create instance object */
+		final Instance inst = new DenseInstance(attributeVals.size() + 1);
+		inst.setDataset(dataset);
+
+		/* set attribute values */
+		for (int i = 0; i < attributeVals.size(); i++)
+			inst.setValue(i, attributeVals.get(i));
+
 		/* if there is a class assigned */
-		if (classValue != null) {
-			inst.setValue(f, classValue);
+		try {
+			inst.setValue(attributeVals.size(), classValue);
+		} catch (IllegalArgumentException e) {
+			System.out.println("Class value: " + classValue);
+			e.printStackTrace();
 		}
 
 		return inst;
 	}
 
-	public static void processDataAndAddToDataset(final File imageFile, final Instances dataset,
-			final String classValue) {
+	public static void processDataAndAddToDataset(final File imageFile, final Instances dataset, final String classValue) {
 		/* create matrix representation of image */
 		FastBitmap fb = new FastBitmap(imageFile.getAbsolutePath());
-		final int min = Math.min(fb.getWidth(), fb.getHeight());
 		// Placeholder for applying image filters to the fast bitmap object
+		final int min = Math.min(fb.getWidth(), fb.getHeight());
+		new Catalano.Imaging.Filters.Grayscale().applyInPlace(fb);
 		/* $imagefilter$ */
-
-		Instance inst = applyFeatureExtraction(fb, dataset, classValue);
+		
+		Instance inst = applyBP(fb, dataset, classValue);
 		dataset.add(inst);
 	}
 
 	private static void log(final String msg) {
 		System.out.println("Gender Predictor: " + msg);
 	}
-
 }

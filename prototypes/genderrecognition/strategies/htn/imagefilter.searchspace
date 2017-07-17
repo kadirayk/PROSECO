@@ -4,6 +4,31 @@ int Price: +
 
 
 [Constants]
+0.001:Number
+0.01:Number
+0:Number
+1:Number
+2:Number
+3:Number
+4:Number
+5:Number
+6:Number
+7:Number
+8:Number
+9:Number
+10:Number
+11:Number
+12:Number
+13:Number
+14:Number
+15:Number
+16:Number
+17:Number
+18:Number
+19:Number
+20:Number
+100.0:Number
+
 [Types]
 
 Thing;
@@ -22,11 +47,14 @@ Spam;Boolean
 
 [Services]
 noop;;;;;(0)
+separator;;;;;(0)
 
+
+### IMAGE FILTERS ###
 scale;x;;;;(0) 
 
 # self quotient image
-Catalano.Imaging.Filters.Photometric.SelfQuocientImage:__construct;;f;;Filter(f);(0)
+Catalano.Imaging.Filters.Photometric.SelfQuocientImage:__construct;size,sigma;f;;Filter(f);(0)
 Catalano.Imaging.Filters.Photometric.SelfQuocientImage:applyInPlace;f,x;;;;(0)
 
 # retina model
@@ -35,26 +63,64 @@ Catalano.Imaging.Filters.Photometric.RetinaModel:__construct;;f;;;(0)
 Catalano.Imaging.Filters.Photometric.RetinaModel:applyInPlace;f,x;;;;(0)
 
 
+### FEATURE EXTRACTORS ###
+Catalano.Imaging.Texture.BinaryPattern.LocalBinaryPattern:__construct; ; f; ; ; (0)
+Catalano.Imaging.Texture.BinaryPattern.GradientLocalBinaryPattern:__construct; ; f; ; ; (0)
+Catalano.Imaging.Texture.BinaryPattern.ImprovedLocalBinaryPattern:__construct; ; f; ; ; (0)
+Catalano.Imaging.Texture.BinaryPattern.LocalGradientCoding:__construct; ; f; ; ; (0)
+Catalano.Imaging.Texture.BinaryPattern.CenterSymmetricLocalBinaryPattern:__construct; ; f; ; ; (0)
+Catalano.Imaging.Texture.BinaryPattern.MedianBinaryPattern:__construct; ; f; ; ; (0)
+Catalano.Imaging.Texture.BinaryPattern.MultiblockLocalBinaryPattern:__construct; ; f; ; ; (0)
+
 [Methods]
 #noop; createImagePreprocessor(x); ; ; noop()
 
+
+### TOP LEVEL ###
+main; ppAndFe(x); x; ; createScalingImagePreprocessor(x) -> separator() -> createFeatureExtractor(x)
+
 # incorporate scale into the process
 scale; createScalingImagePreprocessor(x); x; ; scale(x)
-pScale; createScalingImagePreprocessor(x); x; ; createImagePreprocessor(x) -> scale(x)
-ppScale; createScalingImagePreprocessor(x); x; ; createImagePreprocessor(x) -> createImagePreprocessor(x) -> scale(x)
+#pScale; createScalingImagePreprocessor(x); x; ; createImagePreprocessor(x) -> scale(x)
+#ppScale; createScalingImagePreprocessor(x); x; ; createImagePreprocessor(x) -> createImagePreprocessor(x) -> scale(x)
 #pppScale; createScalingImagePreprocessor(x); x; ; createImagePreprocessor(x) -> createImagePreprocessor(x) -> createImagePreprocessor(x) -> scale(x) 
 scaleP; createScalingImagePreprocessor(x); x; ; scale(x) -> createImagePreprocessor(x)
-scalePP; createScalingImagePreprocessor(x); x; ; scale(x) -> createImagePreprocessor(x) -> createImagePreprocessor(x)
+#scalePP; createScalingImagePreprocessor(x); x; ; scale(x) -> createImagePreprocessor(x) -> createImagePreprocessor(x)
 #scalePPP; createScalingImagePreprocessor(x); x; ; scale(x) -> createImagePreprocessor(x) -> createImagePreprocessor(x) -> createImagePreprocessor(x)
-pScaleP; createScalingImagePreprocessor(x); x; ; createImagePreprocessor(x) -> scale(x) -> createImagePreprocessor(x)
+#pScaleP; createScalingImagePreprocessor(x); x; ; createImagePreprocessor(x) -> scale(x) -> createImagePreprocessor(x)
 
-# the image filters
-ret; createImagePreprocessor(x); x, f; ; Catalano.Imaging.Filters.Photometric.SelfQuocientImage:__construct(f) -> Catalano.Imaging.Filters.Photometric.SelfQuocientImage:applyInPlace(f,x) 
-sqi; createImagePreprocessor(x); x, f; ; Catalano.Imaging.Filters.Photometric.RetinaModel:__construct(f) -> Catalano.Imaging.Filters.Photometric.RetinaModel:applyInPlace(f,x)
+### IMAGE FILTERS ###
+#sqi; createImagePreprocessor(x); x, size, sigma, f; SQI_SIZE(size) & SQI_SIGMA(sigma) ; Catalano.Imaging.Filters.Photometric.SelfQuocientImage:__construct(size,sigma,f) -> Catalano.Imaging.Filters.Photometric.SelfQuocientImage:applyInPlace(f,x) 
+#ret; createImagePreprocessor(x); x, f;; Catalano.Imaging.Filters.Photometric.RetinaModel:__construct(f) -> Catalano.Imaging.Filters.Photometric.RetinaModel:applyInPlace(f,x)
 
+### FEATURE EXTRACTORS ###
+#lbp; createFeatureExtractor(x); x, f; ; Catalano.Imaging.Texture.BinaryPattern.LocalBinaryPattern:__construct(f)
+#glbp; createFeatureExtractor(x); x, f; ; Catalano.Imaging.Texture.BinaryPattern.GradientLocalBinaryPattern:__construct(f)
+#ilbp; createFeatureExtractor(x); x, f; ; Catalano.Imaging.Texture.BinaryPattern.ImprovedLocalBinaryPattern:__construct(f)
+#lgr; createFeatureExtractor(x); x, f; ; Catalano.Imaging.Texture.BinaryPattern.LocalGradientCoding:__construct(f) 
+#cslbp; createFeatureExtractor(x); x, f; ; Catalano.Imaging.Texture.BinaryPattern.CenterSymmetricLocalBinaryPattern:__construct(f)
+#mbp; createFeatureExtractor(x); x, f; ; Catalano.Imaging.Texture.BinaryPattern.MedianBinaryPattern:__construct(f)
+mlbp; createFeatureExtractor(x); x, f; ; Catalano.Imaging.Texture.BinaryPattern.MultiblockLocalBinaryPattern:__construct(f)
 
 [Rules]
+# a good combination is 15/3 or 13/0. A bad one is 17/3 or 17/0
+
+#SQI_SIZE(1)
+#SQI_SIZE(3)
+#SQI_SIZE(5)
+#SQI_SIZE(7)
+#SQI_SIZE(9)
+#SQI_SIZE(11)
+#SQI_SIZE(13)
+SQI_SIZE(15)
+SQI_SIZE(17)
+#SQI_SIZE(19)
+
+SQI_SIGMA(0)
+#SQI_SIGMA(1)
+#SQI_SIGMA(2)
+SQI_SIGMA(3)
 
 [Queries]
 
-q1;fb:Image;f:Filter;Image(fb);createScalingImagePreprocessor(fb);(1000)
+q1;fb:Image;f:Filter;Image(fb);ppAndFe(fb);(1000)

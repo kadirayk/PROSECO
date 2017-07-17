@@ -110,6 +110,7 @@ public class GroundingRoutine {
 	}
 
 	public void compile() {
+		System.out.print("Compile solution ...");
 		PerformanceLogger.logStart("CodeCompilation");
 		try {
 			final ProcessBuilder pb = new ProcessBuilder(this.sourceOutputDir.getAbsolutePath() + "/" + COMPILE_SCRIPT);
@@ -119,15 +120,19 @@ public class GroundingRoutine {
 			final Process compileProcess = pb.start();
 			compileProcess.waitFor();
 		} catch (final IOException e) {
+			System.out.println(" FAIL");
 			e.printStackTrace();
 		} catch (final InterruptedException e) {
+			System.out.println(" FAIL");
 			e.printStackTrace();
 		}
 		PerformanceLogger.logEnd("CodeCompilation");
+		System.out.println(" DONE");
 	}
 
 	public void trainModel(final File trainingData) {
 		PerformanceLogger.logStart("TrainModel");
+		System.out.print("Train model ...");
 		try {
 			final ProcessBuilder pb = new ProcessBuilder(this.sourceOutputDir.getAbsolutePath() + "/" + TRAIN_SCRIPT,
 					trainingData.getAbsolutePath());
@@ -144,6 +149,7 @@ public class GroundingRoutine {
 			e.printStackTrace();
 		}
 		PerformanceLogger.logEnd("TrainModel");
+		System.out.println(" DONE");
 	}
 
 	/**

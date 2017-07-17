@@ -7,6 +7,7 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.lang.ProcessBuilder.Redirect;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -14,7 +15,6 @@ import java.util.Random;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -55,7 +55,8 @@ public class HTNCompositionStrategyRunner implements SolutionEvaluator {
 	private static final int NUMBER_OF_CONSIDERED_SOLUTIONS = Integer.parseInt(PROPS.getProperty("number_of_considered_solutions"));
 	private static final int EVALUATION_SAMPLE_SIZE = Integer.parseInt(PROPS.getProperty("evaluation_sample_size"));
 
-	private final static String NAME_PLACEHOLDER_PREPRO = PROPS.getProperty("name_placeholder_preprocessing");
+	private final static String NAME_PLACEHOLDER_IMAGEFILTER = PROPS.getProperty("name_placeholder_imagefilter");
+	private final static String NAME_PLACEHOLDER_FEATUREEXTRACTION = PROPS.getProperty("name_placeholder_featureextraction");
 	private final static String NAME_PLACEHOLDER_CLASSIFICATION = PROPS.getProperty("name_placeholder_classification");
 	private final static String NAME_PARAM = PROPS.getProperty("name_param");
 	private static final String NAME_FVALUE = PROPS.getProperty("name_fvalue");
@@ -135,30 +136,49 @@ public class HTNCompositionStrategyRunner implements SolutionEvaluator {
 		List<TFDNode> solution;
 		while ((solution = bf.nextSolution()) != null) {
 			List<CEOCAction> plan = CEOCSTNUtil.extractPlanFromSolutionPath(solution);
-			StringBuilder codeBuilder = new StringBuilder();
-			for (CEOCAction a : plan) {
-				switch (a.getOperation().getName()) {
-				case "scale": {
-					String input = a.getParameters().get(0).getName();
-					codeBuilder.append("new Catalano.Imaging.Filters.Crop(0, 0, min, min).ApplyInPlace(" + input + ");\n");
-					codeBuilder.append("new Catalano.Imaging.Filters.Resize(250, 250).applyInPlace(" + input + ");");
-					break;
-				}
-				default: {
-					codeBuilder.append(CodePlanningUtil.getCodeForAction(a));
-				}
-				}
-			}
+
 			System.out.println("Code:\n----------------------------------\n");
-			System.out.println(codeBuilder.toString());
-			
+			List<List<CEOCAction>> planParts = getCodeParts(plan);
+			String imageFilterCode = getFeatureExtractionCode(planParts.get(0));
+			String featureExctractionCode = getFeatureExtractionCode(planParts.get(1));
+			System.out.println(featureExctractionCode);
+
 			/* invoke benchmark */
 			final String key = String.valueOf(System.currentTimeMillis());
 			final Map<String, String> placeholderValues = new HashMap<>();
-			placeholderValues.put(NAME_PLACEHOLDER_PREPRO, codeBuilder.toString());
-			int score = callBenchmark(placeholderValues, key);
-			System.out.println("SCORE IS: " + score);
+			placeholderValues.put(NAME_PLACEHOLDER_IMAGEFILTER, imageFilterCode);
+			placeholderValues.put(NAME_PLACEHOLDER_FEATUREEXTRACTION, featureExctractionCode);
+			try {
+				int score = callBenchmark(placeholderValues, key);
+				System.out.println("SCORE IS: " + score);
+			} catch (Exception e) {
+				System.err.println("Cannot compute score due to exception:");
+				e.printStackTrace();
+			}
 		}
+	}
+
+	private String getFeatureExtractionCode(List<CEOCAction> plan) {
+		StringBuilder codeBuilder = new StringBuilder();
+		for (CEOCAction a : plan) {
+			switch (a.getOperation().getName()) {
+			case "scale": {
+				String input = a.getParameters().get(0).getName();
+				codeBuilder.append("new Catalano.Imaging.Filters.Crop(0, 0, min, min).ApplyInPlace(" + input + ");\n");
+				codeBuilder.append("new Catalano.Imaging.Filters.Resize(250, 250).applyInPlace(" + input + ");\n");
+				break;
+			}
+			default: {
+				codeBuilder.append(CodePlanningUtil.getCodeForAction(a));
+				codeBuilder.append("\n");
+				
+				/* append code snippet to assign the binary pattern stuff to the respective variable in the code */
+				if (a.getOperation().getName().startsWith("Catalano.Imaging.Texture.BinaryPattern."))
+					codeBuilder.append("bp = newVar1;\n");
+			}
+			}
+		}
+		return codeBuilder.toString();
 	}
 
 	@Override
@@ -171,7 +191,7 @@ public class HTNCompositionStrategyRunner implements SolutionEvaluator {
 		/* write down solution (the preprocessing is fixed here) */
 		final String key = String.valueOf(System.currentTimeMillis());
 		final Map<String, String> placeholderValues = new HashMap<>();
-		placeholderValues.put(NAME_PLACEHOLDER_PREPRO, preprocessingSolution);
+		placeholderValues.put(NAME_PLACEHOLDER_IMAGEFILTER, preprocessingSolution);
 		placeholderValues.put(NAME_PLACEHOLDER_CLASSIFICATION, MLUtil.getJavaCodeFromPlan(plan));
 		return callBenchmark(placeholderValues, key);
 	}
@@ -181,7 +201,7 @@ public class HTNCompositionStrategyRunner implements SolutionEvaluator {
 		/* write code for solution and define folder where we expect the results */
 		this.writeSolution(placeholderValues, key);
 		final File candidateFolder = new File(this.outputFolder.getAbsolutePath() + File.separator + key);
-		
+
 		/* define benchmark call depending on whether the classifier has been defined or not */
 		final ProcessBuilder pb;
 		if (placeholderValues.containsKey(NAME_PLACEHOLDER_CLASSIFICATION))
@@ -192,7 +212,7 @@ public class HTNCompositionStrategyRunner implements SolutionEvaluator {
 					EDataFraction.SAMPLE.toString()).redirectError(Redirect.INHERIT).redirectOutput(Redirect.INHERIT);
 
 		System.out.println("Executing: " + pb.command());
-		
+
 		/* call benchmark and await termination */
 		System.out.println("Compute f value for current testbed");
 		Process fValueProcess;
@@ -226,6 +246,8 @@ public class HTNCompositionStrategyRunner implements SolutionEvaluator {
 			e.printStackTrace();
 		}
 		PerformanceLogger.logEnd("getF");
+		System.out.println("Finished computation ...");
+
 		/* read in result of the benchmark process */
 		this.fValueMap.put(placeholderValues, 10000);
 		return 10000;
@@ -245,7 +267,7 @@ public class HTNCompositionStrategyRunner implements SolutionEvaluator {
 	}
 
 	public void writeSolution(final Map<String, String> placeholderValues, final String subfolder) {
-		
+
 		if (placeholderValues.containsValue(null))
 			throw new IllegalArgumentException("Placeholder values must not be null!");
 
@@ -255,12 +277,12 @@ public class HTNCompositionStrategyRunner implements SolutionEvaluator {
 			folder.mkdirs();
 		}
 
-//		/* copy image filter bat */
-//		try {
-//			FileUtils.copyFile(new File("imagefilter"), new File(folder + File.separator + "imagefilter"));
-//		} catch (IOException e1) {
-//			e1.printStackTrace();
-//		}
+		// /* copy image filter bat */
+		// try {
+		// FileUtils.copyFile(new File("imagefilter"), new File(folder + File.separator + "imagefilter"));
+		// } catch (IOException e1) {
+		// e1.printStackTrace();
+		// }
 
 		/* write placeholder values */
 		for (String placeholder : placeholderValues.keySet()) {
@@ -277,6 +299,8 @@ public class HTNCompositionStrategyRunner implements SolutionEvaluator {
 	public String rewriteJavaCode(String code) {
 		if (code == null)
 			throw new IllegalArgumentException("Code must not be NULL");
+		
+		/* append classifier definition */
 		final Pattern p = Pattern.compile("weka\\.classifiers\\.[^ ]*([^=]*)");
 		final Matcher m = p.matcher(code);
 		if (m.find()) {
@@ -286,6 +310,27 @@ public class HTNCompositionStrategyRunner implements SolutionEvaluator {
 			System.err.println("No classifier definition found. Cannot assign variable to c.");
 		}
 		return code;
+	}
+	
+	private List<List<CEOCAction>> getCodeParts(List<CEOCAction> plan) {
+		List<CEOCAction> part1 = new ArrayList<>();
+		List<CEOCAction> part2 = new ArrayList<>();
+		boolean sepReached = false;
+		for (CEOCAction a : plan) {
+			if (a.getOperation().getName().equals("separator"))
+				sepReached = true;
+			else {
+				if (!sepReached)
+					part1.add(a);
+				else
+					part2.add(a);
+			}
+		}
+		
+		List<List<CEOCAction>> parts = new ArrayList<>();
+		parts.add(part1);
+		parts.add(part2);
+		return parts;
 	}
 
 	@Override

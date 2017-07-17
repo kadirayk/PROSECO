@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileFilter;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
@@ -14,7 +15,6 @@ import java.util.List;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
-import org.omg.CORBA.SystemException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,7 +23,7 @@ import jaicore.basic.PerformanceLogger;
 
 public class PrototypeBasedComposer {
 	private static final Logger logger = LoggerFactory.getLogger(PrototypeBasedComposer.class);
-	
+
 	private static final PrototypeProperties PROPS = new PrototypeProperties("config/PrototypeBasedComposer.conf");
 
 	private static final boolean FINAL_CLEAN_UP = Boolean.parseBoolean(PROPS.getProperty("pbc.final_clean_up"));
@@ -80,7 +80,7 @@ public class PrototypeBasedComposer {
 			System.out.println("Correct usage: java PrototypeBasedComposer [prototype name] [path to data file]");
 			System.exit(1);
 		}
-		
+
 		// copy prototype name from arguments
 		prototypeName = args[0];
 		// copy data file path from arguments
@@ -133,7 +133,7 @@ public class PrototypeBasedComposer {
 			this.initializeExecutionEnvironment(prototypeName, dataFile);
 
 			PerformanceLogger.logStart("initConfigurationRoutine");
-			//			this.initConfigurationRoutine();
+			// this.initConfigurationRoutine();
 			PerformanceLogger.logEnd("initConfigurationRoutine");
 
 			PerformanceLogger.logStart("bootUpInternalBenchmarkService");
@@ -339,25 +339,27 @@ public class PrototypeBasedComposer {
 			}
 
 			final File fValueFile = new File(strategy.getAbsolutePath() + File.separator + OUTPUT_DIR + File.separator + "f.value");
-			if (fValueFile.exists()) {
-				Double parsedValue = 0.0;
-				try {
-					parsedValue = Double.parseDouble(FileUtil.readFileAsString(fValueFile.getAbsolutePath()));
-				} catch (final NumberFormatException e) {
-					e.printStackTrace();
-				} catch (final IOException e) {
-					e.printStackTrace();
-				}
+			if (!fValueFile.exists())
+				throw new IllegalStateException("File " + fValueFile.getAbsolutePath() + " was not found.");
+			Double parsedValue = 0.0;
+			try {
+				parsedValue = Double.parseDouble(FileUtil.readFileAsString(fValueFile.getAbsolutePath()));
+			} catch (final NumberFormatException e) {
+				e.printStackTrace();
+			} catch (final IOException e) {
+				e.printStackTrace();
+			}
 
-				if (parsedValue >= fValue) {
-					winningStrategyName = strategy.getName();
-					fValue = parsedValue;
-				}
+			if (parsedValue >= fValue) {
+				winningStrategyName = strategy.getName();
+				fValue = parsedValue;
 			}
 		}
 
+		if (winningStrategyName.isEmpty())
+			throw new IllegalStateException("Name of the winning strategyg is not filled.");
+
 		final File winningStrategy = new File(this.strategyDirectory + File.separator + winningStrategyName + File.separator + OUTPUT_DIR);
-		System.out.println(winningStrategy);
 		for (final File strategyFile : winningStrategy.listFiles()) {
 			if (strategyFile.isFile()) {
 				final File groundingFolderFile = new File(this.groundingDirectory.getAbsolutePath() + File.separator + strategyFile.getName());
@@ -419,8 +421,7 @@ public class PrototypeBasedComposer {
 	}
 
 	/**
-	 * Initialize the folder structure for the matched prototype name and copy all the files into the execution folder. Afterwards execute the initial configuration routine of the
-	 * prototype.
+	 * Initialize the folder structure for the matched prototype name and copy all the files into the execution folder. Afterwards execute the initial configuration routine of the prototype.
 	 *
 	 * @param prototypeName
 	 * @param prototypeFolder

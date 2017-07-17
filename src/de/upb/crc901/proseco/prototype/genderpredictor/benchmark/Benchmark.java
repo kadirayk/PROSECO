@@ -130,7 +130,7 @@ public class Benchmark extends Thread {
 							.collect(Collectors.toSet());
 
 					// move task specific files to task directory
-					log("Benchmark Service: Move files...", false);
+					log("Benchmark Service: Move files from " + this.taskTempFolder + " to " + task.getCandidateFolder().getAbsolutePath(), false);
 					for (final File testBedFile : this.taskTempFolder.listFiles()) {
 						if (!ignoreFilesForMovingSet.contains(testBedFile.getName())) {
 							final File candidateFile = new File(task.getCandidateFolder().getAbsolutePath()
