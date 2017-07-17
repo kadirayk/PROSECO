@@ -21,15 +21,21 @@ import org.slf4j.LoggerFactory;
 import de.upb.crc901.proseco.PrototypeProperties;
 import de.upb.crc901.proseco.prototype.genderpredictor.benchmark.BenchmarkTask.EBuildPhase;
 import de.upb.crc901.proseco.prototype.genderpredictor.benchmark.BenchmarkTask.EDataFraction;
+import de.upb.crc901.taskconfigurator.core.CodePlanningUtil;
 import de.upb.crc901.taskconfigurator.core.MLUtil;
 import de.upb.crc901.taskconfigurator.core.SolutionEvaluator;
 import de.upb.crc901.taskconfigurator.search.algorithms.PipelineSearcher;
 import de.upb.crc901.taskconfigurator.search.evaluators.RandomCompletionEvaluator;
 import jaicore.basic.PerformanceLogger;
+import jaicore.graphvisualizer.SimpleGraphVisualizationWindow;
+import jaicore.planning.graphgenerators.task.ceoctfd.CEOCTFDGraphGenerator;
 import jaicore.planning.graphgenerators.task.tfd.TFDNode;
+import jaicore.planning.graphgenerators.task.tfd.TFDTooltipGenerator;
 import jaicore.planning.model.ceoc.CEOCAction;
+import jaicore.planning.model.task.ceocstn.CEOCSTNUtil;
 import jaicore.search.algorithms.parallel.parallelexploration.distributed.interfaces.SerializableNodeEvaluator;
 import jaicore.search.algorithms.standard.bestfirst.BestFirst;
+import jaicore.search.structure.core.Node;
 import weka.core.Instances;
 
 /**
@@ -49,13 +55,15 @@ public class HTNCompositionStrategyRunner implements SolutionEvaluator {
 	private static final int NUMBER_OF_CONSIDERED_SOLUTIONS = Integer.parseInt(PROPS.getProperty("number_of_considered_solutions"));
 	private static final int EVALUATION_SAMPLE_SIZE = Integer.parseInt(PROPS.getProperty("evaluation_sample_size"));
 
-	private final static String NAME_PLACEHOLDER = PROPS.getProperty("name_placeholder");
+	private final static String NAME_PLACEHOLDER_PREPRO = PROPS.getProperty("name_placeholder_preprocessing");
+	private final static String NAME_PLACEHOLDER_CLASSIFICATION = PROPS.getProperty("name_placeholder_classification");
 	private final static String NAME_PARAM = PROPS.getProperty("name_param");
 	private static final String NAME_FVALUE = PROPS.getProperty("name_fvalue");
 
 	private final File benchmarkFile;
 	private final File outputFolder;
-	private final Map<String, Integer> fValueMap = new HashMap<>();
+	private final Map<Map<String, String>, Integer> fValueMap = new HashMap<>();
+	private String preprocessingSolution;
 
 	public HTNCompositionStrategyRunner(final File outputFolder, final File benchmarkFile) {
 		super();
@@ -71,58 +79,122 @@ public class HTNCompositionStrategyRunner implements SolutionEvaluator {
 			logger.error("Invalid usage of composition Strategy. Provide three params: \"input folder\", \"output folder\", and \"benchmark executable\"");
 			return;
 		}
-//		final File paramFile = new File(args[0] + File.separator + NAME_PLACEHOLDER + File.separator + NAME_PARAM);
-//		if (!paramFile.exists()) {
-//			if (!paramFile.getParentFile().exists()) {
-//				logger.error("Invalid usage of composition Strategy. Please make sure that the first param (input folder) exists");
-//			} else {
-//				logger.error("Invalid usage of composition Strategy. Please make sure that the input folder contains the file " + NAME_PLACEHOLDER);
-//			}
-//			return;
-//		}
+		// final File paramFile = new File(args[0] + File.separator + NAME_PLACEHOLDER + File.separator + NAME_PARAM);
+		// if (!paramFile.exists()) {
+		// if (!paramFile.getParentFile().exists()) {
+		// logger.error("Invalid usage of composition Strategy. Please make sure that the first param (input folder) exists");
+		// } else {
+		// logger.error("Invalid usage of composition Strategy. Please make sure that the input folder contains the file " + NAME_PLACEHOLDER);
+		// }
+		// return;
+		// }
 		PerformanceLogger.logStart("StrategyTotalRun");
 		logger.info("Running HTN Composition Strategy.");
 
 		/* get data */
 		@SuppressWarnings("resource")
-//		final Instances data = (Instances) new ObjectInputStream(new BufferedInputStream(new FileInputStream(paramFile))).readObject();
+		// final Instances data = (Instances) new ObjectInputStream(new BufferedInputStream(new FileInputStream(paramFile))).readObject();
 
 		/* compute java code */
 		final HTNCompositionStrategyRunner strategy = new HTNCompositionStrategyRunner(new File(args[1]), new File(args[2]));
-		final String javaCode = strategy.getPlaceholderValue();
+		final Map<String, String> javaCode = strategy.getPlaceholderValues();
 		strategy.writeSolution(javaCode);
+
 		PerformanceLogger.logEnd("StrategyTotalRun");
 		PerformanceLogger.saveGlobalLogToFile(new File("HTNCompositionStrategy.log"));
 		System.out.println("Strategy is ready ...");
 	}
 
-	public String getPlaceholderValue() {
+	public Map<String, String> getPlaceholderValues() {
+
 		/* solve composition problem */
 		final Random random = new Random(0);
+		final Map<String, String> placeholderValues = new HashMap<>(2);
 
+		/* PHASE 1: Searching for best preprocessor */
+		getPreprocessingPipeline();
+
+		System.exit(0);
+
+		/* PHASE 2: Searching for best classifier */
 		final SerializableNodeEvaluator<TFDNode, Integer> nodeEval = new RandomCompletionEvaluator(random, EVALUATION_SAMPLE_SIZE, this);
 		final BestFirst<TFDNode, String> searchAlgo = new BestFirst<>(MLUtil.getGraphGenerator(new File("htn.searchspace")), nodeEval);
 		final PipelineSearcher optimizer = new PipelineSearcher(searchAlgo, random, NUMBER_OF_CONSIDERED_SOLUTIONS, SHOW_GRAPH);
 		final List<CEOCAction> pipelineDescription = optimizer.getPipelineDescriptions().get(0);
 
 		/* derive Java code from the plan (this is the recipe) */
-		return MLUtil.getJavaCodeFromPlan(pipelineDescription);
+		placeholderValues.put(NAME_PLACEHOLDER_CLASSIFICATION, MLUtil.getJavaCodeFromPlan(pipelineDescription));
+		return placeholderValues;
+	}
+
+	private void getPreprocessingPipeline() {
+		CEOCTFDGraphGenerator generator = MLUtil.getGraphGenerator(new File("imagefilter.searchspace"));
+		BestFirst<TFDNode, String> bf = new BestFirst<>(generator, n -> n.path().size());
+		SimpleGraphVisualizationWindow<Node<TFDNode, Integer>> window = new SimpleGraphVisualizationWindow<>(bf.getEventBus());
+		window.getPanel().setTooltipGenerator(new TFDTooltipGenerator());
+		List<TFDNode> solution;
+		while ((solution = bf.nextSolution()) != null) {
+			List<CEOCAction> plan = CEOCSTNUtil.extractPlanFromSolutionPath(solution);
+			StringBuilder codeBuilder = new StringBuilder();
+			for (CEOCAction a : plan) {
+				switch (a.getOperation().getName()) {
+				case "scale": {
+					String input = a.getParameters().get(0).getName();
+					codeBuilder.append("new Catalano.Imaging.Filters.Crop(0, 0, min, min).ApplyInPlace(" + input + ");\n");
+					codeBuilder.append("new Catalano.Imaging.Filters.Resize(250, 250).applyInPlace(" + input + ");");
+					break;
+				}
+				default: {
+					codeBuilder.append(CodePlanningUtil.getCodeForAction(a));
+				}
+				}
+			}
+			System.out.println("Code:\n----------------------------------\n");
+			System.out.println(codeBuilder.toString());
+			
+			/* invoke benchmark */
+			final String key = String.valueOf(System.currentTimeMillis());
+			final Map<String, String> placeholderValues = new HashMap<>();
+			placeholderValues.put(NAME_PLACEHOLDER_PREPRO, codeBuilder.toString());
+			int score = callBenchmark(placeholderValues, key);
+			System.out.println("SCORE IS: " + score);
+		}
 	}
 
 	@Override
-	public int getSolutionScore(final List<CEOCAction> plan) throws Exception {
-		PerformanceLogger.logStart("getF");
-		/* write down solution */
-		final String javaCode = MLUtil.getJavaCodeFromPlan(plan);
-		final String key = String.valueOf(System.currentTimeMillis());
-		this.writeSolution(javaCode, key);
+	public int getSolutionScore(List<CEOCAction> plan) throws Exception {
+		if (preprocessingSolution == null)
+			throw new IllegalStateException("Trying to compute solution score before preprocessing has been fixed!");
 
+		PerformanceLogger.logStart("getF");
+
+		/* write down solution (the preprocessing is fixed here) */
+		final String key = String.valueOf(System.currentTimeMillis());
+		final Map<String, String> placeholderValues = new HashMap<>();
+		placeholderValues.put(NAME_PLACEHOLDER_PREPRO, preprocessingSolution);
+		placeholderValues.put(NAME_PLACEHOLDER_CLASSIFICATION, MLUtil.getJavaCodeFromPlan(plan));
+		return callBenchmark(placeholderValues, key);
+	}
+
+	private int callBenchmark(Map<String, String> placeholderValues, String key) {
+
+		/* write code for solution and define folder where we expect the results */
+		this.writeSolution(placeholderValues, key);
+		final File candidateFolder = new File(this.outputFolder.getAbsolutePath() + File.separator + key);
+		
+		/* define benchmark call depending on whether the classifier has been defined or not */
+		final ProcessBuilder pb;
+		if (placeholderValues.containsKey(NAME_PLACEHOLDER_CLASSIFICATION))
+			pb = new ProcessBuilder(this.benchmarkFile.getAbsolutePath(), EBuildPhase.CLASSIFIER_DEF.toString(), candidateFolder.getAbsolutePath(), EDataFraction.FULL.toString())
+					.redirectError(Redirect.INHERIT).redirectOutput(Redirect.INHERIT);
+		else
+			pb = new ProcessBuilder(this.benchmarkFile.getAbsolutePath(), EBuildPhase.FEATURE_EXTRACTION.toString(), candidateFolder.getAbsolutePath(),
+					EDataFraction.SAMPLE.toString()).redirectError(Redirect.INHERIT).redirectOutput(Redirect.INHERIT);
+
+		System.out.println("Executing: " + pb.command());
+		
 		/* call benchmark and await termination */
 		System.out.println("Compute f value for current testbed");
-
-		final File candidateFolder = new File(this.outputFolder.getAbsolutePath() + File.separator + key);
-		final ProcessBuilder pb = new ProcessBuilder(this.benchmarkFile.getAbsolutePath(), EBuildPhase.CLASSIFIER_DEF.toString(), candidateFolder.getAbsolutePath(),
-				EDataFraction.FULL.toString()).redirectError(Redirect.INHERIT).redirectOutput(Redirect.INHERIT);
 		Process fValueProcess;
 		try {
 			fValueProcess = pb.start();
@@ -135,7 +207,7 @@ public class HTNCompositionStrategyRunner implements SolutionEvaluator {
 				if (fValueFile.exists()) {
 					resultAvailable = true;
 				} else {
-					Thread.sleep(50);
+					Thread.sleep(100);
 				}
 			}
 
@@ -143,7 +215,7 @@ public class HTNCompositionStrategyRunner implements SolutionEvaluator {
 				try (BufferedReader br = new BufferedReader(new FileReader(fValueFile))) {
 					PerformanceLogger.logEnd("getF");
 					final int fValue = (int) ((1 - Double.parseDouble(br.readLine())) * FVALUE_ACCURACY);
-					this.fValueMap.put(javaCode, fValue);
+					this.fValueMap.put(placeholderValues, fValue);
 					return fValue;
 				}
 			} else {
@@ -155,45 +227,56 @@ public class HTNCompositionStrategyRunner implements SolutionEvaluator {
 		}
 		PerformanceLogger.logEnd("getF");
 		/* read in result of the benchmark process */
-		this.fValueMap.put(javaCode, 10000);
+		this.fValueMap.put(placeholderValues, 10000);
 		return 10000;
 	}
 
 	private static final int FVALUE_ACCURACY = 10000;
 
-	public void writeSolution(final String code) {
-		this.writeSolution(code, "");
+	public void writeSolution(final Map<String, String> placeholderValues) {
+		this.writeSolution(placeholderValues, "");
 
 		try (FileWriter fw = new FileWriter(new File(this.outputFolder + File.separator + NAME_FVALUE))) {
-			fw.write((1 - (this.fValueMap.get(code) / FVALUE_ACCURACY)) + "\n");
+			fw.write((1 - (this.fValueMap.get(placeholderValues) / FVALUE_ACCURACY)) + "\n");
 		} catch (final IOException e) {
 			System.out.println("Failed to write fvalue");
 			e.printStackTrace();
 		}
 	}
 
-	public void writeSolution(final String code, final String subfolder) {
-		/* write code to output */
-		final File targetFile = new File(this.outputFolder + (!(subfolder.equals("")) ? File.separator + subfolder : "") + File.separator + NAME_PLACEHOLDER);
-		if (!targetFile.getParentFile().exists()) {
-			targetFile.getParentFile().mkdirs();
+	public void writeSolution(final Map<String, String> placeholderValues, final String subfolder) {
+		
+		if (placeholderValues.containsValue(null))
+			throw new IllegalArgumentException("Placeholder values must not be null!");
+
+		/* create folder */
+		File folder = new File(this.outputFolder + (!(subfolder.equals("")) ? File.separator + subfolder : ""));
+		if (!folder.exists()) {
+			folder.mkdirs();
 		}
 
-		try {
-			FileUtils.copyFile(new File("imagefilter"), new File(targetFile.getParentFile() + File.separator + "imagefilter"));
-		} catch (IOException e1) {
-			e1.printStackTrace();
-		}
+//		/* copy image filter bat */
+//		try {
+//			FileUtils.copyFile(new File("imagefilter"), new File(folder + File.separator + "imagefilter"));
+//		} catch (IOException e1) {
+//			e1.printStackTrace();
+//		}
 
-		try (FileWriter fw = new FileWriter(targetFile)) {
-			fw.write(this.rewriteJavaCode(code));
-		} catch (final IOException e) {
-			System.out.println("Failed to write solution " + targetFile.getAbsolutePath());
-			e.printStackTrace();
+		/* write placeholder values */
+		for (String placeholder : placeholderValues.keySet()) {
+			final File targetFile = new File(folder + File.separator + placeholder);
+			try (FileWriter fw = new FileWriter(targetFile)) {
+				fw.write(this.rewriteJavaCode(placeholderValues.get(placeholder)));
+			} catch (final IOException e) {
+				System.out.println("Failed to write solution " + targetFile.getAbsolutePath());
+				e.printStackTrace();
+			}
 		}
 	}
 
 	public String rewriteJavaCode(String code) {
+		if (code == null)
+			throw new IllegalArgumentException("Code must not be NULL");
 		final Pattern p = Pattern.compile("weka\\.classifiers\\.[^ ]*([^=]*)");
 		final Matcher m = p.matcher(code);
 		if (m.find()) {

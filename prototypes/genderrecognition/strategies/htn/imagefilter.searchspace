@@ -1,0 +1,60 @@
+[NonFunctionalRequirements]
+
+int Price: +
+
+
+[Constants]
+[Types]
+
+Thing;
+Image;
+JPGImage;Image
+BMPImage;Image
+GIFImage;Image
+FeatureVector;
+Number;
+Value;
+Instances;
+Filter;
+Classes;
+Boolean;
+Spam;Boolean
+
+[Services]
+noop;;;;;(0)
+
+scale;x;;;;(0) 
+
+# self quotient image
+Catalano.Imaging.Filters.Photometric.SelfQuocientImage:__construct;;f;;Filter(f);(0)
+Catalano.Imaging.Filters.Photometric.SelfQuocientImage:applyInPlace;f,x;;;;(0)
+
+# retina model
+
+Catalano.Imaging.Filters.Photometric.RetinaModel:__construct;;f;;;(0)
+Catalano.Imaging.Filters.Photometric.RetinaModel:applyInPlace;f,x;;;;(0)
+
+
+[Methods]
+#noop; createImagePreprocessor(x); ; ; noop()
+
+# incorporate scale into the process
+scale; createScalingImagePreprocessor(x); x; ; scale(x)
+pScale; createScalingImagePreprocessor(x); x; ; createImagePreprocessor(x) -> scale(x)
+ppScale; createScalingImagePreprocessor(x); x; ; createImagePreprocessor(x) -> createImagePreprocessor(x) -> scale(x)
+#pppScale; createScalingImagePreprocessor(x); x; ; createImagePreprocessor(x) -> createImagePreprocessor(x) -> createImagePreprocessor(x) -> scale(x) 
+scaleP; createScalingImagePreprocessor(x); x; ; scale(x) -> createImagePreprocessor(x)
+scalePP; createScalingImagePreprocessor(x); x; ; scale(x) -> createImagePreprocessor(x) -> createImagePreprocessor(x)
+#scalePPP; createScalingImagePreprocessor(x); x; ; scale(x) -> createImagePreprocessor(x) -> createImagePreprocessor(x) -> createImagePreprocessor(x)
+pScaleP; createScalingImagePreprocessor(x); x; ; createImagePreprocessor(x) -> scale(x) -> createImagePreprocessor(x)
+
+# the image filters
+ret; createImagePreprocessor(x); x, f; ; Catalano.Imaging.Filters.Photometric.SelfQuocientImage:__construct(f) -> Catalano.Imaging.Filters.Photometric.SelfQuocientImage:applyInPlace(f,x) 
+sqi; createImagePreprocessor(x); x, f; ; Catalano.Imaging.Filters.Photometric.RetinaModel:__construct(f) -> Catalano.Imaging.Filters.Photometric.RetinaModel:applyInPlace(f,x)
+
+
+[Rules]
+
+[Queries]
+
+q1;fb:Image;f:Filter;Image(fb);createScalingImagePreprocessor(fb);(1000)
