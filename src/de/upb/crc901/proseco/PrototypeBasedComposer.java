@@ -328,7 +328,7 @@ public class PrototypeBasedComposer {
 	 * Move all placeholder files created by the winning strategy to the source folder as inputs for the grounding routine.
 	 */
 	private void movePlaceholderFilesToSource() {
-		System.out.print("Copy placeholder files of winning strategies to src folder...");
+		System.out.print("Copy placeholder files of winning strategies to src folder " + this.groundingDirectory + " ...");
 
 		// Pick the output of the winning strategy
 		String winningStrategyName = "";

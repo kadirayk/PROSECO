@@ -112,11 +112,13 @@ public class HTNCompositionStrategyRunner implements SolutionEvaluator {
 		final HTNCompositionStrategyRunner strategy = new HTNCompositionStrategyRunner(new File(args[1]),
 				new File(args[2]));
 		final Map<String, String> javaCode = strategy.getPlaceholderValues();
+		System.out.println("Final solution: " + javaCode);
 		strategy.writeSolution(javaCode);
 
 		PerformanceLogger.logEnd("StrategyTotalRun");
 		PerformanceLogger.saveGlobalLogToFile(new File("HTNCompositionStrategy.log"));
 		System.out.println("Strategy is ready ...");
+		
 	}
 
 	public Map<String, String> getPlaceholderValues() {
@@ -137,9 +139,13 @@ public class HTNCompositionStrategyRunner implements SolutionEvaluator {
 				MLUtil.getGraphGenerator(new File("htn.searchspace")), nodeEval);
 		final PipelineSearcher optimizer = new PipelineSearcher(searchAlgo, random, NUMBER_OF_CONSIDERED_SOLUTIONS,
 				SHOW_GRAPH);
+		
+		/* get the first entry in the list of solutions (they are ordered by the f-value) */
 		final List<CEOCAction> pipelineDescription = optimizer.getPipelineDescriptions().get(0);
 
 		/* derive Java code from the plan (this is the recipe) */
+		placeholderValues.put(NAME_PLACEHOLDER_IMAGEFILTER, this.preprocessingSolution);
+		placeholderValues.put(NAME_PLACEHOLDER_FEATUREEXTRACTION, this.featureExtractingSolution);
 		placeholderValues.put(NAME_PLACEHOLDER_CLASSIFICATION, MLUtil.getJavaCodeFromPlan(pipelineDescription));
 		return placeholderValues;
 	}
@@ -291,12 +297,13 @@ public class HTNCompositionStrategyRunner implements SolutionEvaluator {
 		return 10000;
 	}
 
-	private static final int FVALUE_ACCURACY = 10000;
+	private static final double FVALUE_ACCURACY = 10000f;
 
 	public void writeSolution(final Map<String, String> placeholderValues) {
 		this.writeSolution(placeholderValues, "");
 
 		try (FileWriter fw = new FileWriter(new File(this.outputFolder + File.separator + NAME_FVALUE))) {
+			System.out.println(this.fValueMap.get(placeholderValues));
 			fw.write((1 - (this.fValueMap.get(placeholderValues) / FVALUE_ACCURACY)) + "\n");
 		} catch (final IOException e) {
 			System.out.println("Failed to write fvalue");
