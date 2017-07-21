@@ -7,6 +7,7 @@ sourceSets {
         }
         resources {
         	srcDir 'conf'
+        	srcDir 'prototypes/genderrecognition/src'
     	}
     }
     test {

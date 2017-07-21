@@ -95,12 +95,11 @@ public class GenderPredictor implements Classifier, Serializable {
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
-		}
-		else {
+		} else {
 			showInvalidUsageError();
 		}
 	}
-	
+
 	private static void showInvalidUsageError() {
 		log("ERROR: incorrect number of arguments.");
 		log("-q [pathToFile x.jpg] for prediction");
@@ -191,7 +190,6 @@ public class GenderPredictor implements Classifier, Serializable {
 		final AtomicInteger i = new AtomicInteger(0);
 		Arrays.stream(fileArray).parallel().forEach(f -> {
 			if ((addSampledFiles && sampledFiles.contains(f)) || (!addSampledFiles && !sampledFiles.contains(f))) {
-				System.err.println("JUHUUUUU");
 				processDataAndAddToDataset(f, dataset, labels.get(f.getName()));
 				System.out.print("[add item " + (i.incrementAndGet()) + "]");
 			}
@@ -199,9 +197,7 @@ public class GenderPredictor implements Classifier, Serializable {
 
 		try (ObjectOutputStream bw = new ObjectOutputStream(new BufferedOutputStream(new FileOutputStream(INSTANCES_OUT)))) {
 			FileUtils.deleteDirectory(folder.toFile());
-			System.out.println("dataset size: " + dataset.size());
 			bw.writeObject(dataset);
-			System.out.println("DONE.");
 		} catch (final IOException e) {
 			e.printStackTrace();
 		}
@@ -248,7 +244,7 @@ public class GenderPredictor implements Classifier, Serializable {
 		for (int i = 0; i < testInstances.numInstances(); i++) {
 			double pred = this.classifyInstance(testInstances.instance(i));
 			if (testInstances.classAttribute().value((int) testInstances.instance(i).classValue()).equals(testInstances.classAttribute().value((int) pred))) {
-				correctPredictions ++;
+				correctPredictions++;
 			}
 		}
 		double accuracy = correctPredictions * 1f / testInstances.numInstances();
@@ -320,10 +316,9 @@ public class GenderPredictor implements Classifier, Serializable {
 			numberOfFeatures = 256;
 		} else if (bp instanceof Catalano.Imaging.Texture.BinaryPattern.CenterSymmetricLocalBinaryPattern) {
 			numberOfFeatures = 16;
-		}
-
-		else
+		} else {
 			numberOfFeatures = 511;
+		}
 
 		final int n = numberOfFeatures * ILBP_GRANULARITY * ILBP_GRANULARITY; // 511 is the number of features in each square
 		final ArrayList<Attribute> attributes = new ArrayList<>(n + 1);
@@ -382,8 +377,9 @@ public class GenderPredictor implements Classifier, Serializable {
 		inst.setDataset(dataset);
 
 		/* set attribute values */
-		for (int i = 0; i < attributeVals.size(); i++)
+		for (int i = 0; i < attributeVals.size(); i++) {
 			inst.setValue(i, attributeVals.get(i));
+		}
 
 		/* if there is a class assigned */
 		try {
