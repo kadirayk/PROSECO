@@ -4,7 +4,6 @@ import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileFilter;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
@@ -20,6 +19,8 @@ import org.slf4j.LoggerFactory;
 
 import jaicore.basic.FileUtil;
 import jaicore.basic.PerformanceLogger;
+import jaicore.ml.WekaUtil;
+import weka.classifiers.trees.RandomForest;
 
 public class PrototypeBasedComposer {
 	private static final Logger logger = LoggerFactory.getLogger(PrototypeBasedComposer.class);
@@ -73,7 +74,7 @@ public class PrototypeBasedComposer {
 		Thread.currentThread().setName("PrototypeBasedComposer");
 		final String prototypeName;
 		final String dataFilePath;
-
+		
 		// Ensure required arguments for initializing the prototype based composition process
 		if (args.length != 2) {
 			System.out.println("Provided arguments do not match the usage requirements.");

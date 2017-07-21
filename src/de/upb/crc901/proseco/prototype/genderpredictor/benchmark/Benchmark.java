@@ -1,10 +1,14 @@
 package de.upb.crc901.proseco.prototype.genderpredictor.benchmark;
 
+import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.ObjectInputStream;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -28,11 +32,12 @@ import de.upb.crc901.proseco.prototype.genderpredictor.GroundingRoutine;
 import de.upb.crc901.proseco.prototype.genderpredictor.benchmark.featureextraction.FeaturekNNEvaluator;
 import jaicore.basic.FileUtil;
 import jaicore.basic.PerformanceLogger;
+import weka.core.Instances;
+import weka.core.converters.ArffSaver;
 
 public class Benchmark extends Thread {
 
-	private static final PrototypeProperties PROPS = new PrototypeProperties(
-			".." + File.separator + "config" + File.separator + "benchmarkservice.conf");
+	private static final PrototypeProperties PROPS = new PrototypeProperties(".." + File.separator + "config" + File.separator + "benchmarkservice.conf");
 
 	private static final File WAITING_TASK_DIR = new File(PROPS.getProperty("waiting_task_dir"));
 	private static final File FINISHED_TASK_DIR = new File(PROPS.getProperty("finished_task_dir"));
@@ -52,15 +57,14 @@ public class Benchmark extends Thread {
 	private final Lock fileNameListLock;
 	private File taskTempFolder;
 
+	private static final String MONITOR_OUTPUT = "X:\\data\\CRC901\\stats.csv";
+
 	/**
-	 * Lock that needs to be acquired first before instancesLockMap is allowed to be
-	 * accessed.
+	 * Lock that needs to be acquired first before instancesLockMap is allowed to be accessed.
 	 */
 	private final Lock instancesLockMapLock;
 	/**
-	 * Map containing the locks to access the tuples of instances. First thread
-	 * acquiring a lock for not yet existing instances tuple executes the
-	 * buildInstances of the prototype
+	 * Map containing the locks to access the tuples of instances. First thread acquiring a lock for not yet existing instances tuple executes the buildInstances of the prototype
 	 */
 	private final Map<Integer, Lock> instancesLockMap;
 	/**
@@ -68,9 +72,8 @@ public class Benchmark extends Thread {
 	 */
 	private final Map<Integer, InstancesTuple> instancesTupleMap;
 
-	public Benchmark(final String pName, final List<String> processedFileNames, final Lock fileNameListLock,
-			final Lock instancesLockMapLock, final Map<Integer, Lock> instancesLockMap,
-			final Map<Integer, InstancesTuple> instancesTupleMap) {
+	public Benchmark(final String pName, final List<String> processedFileNames, final Lock fileNameListLock, final Lock instancesLockMapLock,
+			final Map<Integer, Lock> instancesLockMap, final Map<Integer, InstancesTuple> instancesTupleMap) {
 		super(pName);
 		this.processedFileNames = processedFileNames;
 		this.fileNameListLock = fileNameListLock;
@@ -94,8 +97,7 @@ public class Benchmark extends Thread {
 
 				int numberOfProcessedTasks = 0;
 				for (final File taskFile : fileList) {
-					if (taskFile.isDirectory()
-							|| !FilenameUtils.isExtension(taskFile.getAbsolutePath(), TASK_FILE_EXT)) {
+					if (taskFile.isDirectory() || !FilenameUtils.isExtension(taskFile.getAbsolutePath(), TASK_FILE_EXT)) {
 						continue;
 					}
 
@@ -104,38 +106,31 @@ public class Benchmark extends Thread {
 						continue;
 					}
 
-					GroundingRoutine groundingRoutine = new GroundingRoutine(task.getCandidateFolder(),
-							SOURCE_INPUT_FOLDER.getCanonicalFile(), this.taskTempFolder);
+					GroundingRoutine groundingRoutine = new GroundingRoutine(task.getCandidateFolder(), SOURCE_INPUT_FOLDER.getCanonicalFile(), this.taskTempFolder);
 
 					AbstractBenchmarkRunner benchmarkRunner = null;
 					switch (task.getBuildPhase()) {
 					case FEATURE_EXTRACTION:
-						benchmarkRunner = new FeatureExtractionBenchmarkRunner(task, groundingRoutine,
-								this.taskTempFolder, DATA_FILE.getCanonicalFile(), new FeaturekNNEvaluator());
+						benchmarkRunner = new FeatureExtractionBenchmarkRunner(task, groundingRoutine, this.taskTempFolder, DATA_FILE.getCanonicalFile(),
+								new FeaturekNNEvaluator());
 						break;
 					case CLASSIFIER_DEF:
 						InstancesTuple tuple = this.getInstances(task);
-						benchmarkRunner = new ClassifierBenchmarkRunner(task, groundingRoutine, this.taskTempFolder,
-								tuple);
+						benchmarkRunner = new ClassifierBenchmarkRunner(task, groundingRoutine, this.taskTempFolder, tuple);
 						break;
 					}
 
-					log("Start to benchmark task " + taskFile.getAbsolutePath() + " for candidate "
-							+ task.getCandidateFolder().getAbsolutePath());
+					log("Start to benchmark task " + taskFile.getAbsolutePath() + " for candidate " + task.getCandidateFolder().getAbsolutePath());
 					benchmarkRunner.run();
 
-					String[] ignoreFilesForMoving = { "compile.bat", "libs", "test.bat", "train.bat",
-							"validationInstances.serialized" };
-					Set<String> ignoreFilesForMovingSet = Arrays.stream(ignoreFilesForMoving)
-							.collect(Collectors.toSet());
+					String[] ignoreFilesForMoving = { "compile.bat", "libs", "test.bat", "train.bat", "validationInstances.serialized" };
+					Set<String> ignoreFilesForMovingSet = Arrays.stream(ignoreFilesForMoving).collect(Collectors.toSet());
 
 					// move task specific files to task directory
-					log("Benchmark Service: Move files from " + this.taskTempFolder + " to "
-							+ task.getCandidateFolder().getAbsolutePath(), false);
+					log("Benchmark Service: Move files from " + this.taskTempFolder + " to " + task.getCandidateFolder().getAbsolutePath(), false);
 					for (final File testBedFile : this.taskTempFolder.listFiles()) {
 						if (!ignoreFilesForMovingSet.contains(testBedFile.getName())) {
-							final File candidateFile = new File(task.getCandidateFolder().getAbsolutePath()
-									+ File.separator + testBedFile.getName());
+							final File candidateFile = new File(task.getCandidateFolder().getAbsolutePath() + File.separator + testBedFile.getName());
 							if (candidateFile.exists()) {
 								candidateFile.delete();
 							}
@@ -145,8 +140,7 @@ public class Benchmark extends Thread {
 							}
 						}
 					}
-					FileUtils.copyFile(taskFile,
-							new File(FINISHED_TASK_DIR.getAbsolutePath() + File.separator + taskFile.getName()));
+					FileUtils.copyFile(taskFile, new File(FINISHED_TASK_DIR.getAbsolutePath() + File.separator + taskFile.getName()));
 					log("DONE.");
 
 					// XXX delete temporary directory
@@ -203,8 +197,7 @@ public class Benchmark extends Thread {
 		return instances;
 	}
 
-	private InstancesTuple serializeInstancesForBenchmarkTask(final BenchmarkTask benchmarkTask,
-			final Integer instancesHashValue) {
+	private InstancesTuple serializeInstancesForBenchmarkTask(final BenchmarkTask benchmarkTask, final Integer instancesHashValue) {
 		File buildInstancesDir = new File(instancesHashValue + "");
 		File instancesCacheDir = new File("cachedInstances" + File.separator + instancesHashValue);
 		instancesCacheDir.mkdirs();
@@ -212,8 +205,7 @@ public class Benchmark extends Thread {
 		try {
 			FileUtils.copyDirectory(TESTBED_DIR, buildInstancesDir);
 
-			GroundingRoutine grounding = new GroundingRoutine(benchmarkTask.getCandidateFolder(), SOURCE_INPUT_FOLDER,
-					buildInstancesDir);
+			GroundingRoutine grounding = new GroundingRoutine(benchmarkTask.getCandidateFolder(), SOURCE_INPUT_FOLDER, buildInstancesDir);
 
 			grounding.codeAssembly();
 
@@ -222,22 +214,19 @@ public class Benchmark extends Thread {
 			grounding.buildInstances(DATA_FILE.getCanonicalFile(), -1);
 
 			// move files from buildinstancesdir to cache dir
-			String[] filesToMove = { "allInstances.arff", "contTrain.serialized", "instances.serialized",
-					"test.serialized", "train.serialized", "validation.serialized" };
+			String[] filesToMove = { "allInstances.arff", "train.arff", "contTrain.serialized", "instances.serialized", "test.serialized", "train.serialized", "validation.serialized" };
 
 			Map<String, File> serializedFiles = new HashMap<>();
 
 			for (String fileToMove : filesToMove) {
-				serializedFiles.put(fileToMove,
-						new File(instancesCacheDir.getAbsolutePath() + File.separator + fileToMove));
-				FileUtils.copyFile(new File(buildInstancesDir.getAbsolutePath() + File.separator + fileToMove),
-						serializedFiles.get(fileToMove));
+				serializedFiles.put(fileToMove, new File(instancesCacheDir.getAbsolutePath() + File.separator + fileToMove));
+				FileUtils.copyFile(new File(buildInstancesDir.getAbsolutePath() + File.separator + fileToMove), serializedFiles.get(fileToMove));
 			}
 
 			FileUtils.deleteDirectory(buildInstancesDir);
 
-			return new InstancesTuple(serializedFiles.get(filesToMove[4]), serializedFiles.get(filesToMove[5]),
-					serializedFiles.get(filesToMove[1]), serializedFiles.get(filesToMove[3]));
+			return new InstancesTuple(serializedFiles.get(filesToMove[4]), serializedFiles.get(filesToMove[5]), serializedFiles.get(filesToMove[1]),
+					serializedFiles.get(filesToMove[3]));
 
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -250,8 +239,7 @@ public class Benchmark extends Thread {
 		HashCodeBuilder hcb = new HashCodeBuilder();
 		for (String placeholder : INSTANCES_HASH_PLACEHOLDERS) {
 			try {
-				String fileAsString = FileUtil
-						.readFileAsString(benchmarkTask.getCandidateFolder() + File.separator + placeholder);
+				String fileAsString = FileUtil.readFileAsString(benchmarkTask.getCandidateFolder() + File.separator + placeholder);
 				hcb.append(fileAsString);
 			} catch (IOException e) {
 				e.printStackTrace();
@@ -271,8 +259,7 @@ public class Benchmark extends Thread {
 			if (!this.processedFileNames.contains(taskFile.getName())) {
 				this.processedFileNames.add(taskFile.getName());
 				task = BenchmarkTask.readFromTaskFile(taskFile);
-				this.taskTempFolder = new File(
-						TESTBED_DIR.getAbsoluteFile() + "_" + task.getCandidateFolder().getName());
+				this.taskTempFolder = new File(TESTBED_DIR.getAbsoluteFile() + "_" + task.getCandidateFolder().getName());
 				FileUtils.copyDirectory(TESTBED_DIR, this.taskTempFolder);
 				return task;
 			}
@@ -307,16 +294,13 @@ public class Benchmark extends Thread {
 				Integer index = Integer.parseInt(cachedInstancesDir.getName());
 				log("Index: " + index);
 
-				InstancesTuple tuple = new InstancesTuple(
-						new File(cachedInstancesDir.getAbsolutePath() + File.separator + "train.serialized"),
+				InstancesTuple tuple = new InstancesTuple(new File(cachedInstancesDir.getAbsolutePath() + File.separator + "train.serialized"),
 						new File(cachedInstancesDir.getAbsolutePath() + File.separator + "validation.serialized"),
 						new File(cachedInstancesDir.getAbsolutePath() + File.separator + "contTrain.serialized"),
 						new File(cachedInstancesDir.getAbsolutePath() + File.separator + "test.serialized"));
 
-				if (!tuple.trainingData.exists() || !tuple.validationData.exists()
-						|| !tuple.continuedTrainingData.exists() || !tuple.testData.exists()) {
-					System.err.println("WARN: skipped cached instances with index " + index
-							+ ", because some required files do not exist.");
+				if (!tuple.trainingData.exists() || !tuple.validationData.exists() || !tuple.continuedTrainingData.exists() || !tuple.testData.exists()) {
+					System.err.println("WARN: skipped cached instances with index " + index + ", because some required files do not exist.");
 					continue;
 				}
 				instancesLockMap.put(index, new ReentrantLock());
@@ -327,8 +311,8 @@ public class Benchmark extends Thread {
 			log("No cached instances folder, so continue.");
 		}
 
-		IntStream.range(0, NUMBER_OF_THREADS).forEach(x -> threadPool.submit(new Benchmark("BenchmarkWorker#" + x,
-				taskFilenameList, taskFileLock, instancesLockMapLock, instancesLockMap, instancesTupleMap)));
+		IntStream.range(0, NUMBER_OF_THREADS)
+				.forEach(x -> threadPool.submit(new Benchmark("BenchmarkWorker#" + x, taskFilenameList, taskFileLock, instancesLockMapLock, instancesLockMap, instancesTupleMap)));
 
 		System.err.println("Service up and running");
 		String line;

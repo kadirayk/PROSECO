@@ -1,4 +1,5 @@
 package de.upb.crc901.proseco.prototype.genderpredictor;
+
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
@@ -16,14 +17,12 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.Set;
-import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
@@ -33,11 +32,8 @@ import org.apache.commons.io.FilenameUtils;
 
 import Catalano.Imaging.FastBitmap;
 import Catalano.Imaging.Texture.BinaryPattern.IBinaryPattern;
-import Catalano.Imaging.Texture.BinaryPattern.ImprovedLocalBinaryPattern;
-import Catalano.Imaging.Texture.BinaryPattern.LocalAdaptiveTernaryPattern;
 import Catalano.Imaging.Texture.BinaryPattern.LocalBinaryPattern;
 import Catalano.Imaging.Tools.ImageHistogram;
-import jaicore.ml.WekaUtil;
 import weka.classifiers.Classifier;
 import weka.core.Attribute;
 import weka.core.Capabilities;
@@ -73,12 +69,10 @@ public class GenderPredictor implements Classifier, Serializable {
 	public static void main(final String[] args) {
 		// TODO correct usage message
 		if (args.length < 2) {
-			log("ERROR: incorrect number of arguments.");
-			log("-q [pathToFile x.jpg] for prediction");
-			log("-i [pathToFile data.zip] [numberOfInstancesToBuild] to build instances");
-			log("-f [pathToFile testdataInstances.serialized] to test classifier");
+			showInvalidUsageError();
+			return;
 		}
-		
+
 		/* setup feature extractor */
 		/* $featureextraction$ */;
 
@@ -93,16 +87,26 @@ public class GenderPredictor implements Classifier, Serializable {
 			} else {
 				buildInstances(new File(args[1]));
 			}
-		} else if (args[0].equals("-f")) {
+		} else if (args[0].equals("-acc")) {
 			final GenderPredictor predictor = new GenderPredictor(CLASSIFIER_OUT);
 			try (ObjectInputStream ois = new ObjectInputStream(new BufferedInputStream(new FileInputStream(args[1])))) {
 				final Instances test = (Instances) ois.readObject();
-				double f = predictor.computeFValue(test);
-				System.out.println("f=" + f);
+				double accuracy = predictor.computeAccuracy(test);
+				System.out.println("acc=" + accuracy);
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
 		}
+		else {
+			showInvalidUsageError();
+		}
+	}
+	
+	private static void showInvalidUsageError() {
+		log("ERROR: incorrect number of arguments.");
+		log("-q [pathToFile x.jpg] for prediction");
+		log("-i [pathToFile data.zip] [numberOfInstancesToBuild] to build instances");
+		log("-acc [pathToFile testdataInstances.serialized] to compute the accuracy for the classifier");
 	}
 
 	private static Map<String, String> getLabelMap(final Path folder) {
@@ -137,7 +141,7 @@ public class GenderPredictor implements Classifier, Serializable {
 	 * @param data
 	 * @param numberOfInstances
 	 */
-	public static void buildInstances(final File data, final int numberOfInstances) {
+	public static void buildInstances(final File data, int numberOfInstances) {
 		final Path folder = Paths.get("tmp");
 		unzipPhotos(data, folder);
 
@@ -170,6 +174,10 @@ public class GenderPredictor implements Classifier, Serializable {
 			}
 		});
 
+		if (numberOfInstances <= 0) {
+			numberOfInstances = fileArray.length;
+		}
+
 		int numberOfInstancesToDraw = Math.min(fileArray.length - numberOfInstances, numberOfInstances);
 		Set<File> sampledFiles = new HashSet<>();
 		Random r = new Random();
@@ -184,6 +192,7 @@ public class GenderPredictor implements Classifier, Serializable {
 		final AtomicInteger i = new AtomicInteger(0);
 		Arrays.stream(fileArray).parallel().forEach(f -> {
 			if ((addSampledFiles && sampledFiles.contains(f)) || (!addSampledFiles && !sampledFiles.contains(f))) {
+				System.err.println("JUHUUUUU");
 				processDataAndAddToDataset(f, dataset, labels.get(f.getName()));
 				System.out.print("[add item " + (i.incrementAndGet()) + "]");
 			}
@@ -191,6 +200,7 @@ public class GenderPredictor implements Classifier, Serializable {
 
 		try (ObjectOutputStream bw = new ObjectOutputStream(new BufferedOutputStream(new FileOutputStream(INSTANCES_OUT)))) {
 			FileUtils.deleteDirectory(folder.toFile());
+			System.out.println("dataset size: " + dataset.size());
 			bw.writeObject(dataset);
 			System.out.println("DONE.");
 		} catch (final IOException e) {
@@ -233,17 +243,17 @@ public class GenderPredictor implements Classifier, Serializable {
 		}
 	}
 
-	private double computeFValue(final Instances testInstances) throws Exception {
-		double fValue = 0;
+	private double computeAccuracy(final Instances testInstances) throws Exception {
+		int correctPredictions = 0;
 
 		for (int i = 0; i < testInstances.numInstances(); i++) {
 			double pred = this.classifyInstance(testInstances.instance(i));
 			if (testInstances.classAttribute().value((int) testInstances.instance(i).classValue()).equals(testInstances.classAttribute().value((int) pred))) {
-				fValue += 1;
+				correctPredictions ++;
 			}
 		}
-		fValue /= testInstances.numInstances();
-		return fValue;
+		double accuracy = correctPredictions * 1f / testInstances.numInstances();
+		return accuracy;
 	}
 
 	private static void buildPredictor(final File instancesFile) {
@@ -269,24 +279,6 @@ public class GenderPredictor implements Classifier, Serializable {
 
 	@Override
 	public void buildClassifier(final Instances train) throws Exception {
-		final Map<String, Integer> labelCount = WekaUtil.getNumberOfInstancesPerClass(train);
-		final int maxInstances = Math.min(labelCount.get("male"), labelCount.get("female"));
-		int males = 0;
-		int females = 0;
-		final List<Instance> list = new ArrayList<>(train);
-		Collections.shuffle(list);
-		for (final Instance inst : list) {
-			final boolean isMale = (inst.classValue() == 0);
-			if (isMale) {
-				males++;
-			} else {
-				females++;
-			}
-
-			if (!(isMale && males <= maxInstances || !isMale && females <= maxInstances)) {
-				train.remove(inst);
-			}
-		}
 
 		/* create classifier object */
 		/** ## PLACE COMPOSITION CODE HERE ## **/
@@ -321,14 +313,19 @@ public class GenderPredictor implements Classifier, Serializable {
 	}
 
 	private static ArrayList<Attribute> getILBPAttributes() {
-		
+
 		/* compute number of features */
 		int numberOfFeatures;
-		if (bp instanceof LocalBinaryPattern) {
+		if (bp instanceof LocalBinaryPattern || bp instanceof Catalano.Imaging.Texture.BinaryPattern.GradientLocalBinaryPattern
+				|| bp instanceof Catalano.Imaging.Texture.BinaryPattern.LocalGradientCoding || bp instanceof Catalano.Imaging.Texture.BinaryPattern.MultiblockLocalBinaryPattern) {
 			numberOfFeatures = 256;
+		} else if (bp instanceof Catalano.Imaging.Texture.BinaryPattern.CenterSymmetricLocalBinaryPattern) {
+			numberOfFeatures = 16;
 		}
-		else numberOfFeatures = 511;
-		
+
+		else
+			numberOfFeatures = 511;
+
 		final int n = numberOfFeatures * ILBP_GRANULARITY * ILBP_GRANULARITY; // 511 is the number of features in each square
 		final ArrayList<Attribute> attributes = new ArrayList<>(n + 1);
 		for (int i = 0; i < n; i++) {
@@ -382,7 +379,7 @@ public class GenderPredictor implements Classifier, Serializable {
 		}
 
 		/* now create instance object */
-		final Instance inst = new DenseInstance(ILBP_GRANULARITY * ILBP_GRANULARITY * attributeVals.size() + 1);
+		final Instance inst = new DenseInstance(attributeVals.size() + 1);
 		inst.setDataset(dataset);
 
 		/* set attribute values */
@@ -407,7 +404,7 @@ public class GenderPredictor implements Classifier, Serializable {
 		final int min = Math.min(fb.getWidth(), fb.getHeight());
 		new Catalano.Imaging.Filters.Grayscale().applyInPlace(fb);
 		/* $imagefilter$ */
-		
+
 		Instance inst = applyBP(fb, dataset, classValue);
 		dataset.add(inst);
 	}

@@ -527,8 +527,8 @@ wekaPreprocessData; createDataPreprocessor(dn,d); dn,d; ; assignTo('noDataPrepro
 wekaPreprocessFeatures; createRawFeaturePreprocessor(fsn,fs,fen,fe,as); fsn,fs,fen,fe,as; ; assignTo('noFeaturePreprocessing',fsn)
 wekaPreprocessFeatures; createGivenFeaturePreprocessor(fsn,fs,fen,fe,as); fsn,fs,fen,fe,as; assigned('noFeaturePreprocessing',fsn) ; noop
 # Do preprocessing
-#wekaPreprocessFeatures; createRawFeaturePreprocessor(fsn,fs,fen,fe,as); fsn,fs,fen,fe,as; ; wekaCreateRawFeaturePreprocessor(fsn,fs,fen,fe,as)
-#wekaPreprocessFeatures; createGivenFeaturePreprocessor(fsn,fs,fen,fe,as); fsn,fs,fen,fe,as; !assigned('noFeaturePreprocessing',fsn) ; wekaCreateGivenFeaturePreprocessor(fsn,fs,fen,fe,as)
+wekaPreprocessFeatures; createRawFeaturePreprocessor(fsn,fs,fen,fe,as); fsn,fs,fen,fe,as; ; wekaCreateRawFeaturePreprocessor(fsn,fs,fen,fe,as)
+wekaPreprocessFeatures; createGivenFeaturePreprocessor(fsn,fs,fen,fe,as); fsn,fs,fen,fe,as; !assigned('noFeaturePreprocessing',fsn) ; wekaCreateGivenFeaturePreprocessor(fsn,fs,fen,fe,as)
 
 # Generic Attribute Selection
 wekaRawAttributeSelection	; wekaCreateRawFeaturePreprocessor(fsn,fs,fen,fe,as); fsn,fs,fen,fe,as; ; weka.attributeSelection.AttributeSelection:__construct(as) -> getWekaRawAS(fsn,fs,fen,fe) -> weka.attributeSelection.AttributeSelection:setSearch(as,fs) -> weka.attributeSelection.AttributeSelection:setEvaluator(as,fe)

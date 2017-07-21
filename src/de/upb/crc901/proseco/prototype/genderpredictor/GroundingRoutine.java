@@ -35,7 +35,7 @@ public class GroundingRoutine {
 
 	private static final double VALIDATION_INSTANCES_FRACTION = 0.25;
 	private static final double TEST_INSTANCES_FRACTION = 0.25;
-
+	
 	private final File placeHolderDir;
 	private final File sourceInputDir;
 	private final File sourceOutputDir;
@@ -147,10 +147,11 @@ public class GroundingRoutine {
 		} catch (final InterruptedException e) {
 			e.printStackTrace();
 		}
+		
 		PerformanceLogger.logEnd("TrainModel");
 		System.out.println(" DONE");
 	}
-
+	
 	/**
 	 *
 	 * @param numberOfInstancesToBuild
@@ -200,6 +201,13 @@ public class GroundingRoutine {
 							new File(this.sourceOutputDir + File.separator + CONT_TRAINING_INSTANCES_FILE));
 					System.out.println("DONE.");
 
+					/* save examples as ARFF */
+					File arffTrainExport = new File(this.sourceOutputDir + File.separator + "train.arff");
+					try (BufferedWriter bw = new BufferedWriter(new FileWriter(arffTrainExport))) {
+						bw.write(trainingInstances.toString());
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
 					File arffExport = new File(this.sourceOutputDir + File.separator + "allInstances.arff");
 					try (BufferedWriter bw = new BufferedWriter(new FileWriter(arffExport))) {
 						bw.write(allInstances.toString());

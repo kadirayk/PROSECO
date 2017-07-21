@@ -35,6 +35,7 @@ import jaicore.planning.model.ceoc.CEOCAction;
 import jaicore.planning.model.task.ceocstn.CEOCSTNUtil;
 import jaicore.search.algorithms.parallel.parallelexploration.distributed.interfaces.SerializableNodeEvaluator;
 import jaicore.search.algorithms.standard.bestfirst.BestFirst;
+import jaicore.search.algorithms.standard.core.NodeEvaluator;
 import jaicore.search.structure.core.Node;
 import weka.core.Instances;
 
@@ -134,7 +135,7 @@ public class HTNCompositionStrategyRunner implements SolutionEvaluator {
 
 		/* PHASE 2: Searching for best classifier */
 		final SerializableNodeEvaluator<TFDNode, Integer> nodeEval = new RandomCompletionEvaluator(random,
-				EVALUATION_SAMPLE_SIZE, this);
+				EVALUATION_SAMPLE_SIZE, this, true);
 		final BestFirst<TFDNode, String> searchAlgo = new BestFirst<>(
 				MLUtil.getGraphGenerator(new File("htn.searchspace")), nodeEval);
 		final PipelineSearcher optimizer = new PipelineSearcher(searchAlgo, random, NUMBER_OF_CONSIDERED_SOLUTIONS,
@@ -152,40 +153,60 @@ public class HTNCompositionStrategyRunner implements SolutionEvaluator {
 
 	private void getPreprocessingPipeline() {
 		CEOCTFDGraphGenerator generator = MLUtil.getGraphGenerator(new File("imagefilter.searchspace"));
-		BestFirst<TFDNode, String> bf = new BestFirst<>(generator, n -> n.path().size());
+		NodeEvaluator<TFDNode, Integer> nodeEval = new RandomCompletionEvaluator(new Random(0), 1, new SolutionEvaluator() {
+			
+			@Override
+			public void setTrainingData(Instances train) {
+				// TODO Auto-generated method stub
+				
+			}
+			
+			@Override
+			public void setControlData(Instances validation) {
+				// TODO Auto-generated method stub
+				
+			}
+			
+			@Override
+			public int getSolutionScore(List<CEOCAction> plan) throws Exception {
+
+				System.out.println("Code:\n----------------------------------\n");
+				List<List<CEOCAction>> planParts = getCodeParts(plan);
+				String imageFilterCode = getFeatureExtractionCode(planParts.get(0));
+				String featureExctractionCode = getFeatureExtractionCode(planParts.get(1));
+				System.out.println(featureExctractionCode);
+
+				/* invoke benchmark */
+				final String key = String.valueOf(System.currentTimeMillis());
+				final Map<String, String> placeholderValues = new HashMap<>();
+				placeholderValues.put(NAME_PLACEHOLDER_IMAGEFILTER, imageFilterCode);
+				System.out.println("#####IMAGE FILTER CODE " + imageFilterCode);
+				placeholderValues.put(NAME_PLACEHOLDER_FEATUREEXTRACTION, featureExctractionCode);
+				
+				try {
+					int score = callBenchmark(placeholderValues, key);
+					if (score < bestPreprocessingPlaceholderFScore) {
+						preprocessingSolution = imageFilterCode;
+						bestPreprocessingPlaceholderFScore = score;
+						featureExtractingSolution = featureExctractionCode;
+						System.out.println("updated preprocessing solution");
+					}
+					System.out.println("SCORE IS: " + score);
+					return score;
+				} catch (Exception e) {
+					System.err.println("Cannot compute score due to exception:");
+					e.printStackTrace();
+					return Integer.MAX_VALUE;
+				}
+			}
+		}, false);
+		BestFirst<TFDNode, String> bf = new BestFirst<>(generator, nodeEval);
 		SimpleGraphVisualizationWindow<Node<TFDNode, Integer>> window = new SimpleGraphVisualizationWindow<>(
 				bf.getEventBus());
 		window.getPanel().setTooltipGenerator(new TFDTooltipGenerator());
-		List<TFDNode> solution;
-		while ((solution = bf.nextSolution()) != null) {
-			List<CEOCAction> plan = CEOCSTNUtil.extractPlanFromSolutionPath(solution);
-
-			System.out.println("Code:\n----------------------------------\n");
-			List<List<CEOCAction>> planParts = this.getCodeParts(plan);
-			String imageFilterCode = this.getFeatureExtractionCode(planParts.get(0));
-			String featureExctractionCode = this.getFeatureExtractionCode(planParts.get(1));
-			System.out.println(featureExctractionCode);
-
-			/* invoke benchmark */
-			final String key = String.valueOf(System.currentTimeMillis());
-			final Map<String, String> placeholderValues = new HashMap<>();
-			placeholderValues.put(NAME_PLACEHOLDER_IMAGEFILTER, imageFilterCode);
-			System.out.println("#####IMAGE FILTER CODE " + imageFilterCode);
-			placeholderValues.put(NAME_PLACEHOLDER_FEATUREEXTRACTION, featureExctractionCode);
-			try {
-				int score = this.callBenchmark(placeholderValues, key);
-				if (score < this.bestPreprocessingPlaceholderFScore) {
-					this.preprocessingSolution = imageFilterCode;
-					this.bestPreprocessingPlaceholderFScore = score;
-					this.featureExtractingSolution = featureExctractionCode;
-					System.out.println("updated preprocessing solution");
-				}
-				System.out.println("SCORE IS: " + score);
-			} catch (Exception e) {
-				System.err.println("Cannot compute score due to exception:");
-				e.printStackTrace();
-			}
-		}
+		
+		/* identify next solution. The actually used code fragments are stored directly in the HTNCompositionStrategyRunner by the node evaluation function */
+		List<TFDNode> solution = bf.nextSolution();
 	}
 
 	private String getFeatureExtractionCode(final List<CEOCAction> plan) {
