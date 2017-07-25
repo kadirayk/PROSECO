@@ -1,8 +1,8 @@
-package de.upb.crc901.proseco.prototype.genderpredictor.benchmark;
+package de.upb.crc901.proseco.prototype.imageclassification.benchmark;
 
 import java.io.File;
 
-import de.upb.crc901.proseco.prototype.genderpredictor.GroundingRoutine;
+import de.upb.crc901.proseco.prototype.imageclassification.GroundingRoutine;
 
 public abstract class AbstractBenchmarkRunner {
 

@@ -1,4 +1,4 @@
-package de.upb.crc901.proseco.prototype.genderpredictor.benchmark;
+package de.upb.crc901.proseco.prototype.imageclassification.benchmark;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;

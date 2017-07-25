@@ -1,4 +1,4 @@
-package de.upb.crc901.proseco.prototype.genderpredictor;
+package de.upb.crc901.proseco.prototype.imageclassification;
 
 import java.awt.image.BufferedImage;
 import java.io.BufferedReader;

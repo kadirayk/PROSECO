@@ -1,4 +1,4 @@
-package de.upb.crc901.proseco.prototype.genderpredictor.htn;
+package de.upb.crc901.proseco.prototype.imageclassification.htn;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -19,8 +19,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import de.upb.crc901.proseco.PrototypeProperties;
-import de.upb.crc901.proseco.prototype.genderpredictor.benchmark.BenchmarkTask.EBuildPhase;
-import de.upb.crc901.proseco.prototype.genderpredictor.benchmark.BenchmarkTask.EDataFraction;
+import de.upb.crc901.proseco.prototype.imageclassification.benchmark.BenchmarkTask.EBuildPhase;
+import de.upb.crc901.proseco.prototype.imageclassification.benchmark.BenchmarkTask.EDataFraction;
 import de.upb.crc901.taskconfigurator.core.CodePlanningUtil;
 import de.upb.crc901.taskconfigurator.core.MLUtil;
 import de.upb.crc901.taskconfigurator.core.SolutionEvaluator;

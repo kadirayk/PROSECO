@@ -1,4 +1,4 @@
-package de.upb.crc901.proseco.prototype.genderpredictor.benchmark;
+package de.upb.crc901.proseco.prototype.imageclassification.benchmark;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
@@ -28,8 +28,8 @@ import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 import de.upb.crc901.proseco.PrototypeProperties;
-import de.upb.crc901.proseco.prototype.genderpredictor.GroundingRoutine;
-import de.upb.crc901.proseco.prototype.genderpredictor.benchmark.featureextraction.FeaturekNNEvaluator;
+import de.upb.crc901.proseco.prototype.imageclassification.GroundingRoutine;
+import de.upb.crc901.proseco.prototype.imageclassification.benchmark.featureextraction.FeaturekNNEvaluator;
 import jaicore.basic.FileUtil;
 import jaicore.basic.PerformanceLogger;
 import weka.core.Instances;
