@@ -8,8 +8,11 @@ import org.apache.commons.io.FileUtils;
 import org.junit.AfterClass;
 import org.junit.Test;
 
-import de.upb.crc901.proseco.prototype.genderpredictor.benchmark.BenchmarkTask.EBuildPhase;
-import de.upb.crc901.proseco.prototype.genderpredictor.benchmark.BenchmarkTask.EDataFraction;
+import de.upb.crc901.proseco.prototype.imageclassification.benchmark.BenchmarkRcv;
+import de.upb.crc901.proseco.prototype.imageclassification.benchmark.BenchmarkTask;
+import de.upb.crc901.proseco.prototype.imageclassification.benchmark.BenchmarkTaskBuilder;
+import de.upb.crc901.proseco.prototype.imageclassification.benchmark.BenchmarkTask.EBuildPhase;
+import de.upb.crc901.proseco.prototype.imageclassification.benchmark.BenchmarkTask.EDataFraction;
 
 public class BenchmarkRcvTest {
 

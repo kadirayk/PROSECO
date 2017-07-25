@@ -1,9 +1,9 @@
-package de.upb.crc901.proseco.prototype.genderpredictor.benchmark;
+package de.upb.crc901.proseco.prototype.imageclassification.benchmark;
 
 import java.io.File;
 
-import de.upb.crc901.proseco.prototype.genderpredictor.benchmark.BenchmarkTask.EBuildPhase;
-import de.upb.crc901.proseco.prototype.genderpredictor.benchmark.BenchmarkTask.EDataFraction;
+import de.upb.crc901.proseco.prototype.imageclassification.benchmark.BenchmarkTask.EBuildPhase;
+import de.upb.crc901.proseco.prototype.imageclassification.benchmark.BenchmarkTask.EDataFraction;
 
 public class BenchmarkTaskBuilder {
 

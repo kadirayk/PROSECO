@@ -1,6 +1,6 @@
-package de.upb.crc901.proseco.prototype.genderpredictor;
+package de.upb.crc901.proseco.prototype.imageclassification;
 
-import static de.upb.crc901.proseco.prototype.genderpredictor.GenderPredictorInstancesUtil.getInstances;
+import static de.upb.crc901.proseco.prototype.imageclassification.GenderPredictorInstancesUtil.getInstances;
 
 import java.io.BufferedWriter;
 import java.io.File;

@@ -1,4 +1,4 @@
-package de.upb.crc901.proseco.prototype.genderpredictor.benchmark.featureextraction;
+package de.upb.crc901.proseco.prototype.imageclassification.benchmark.featureextraction;
 
 import java.util.Collection;
 import java.util.HashMap;

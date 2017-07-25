@@ -4,10 +4,13 @@ import java.io.File;
 
 import org.junit.Test;
 
-import de.upb.crc901.proseco.prototype.genderpredictor.GroundingRoutine;
-import de.upb.crc901.proseco.prototype.genderpredictor.benchmark.BenchmarkTask.EBuildPhase;
-import de.upb.crc901.proseco.prototype.genderpredictor.benchmark.BenchmarkTask.EDataFraction;
-import de.upb.crc901.proseco.prototype.genderpredictor.benchmark.featureextraction.FeaturekNNEvaluator;
+import de.upb.crc901.proseco.prototype.imageclassification.GroundingRoutine;
+import de.upb.crc901.proseco.prototype.imageclassification.benchmark.BenchmarkTask;
+import de.upb.crc901.proseco.prototype.imageclassification.benchmark.BenchmarkTaskBuilder;
+import de.upb.crc901.proseco.prototype.imageclassification.benchmark.FeatureExtractionBenchmarkRunner;
+import de.upb.crc901.proseco.prototype.imageclassification.benchmark.BenchmarkTask.EBuildPhase;
+import de.upb.crc901.proseco.prototype.imageclassification.benchmark.BenchmarkTask.EDataFraction;
+import de.upb.crc901.proseco.prototype.imageclassification.benchmark.featureextraction.FeaturekNNEvaluator;
 
 public class FeatureExtractionBenchmarkRunnerTest {
 
