@@ -7,7 +7,7 @@ sourceSets {
         }
         resources {
         	srcDir 'conf'
-        	srcDir 'prototypes/genderrecognition/src'
+        	srcDir 'prototypes/imageclassification/src'
     	}
     }
     test {
@@ -34,7 +34,11 @@ dependencies {
 	compile name: 'Catalano.Image'
 	compile name: 'Catalano.Math'
 	compile name: 'Catalano.Statistics'
-
+	
+	// Koloboke Library for high performance primitive collections
+	compile group: 'com.koloboke', name: 'koloboke-impl-jdk8', version: '1.0.0'
+	compile group: 'com.koloboke', name: 'koloboke-impl-common-jdk8', version: '1.0.0'
+	
 	// Graph Stream
 	compile group: 'org.graphstream', name: 'gs-core', version: '1.1.1'
 	compile group: 'org.graphstream', name: 'gs-ui', version: '1.3'

@@ -5,8 +5,8 @@
     <!--define folder properties-->
     <property name="dir.buildfile" value="."/>
     <property name="dir.workspace" value="${dir.buildfile}/.."/>
-    <property name="dir.jarfile" value="${dir.buildfile}/prototypes/genderrecognition"/>
-    <property name="dir.jarlibs" value="${dir.buildfile}/prototypes/genderrecognition/libs"/>
+    <property name="dir.jarfile" value="${dir.buildfile}/prototypes/imageclassification"/>
+    <property name="dir.jarlibs" value="${dir.buildfile}/prototypes/imageclassification/libs"/>
 	
     <target name="createInitConfigurationJar">
         <jar destfile="${dir.jarfile}/InitConfiguration.jar">
