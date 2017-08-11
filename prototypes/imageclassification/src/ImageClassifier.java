@@ -233,7 +233,7 @@ public class ImageClassifier extends AbstractClassifierPrototype implements Clas
     } else {
       numberOfFeatures = 511;
     }
-
+    
     final int n = numberOfFeatures * ILBP_GRANULARITY * ILBP_GRANULARITY; // 511 is the number of
                                                                           // features in each square
     final ArrayList<Attribute> attributes = new ArrayList<>(n + 1);

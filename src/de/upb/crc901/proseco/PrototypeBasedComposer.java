@@ -19,8 +19,6 @@ import org.slf4j.LoggerFactory;
 
 import jaicore.basic.FileUtil;
 import jaicore.basic.PerformanceLogger;
-import jaicore.ml.WekaUtil;
-import weka.classifiers.trees.RandomForest;
 
 public class PrototypeBasedComposer {
 	private static final Logger logger = LoggerFactory.getLogger(PrototypeBasedComposer.class);
