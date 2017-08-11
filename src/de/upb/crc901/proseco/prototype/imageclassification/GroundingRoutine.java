@@ -1,5 +1,6 @@
 package de.upb.crc901.proseco.prototype.imageclassification;
 
+
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -20,8 +21,8 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 
 import de.upb.crc901.proseco.PrototypeProperties;
+import de.upb.crc901.proseco.prototype.GroundingUtil;
 import jaicore.basic.PerformanceLogger;
-import jaicore.ml.GroundingUtil;
 import jaicore.ml.WekaUtil;
 import weka.core.Instances;
 
