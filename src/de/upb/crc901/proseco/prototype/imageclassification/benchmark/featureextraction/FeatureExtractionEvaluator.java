@@ -2,8 +2,20 @@ package de.upb.crc901.proseco.prototype.imageclassification.benchmark.featureext
 
 import weka.core.Instances;
 
+/**
+ * Interface for all feature extraction evaluators.
+ *
+ * @author mwever
+ */
 public interface FeatureExtractionEvaluator {
 
-	public double evaluate(Instances instancesToEvaluate);
+  /**
+   * Evaluate the given instances and assess the features in their relation to the assigned labels.
+   *
+   * @param instancesToEvaluate
+   *          The instances to assess their feature representation.
+   * @return The accuracy of the evaluator.
+   */
+  public double evaluate(Instances instancesToEvaluate);
 
 }

@@ -1,4 +1,4 @@
-package de.upb.crc901.proseco.prototype.imageclassification.benchmark;
+package de.upb.crc901.proseco.prototype.imageclassification.benchmark.runner;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -11,6 +11,7 @@ import java.lang.ProcessBuilder.Redirect;
 
 import de.upb.crc901.proseco.PrototypeProperties;
 import de.upb.crc901.proseco.prototype.imageclassification.GroundingRoutine;
+import de.upb.crc901.proseco.prototype.imageclassification.benchmark.BenchmarkTask;
 import de.upb.crc901.proseco.prototype.imageclassification.benchmark.featureextraction.FeatureExtractionEvaluator;
 import weka.core.Instances;
 
