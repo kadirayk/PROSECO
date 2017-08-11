@@ -1,9 +1,9 @@
 package de.upb.crc901.proseco.prototype.imageclassification;
 
 import de.upb.crc901.proseco.PrototypeProperties;
+import de.upb.crc901.proseco.prototype.GroundingUtil;
 
 import jaicore.basic.PerformanceLogger;
-import jaicore.ml.GroundingUtil;
 import jaicore.ml.WekaUtil;
 
 import java.io.BufferedReader;
