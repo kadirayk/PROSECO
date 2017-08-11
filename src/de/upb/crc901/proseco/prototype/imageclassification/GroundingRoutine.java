@@ -1,8 +1,5 @@
 package de.upb.crc901.proseco.prototype.imageclassification;
 
-import jaicore.basic.PerformanceLogger;
-import jaicore.ml.WekaUtil;
-
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -22,13 +19,16 @@ import java.util.Random;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 
+import de.upb.crc901.proseco.PrototypeProperties;
+import jaicore.basic.PerformanceLogger;
+import jaicore.ml.GroundingUtil;
+import jaicore.ml.WekaUtil;
 import weka.core.Instances;
 
 public class GroundingRoutine {
 
+  private static final String JAVA_EXTENSION = ".java";
   private static final String SERVICE_SRC_FILE = "ImageClassifier.java";
-  private static final String COMPILE_SCRIPT = "compile.bat";
-  private static final String TRAIN_SCRIPT = "train.bat";
   private static final String BUILD_INSTANCES_SCRIPT = "buildInstances.bat";
 
   private static final String INSTANCES_PT_OUT = "instances.serialized";
@@ -48,11 +48,33 @@ public class GroundingRoutine {
 
   private String serviceSourceFileContent;
 
-  public GroundingRoutine(final File placeHolderDir, final File sourceInputDir, final File sourceOutputDir) {
+  /**
+   * This object maintains all configurations provided by the configuration file located in the config
+   * folder of the prototype.
+   */
+  private final PrototypeProperties properties;
+
+  /**
+   * Class for the grounding routine. The grounding routine is responsible for substituting code
+   * templates with given values. Furthermore, it compiles the code template and trains the resulting
+   * classifier.
+   *
+   * @param placeHolderDir
+   *          The directory the files for the placeholders of the code template are located.
+   * @param sourceInputDir
+   *          The directory the plain code template is located.
+   * @param sourceOutputDir
+   *          The directory, the grounded code template shall be copied to and where the source code
+   *          is compiled to binaries and executed.
+   * @param configFile
+   *          The file containing the configuration values for the grounding routine.
+   */
+  public GroundingRoutine(final File placeHolderDir, final File sourceInputDir, final File sourceOutputDir, final File configFile) {
     this.placeHolderDir = placeHolderDir;
     this.sourceInputDir = sourceInputDir;
     this.sourceOutputDir = sourceOutputDir;
     this.serviceSourceFile = new File(this.sourceInputDir.getAbsolutePath() + "/" + SERVICE_SRC_FILE);
+    this.properties = new PrototypeProperties(configFile);
 
     log("Read service source file");
     this.serviceSourceFileContent = "";
@@ -95,8 +117,6 @@ public class GroundingRoutine {
   }
 
   public void codeAssembly() {
-    log("Start code assembly");
-    PerformanceLogger.logStart("CodeAssembly");
     for (final File placeholder : this.placeHolderDir.listFiles()) {
       if (placeholder.isFile()) {
         final String placeholderVar = "/* $" + placeholder.getName() + "$ */";
@@ -116,85 +136,68 @@ public class GroundingRoutine {
         }
       }
     }
-    log("Finished code assembly");
 
     final File sourceOutputFile = new File(this.sourceOutputDir.getAbsolutePath() + "/" + SERVICE_SRC_FILE);
     try (final BufferedWriter bw = new BufferedWriter(new FileWriter(sourceOutputFile))) {
       bw.write(this.serviceSourceFileContent);
-      bw.flush();
     } catch (final IOException e) {
       e.printStackTrace();
     }
-    PerformanceLogger.logEnd("CodeAssembly");
+
+    log("Code assembly DONE.");
   }
 
   public void compile() {
-    System.out.print("Compile solution ...");
-    PerformanceLogger.logStart("CodeCompilation");
     try {
-      final ProcessBuilder pb = new ProcessBuilder(this.sourceOutputDir.getAbsolutePath() + "/" + COMPILE_SCRIPT);
-      pb.redirectError(Redirect.INHERIT);
-      pb.redirectOutput(Redirect.INHERIT);
-
-      final Process compileProcess = pb.start();
-      compileProcess.waitFor();
+      final ProcessBuilder pb = new ProcessBuilder(GroundingUtil.compileJava("*" + JAVA_EXTENSION, this.properties.getProperty("classpath"))).directory(this.sourceOutputDir)
+          .redirectError(Redirect.INHERIT).redirectOutput(Redirect.INHERIT);
+      pb.start().waitFor();
+      log("Compile solution DONE.");
     } catch (final IOException e) {
-      System.out.println(" FAIL");
       e.printStackTrace();
     } catch (final InterruptedException e) {
-      System.out.println(" FAIL");
       e.printStackTrace();
     }
-    PerformanceLogger.logEnd("CodeCompilation");
-    System.out.println(" DONE");
   }
 
   public void trainModel(final File trainingData) {
-    PerformanceLogger.logStart("TrainModel");
-    System.out.print("Train model ...");
     try {
-      final ProcessBuilder pb = new ProcessBuilder(this.sourceOutputDir.getAbsolutePath() + "/" + TRAIN_SCRIPT, trainingData.getAbsolutePath());
-      pb.redirectError(Redirect.INHERIT);
-      pb.redirectOutput(Redirect.INHERIT);
-
-      final Process trainProcess = pb.start();
-
-      trainProcess.waitFor();
-
+      String[] command = GroundingUtil.executeJava(this.properties.getProperty("classname"), "-t " + trainingData.getCanonicalPath(), this.properties.getProperty("classpath"));
+      final ProcessBuilder pb = new ProcessBuilder(command).directory(this.sourceOutputDir).redirectError(Redirect.INHERIT).redirectOutput(Redirect.INHERIT);
+      pb.start().waitFor();
+      log("Train model DONE.");
     } catch (final IOException e) {
       e.printStackTrace();
     } catch (final InterruptedException e) {
       e.printStackTrace();
     }
-
-    PerformanceLogger.logEnd("TrainModel");
-    System.out.println(" DONE");
   }
 
   /**
+   * Use the compiled prototype to build numberOfInstancesToBuild many instances from the given
+   * dataFile.
    *
+   * @param dataFile
+   *          The zip file containing the data that shall be transformed into instances.
    * @param numberOfInstancesToBuild
-   *          zero or negative value to build all instances
+   *          Number of instances that are desired to be built from the given data file. A negative
+   *          value or a value of zero indicates to transform all data from the dataFile into
+   *          instances.
    */
   public void buildInstances(final File dataFile, final int numberOfInstancesToBuild) {
     PerformanceLogger.logStart("BuildInstances");
     try {
-      final ProcessBuilder pb = new ProcessBuilder(this.sourceOutputDir.getAbsolutePath() + File.separator + BUILD_INSTANCES_SCRIPT, dataFile.getCanonicalPath());
-      pb.redirectError(Redirect.INHERIT);
-      pb.redirectOutput(Redirect.INHERIT);
-
-      System.out.println("Start building instances...");
-      final Process buildInstancesProcess = pb.start();
-      buildInstancesProcess.waitFor();
-      System.out.println("DONE");
+      // get the command for building the instances in order to execute this command as a process
+      String[] command = GroundingUtil.executeJava(this.properties.getProperty("classname"), "-i " + dataFile.getCanonicalPath() + " " + numberOfInstancesToBuild,
+          this.properties.getProperty("classpath"));
+      final ProcessBuilder pb = new ProcessBuilder(this.sourceOutputDir.getAbsolutePath() + File.separator + BUILD_INSTANCES_SCRIPT, dataFile.getCanonicalPath())
+          .redirectError(Redirect.INHERIT).redirectOutput(Redirect.INHERIT);
+      pb.start().waitFor();
+      log("Buildind instances done.");
 
       if (numberOfInstancesToBuild <= 0) {
         try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(this.sourceOutputDir.getAbsolutePath() + File.separator + INSTANCES_PT_OUT))) {
           Instances allInstances = (Instances) ois.readObject();
-          if (allInstances.size() == 0) {
-            System.exit(0);
-          }
-
           List<Instances> stratifiedInstances = WekaUtil.getStratifiedSplit(allInstances, new Random(123), (1 - VALIDATION_INSTANCES_FRACTION - TEST_INSTANCES_FRACTION),
               VALIDATION_INSTANCES_FRACTION);
 
@@ -265,32 +268,19 @@ public class GroundingRoutine {
     final File placeholderFolder = new File(args[0]);
     final File sourceInputFolder = new File(args[1]);
     final File sourceOutputFolder = new File(args[2]);
+    final File configFile = new File("config/groundingroutine.conf");
 
-    GroundingRoutine gr = new GroundingRoutine(placeholderFolder, sourceInputFolder, sourceOutputFolder);
+    GroundingRoutine gr = new GroundingRoutine(placeholderFolder, sourceInputFolder, sourceOutputFolder, configFile);
 
     /* Assemble the code by substituting the placeholders */
-    startTime = System.currentTimeMillis();
     gr.codeAssembly();
-    runtimeLog(sourceOutputFolder, "assembly=" + (System.currentTimeMillis() - startTime) + "ms");
 
     /* Compile the assembled code */
-    startTime = System.currentTimeMillis();
     gr.compile();
-    runtimeLog(sourceOutputFolder, "compiling=" + (System.currentTimeMillis() - startTime) + "ms");
 
-    startTime = System.currentTimeMillis();
     gr.trainModel(new File(".." + File.separator + "params" + File.separator + "classifierdef" + File.separator + "instances.serialized"));
-    runtimeLog(sourceOutputFolder, "training=" + (System.currentTimeMillis() - startTime) + "ms");
 
     PerformanceLogger.saveGlobalLogToFile(new File("GroundingRoutine.log"));
-  }
-
-  private static void runtimeLog(final File outputFolder, final String logMessage) {
-    try (BufferedWriter bw = new BufferedWriter(new FileWriter(outputFolder.getAbsolutePath() + File.separator + "runtime.value", true))) {
-      bw.write(logMessage + "\n");
-    } catch (IOException ioE) {
-      ioE.printStackTrace();
-    }
   }
 
   private static void log(final String msg) {

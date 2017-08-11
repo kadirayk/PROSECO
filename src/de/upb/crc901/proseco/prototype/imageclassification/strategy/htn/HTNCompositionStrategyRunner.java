@@ -1,4 +1,4 @@
-package de.upb.crc901.proseco.prototype.imageclassification.htn;
+package de.upb.crc901.proseco.prototype.imageclassification.strategy.htn;
 
 import java.io.BufferedReader;
 import java.io.File;
