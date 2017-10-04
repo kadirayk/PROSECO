@@ -333,7 +333,8 @@ public class PrototypeBasedComposer {
 
       final File fValueFile = new File(strategy.getAbsolutePath() + File.separator + OUTPUT_DIR + File.separator + "f.value");
       if (!fValueFile.exists()) {
-        throw new IllegalStateException("File " + fValueFile.getAbsolutePath() + " was not found.");
+        System.out.println("f.value file was not found for strategy; ignoring it: " + fValueFile.getAbsolutePath());
+        continue;
       }
       Double parsedValue = 0.0;
       try {
