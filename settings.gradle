@@ -1,3 +1,0 @@
-includeFlat 'JAICore', 'CrcTaskBasedConfigurator', 'CrcConfigurationSetting', 'CrcConfigurationFramework'
-
-rootProject.name = 'PROSECO'
