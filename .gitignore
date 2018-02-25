@@ -51,3 +51,10 @@ local.properties
 /execution/
 /logs/
 /build/
+
+
+# Generated files
+data/stored
+
+# JDT-specific (Eclipse Java Development Tools)		
+.classpath

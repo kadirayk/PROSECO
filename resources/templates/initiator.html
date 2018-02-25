@@ -1,0 +1,17 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+</head>
+<body>
+	<form action="#" th:action="@{/init}" th:object="${initiator}"
+		method="post">
+		<p>Input:</p>
+		<textarea rows="4" cols="50" th:field="*{content}"></textarea>
+		<p>
+			<input type="submit" value="Submit" /> <input type="reset"
+				value="Reset" />
+		</p>
+	</form>
+</body>
+</html>

@@ -65,6 +65,16 @@ dependencies {
 	
 	// Jackson for JSON (used by JAICore but not contained in the JAR)
 	compile group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.9.0.pr4'
+	
+	// Spring Boot
+	compile 'org.springframework.boot:spring-boot-starter-thymeleaf:1.5.9.RELEASE'
+	compile 'org.springframework.boot:spring-boot-starter-test:1.5.9.RELEASE'
+	
+	// Jackson for YAML
+	compile 'com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.8.10'
+	
+	//Hamcrest for unit tests
+	testCompile 'org.hamcrest:hamcrest-core:1.3'
 }
 
 repositories {

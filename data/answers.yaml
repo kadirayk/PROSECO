@@ -1,0 +1,10 @@
+answers:
+- not_null
+- equal[]
+- contains[]
+- equalAny[]
+- containsAny[]
+- '>[10]'
+- <[10]
+- '>=[10]'
+- <=[10]

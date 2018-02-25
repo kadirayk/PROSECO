@@ -17,6 +17,7 @@ import org.apache.commons.io.FilenameUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import de.upb.crc901.proseco.view.core.model.Interview;
 import jaicore.basic.FileUtil;
 import jaicore.basic.PerformanceLogger;
 
@@ -87,6 +88,17 @@ public class PrototypeBasedComposer {
 
     new PrototypeBasedComposer(prototypeName, dataFilePath);
   }
+  
+  public static void run(Interview interview) {
+	    Thread.currentThread().setName("PrototypeBasedComposer");
+	    final String prototypeName;
+	    final String dataFilePath;
+	    
+	    prototypeName = interview.getQuestionByPath("step1.q1").getAnswer();
+	    dataFilePath = interview.getQuestionByPath("step4.q1").getAnswer();
+
+	    new PrototypeBasedComposer(prototypeName, dataFilePath);
+	  }
 
   private final String dataFilePath;
   private final String prototypeName;
