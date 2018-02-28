@@ -15,8 +15,8 @@ public class SerializationUtil {
 	private SerializationUtil() {
 	}
 
-	public static void write(Interview interview) {
-		String filePath = "data/stored/" + interview.getId();
+	public static void write(String path, Interview interview) {
+		String filePath = path + "interview_state";
 		try (FileOutputStream f = new FileOutputStream(new File(filePath));
 				ObjectOutputStream o = new ObjectOutputStream(f)) {
 			o.writeObject(interview);
@@ -27,8 +27,8 @@ public class SerializationUtil {
 		}
 	}
 
-	public static Interview read(String id) {
-		String filePath = "data/stored/" + id;
+	public static Interview read(String path) {
+		String filePath = path + "interview_state";
 		Interview interview = null;
 		try (FileInputStream f = new FileInputStream(new File(filePath));
 				ObjectInputStream o = new ObjectInputStream(f)) {
