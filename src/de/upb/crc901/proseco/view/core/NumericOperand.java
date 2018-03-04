@@ -1,5 +1,11 @@
 package de.upb.crc901.proseco.view.core;
 
+/**
+ * NumericOperand is an operand in the expression with numeric value
+ * 
+ * @author kadirayk
+ *
+ */
 public class NumericOperand extends Operand {
 
 	private double numericValue;

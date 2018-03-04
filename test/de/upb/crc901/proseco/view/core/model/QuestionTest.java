@@ -15,7 +15,7 @@ public class QuestionTest {
 		parser = new Parser();
 	}
 
-	@Test
+//	@Test
 	public void parseTest() {
 		String filePath = "test/data/ml_questions.yaml";
 		QuestionCollection formCollection = parser.parseQuestion(filePath);

@@ -3,6 +3,12 @@ package de.upb.crc901.proseco.view.core.model.html;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * HTML Select element &lt;select\&gt;
+ * 
+ * @author kadirayk
+ *
+ */
 public class Select extends UIElement {
 	List<Option> options;
 	private static final String TAG = "select";

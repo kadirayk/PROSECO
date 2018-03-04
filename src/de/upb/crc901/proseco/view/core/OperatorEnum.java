@@ -1,5 +1,11 @@
 package de.upb.crc901.proseco.view.core;
 
+/**
+ * Enum of supported Operator types
+ * 
+ * @author kadirayk
+ *
+ */
 public enum OperatorEnum {
 
 	EQUAL("="), GREATER(">"), LESS("<"), GREATER_EQUAL(">="), LESS_EQUAL("<="), AND("&"), OR("|"), NOT("!"), LEFT_P(

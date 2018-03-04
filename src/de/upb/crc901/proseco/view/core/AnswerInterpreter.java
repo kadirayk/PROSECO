@@ -8,11 +8,29 @@ import de.upb.crc901.proseco.view.core.model.Interview;
 import de.upb.crc901.proseco.view.core.model.Question;
 import de.upb.crc901.proseco.view.core.model.State;
 
+/**
+ * Answer Interpreter for interview questions. Answers are checked for
+ * predefined conditions.
+ * 
+ * 
+ * @author kadirayk
+ * 
+ *
+ */
 public class AnswerInterpreter {
 
 	private AnswerInterpreter() {
 	}
 
+	/**
+	 * Finds next state of the interview
+	 * 
+	 * 
+	 * @param interview
+	 * @param state
+	 * @return
+	 * @throws NextStateNotFoundException
+	 */
 	public static String findNextState(Interview interview, State state) throws NextStateNotFoundException {
 		Map<String, String> transition = state.getTransition();
 		for (Map.Entry<String, String> e : transition.entrySet()) {
@@ -25,6 +43,13 @@ public class AnswerInterpreter {
 
 	}
 
+	/**
+	 * evaluates the correctness of the condition
+	 * 
+	 * @param interview
+	 * @param condition
+	 * @return
+	 */
 	private static boolean evaluate(Interview interview, String condition) {
 		if (condition.equals("default")) {
 			return true;

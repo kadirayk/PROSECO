@@ -1,4 +1,4 @@
-context: imageclassification
+prototypeName: imageclassification
 questionRepo: prototypes/imageclassification/interview_data/questions.yaml
 states:
 - name: step1

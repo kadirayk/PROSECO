@@ -8,11 +8,43 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import de.upb.crc901.proseco.view.core.model.Interview;
 
+/**
+ * Serialization utility class
+ * 
+ * @author kadirayk
+ *
+ */
 public class SerializationUtil {
 
 	private SerializationUtil() {
+	}
+
+	public static void writeAsJSON(String path, Interview interview) {
+		String filePath = path + "interview_state.json";
+		ObjectMapper mapper = new ObjectMapper();
+		File file = new File(filePath);
+		try {
+			mapper.writeValue(file, interview);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
+	}
+
+	public static Interview readAsJSON(String path) {
+		String filePath = path + "interview_state.json";
+		Interview interview = null;
+		ObjectMapper mapper = new ObjectMapper();
+		try {
+			interview = mapper.readValue(new File(filePath), Interview.class);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return interview;
 	}
 
 	public static void write(String path, Interview interview) {

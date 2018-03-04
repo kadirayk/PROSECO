@@ -10,6 +10,13 @@ import de.upb.crc901.proseco.view.core.AnswerInterpreter;
 import de.upb.crc901.proseco.view.core.NextStateNotFoundException;
 import de.upb.crc901.proseco.view.util.ListUtil;
 
+/**
+ * Interview is defined by states and their conditional transitions each state
+ * of the interview can have multiple form inputs
+ * 
+ * @author kadirayk
+ *
+ */
 public class Interview implements Serializable {
 
 	/**
@@ -17,7 +24,7 @@ public class Interview implements Serializable {
 	 */
 	private static final long serialVersionUID = -9198421035407778684L;
 
-	private String context;
+	private String prototypeName;
 	private String questionRepo;
 	private List<State> states;
 	private Map<String, State> stateMap;
@@ -25,8 +32,12 @@ public class Interview implements Serializable {
 	private String id;
 	private Set<String> questionSet;
 
-	/*
-	 * "step1.q1"
+
+	/**
+	 * Returns question with the given path i.e. "step1.q1"
+	 *  
+	 * @param path
+	 * @return
 	 */
 	public Question getQuestionByPath(String path) {
 		Question q = null;
@@ -49,12 +60,12 @@ public class Interview implements Serializable {
 		this.questionSet = questionSet;
 	}
 
-	public String getContext() {
-		return context;
+	public String getPrototypeName() {
+		return prototypeName;
 	}
 
-	public void setContext(String context) {
-		this.context = context;
+	public void setPrototypeName(String prototypeName) {
+		this.prototypeName = prototypeName;
 	}
 
 	public String getQuestionRepo() {

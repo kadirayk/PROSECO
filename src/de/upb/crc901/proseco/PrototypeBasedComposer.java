@@ -1,14 +1,19 @@
 package de.upb.crc901.proseco;
 
+import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileFilter;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
+import java.io.PrintStream;
 import java.lang.ProcessBuilder.Redirect;
 import java.nio.file.Files;
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -18,29 +23,12 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import de.upb.crc901.proseco.util.Config;
 import jaicore.basic.FileUtil;
 import jaicore.basic.PerformanceLogger;
 
 public class PrototypeBasedComposer {
 	private static final Logger logger = LoggerFactory.getLogger(PrototypeBasedComposer.class);
-
-	private static final PrototypeProperties PROPS = new PrototypeProperties("config/PrototypeBasedComposer.conf");
-
-	private static final boolean FINAL_CLEAN_UP = Boolean.parseBoolean(PROPS.getProperty("pbc.final_clean_up"));
-
-	private static final File PROTOTYPES = new File(PROPS.getProperty("pbc.prototypes_path"));
-	private static final File EXECUTIONS = new File(PROPS.getProperty("pbc.executions_path"));
-
-	private static final String BENCHMARKS = PROPS.getProperty("pbc.benchmarks_path");
-	private static final String STRATEGIES = PROPS.getProperty("pbc.strategies_path");
-	private static final String SOURCE = PROPS.getProperty("pbc.source_path");
-	private static final String CONFIG = PROPS.getProperty("pbc.config_path");
-	private static final String GROUNDING = PROPS.getProperty("pbc.grounding_path");
-	private static final String PARAMS = PROPS.getProperty("pbc.params_path");
-	private static final String LIBS = PROPS.getProperty("pbc.libs_path");
-	private static final String INTERVIEW = PROPS.getProperty("pbc.interview_path");
-
-	private static final String OUTPUT_DIR = PROPS.getProperty("pbc.output_directory");
 
 	/** Base folder for matching the availability of prototypes */
 
@@ -62,6 +50,7 @@ public class PrototypeBasedComposer {
 	private File benchmarksDirectory;
 	private File libsDirectory;
 	private File interviewDirectory;
+	private File interviewResourcesDirectory;
 
 	private File groundingFile;
 
@@ -93,19 +82,30 @@ public class PrototypeBasedComposer {
 		// new PrototypeBasedComposer(prototypeName, dataFilePath);
 	}
 
-	public static void run(String prototypeName) {
+	public static void run(String prototypeId) {
 		Thread.currentThread().setName("PrototypeBasedComposer");
 
-		if (!StringUtils.isEmpty(prototypeName)) {
-			new PrototypeBasedComposer(prototypeName);
+		if (!StringUtils.isEmpty(prototypeId)) {
+			new PrototypeBasedComposer(prototypeId);
 		} else {
-			System.out.println("Prototype name is not given");
+			System.out.println("Prototype is not given");
 			System.exit(1);
 		}
 	}
 
+	protected PrintStream outputFile(String name) {
+		try {
+			return new PrintStream(new BufferedOutputStream(new FileOutputStream(name)), true);
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return null;
+	}
+
 	// private final String dataFilePath;
 	private final String prototypeName;
+	private final String prototypeId;
 
 	private File executionDirectory;
 	private File executionDataZip;
@@ -121,10 +121,11 @@ public class PrototypeBasedComposer {
 	 * @param prototypeName
 	 *            The name of the prototype which shall be used.
 	 */
-	public PrototypeBasedComposer(final String prototypeName) {
-		this.prototypeName = prototypeName;
+	public PrototypeBasedComposer(final String prototypeId) {
+		this.prototypeName = prototypeId.split("-")[0];
+		this.prototypeId = prototypeId;
 
-		this.prototypeDirectory = new File(PROTOTYPES.getAbsolutePath() + File.separator + this.prototypeName);
+		this.prototypeDirectory = new File(Config.PROTOTYPES.getAbsolutePath() + File.separator + this.prototypeName);
 
 		if (!this.prototypeDirectory.exists() || !this.prototypeDirectory.isDirectory()) {
 			System.out.println("No such prototype available.");
@@ -142,7 +143,7 @@ public class PrototypeBasedComposer {
 		try {
 			PerformanceLogger.logStart("TotalRuntime");
 			// create instance copy of the chosen prototype
-			this.initializeExecutionEnvironment(prototypeName);
+			this.initializeExecutionEnvironment(this.prototypeId);
 
 			PerformanceLogger.logStart("bootUpInternalBenchmarkService");
 			this.bootUpInternalBenchmarkService();
@@ -203,7 +204,7 @@ public class PrototypeBasedComposer {
 	}
 
 	private void clean() {
-		if (FINAL_CLEAN_UP) {
+		if (Config.FINAL_CLEAN_UP) {
 			System.out.print("Clean up execution directory...");
 
 			try {
@@ -214,8 +215,8 @@ public class PrototypeBasedComposer {
 				FileUtils.deleteDirectory(this.paramsDirectory);
 				FileUtils.deleteDirectory(this.strategyDirectory);
 				FileUtils.deleteDirectory(this.libsDirectory);
+				FileUtils.deleteDirectory(this.interviewDirectory);
 
-				this.executionDataZip.delete();
 				new File(
 						this.executionDirectory.getAbsolutePath() + File.separator + "contTrainingInstances.serialized")
 								.delete();
@@ -309,11 +310,16 @@ public class PrototypeBasedComposer {
 			}
 		});
 
+		List<String> interviewResources = getInterviewResourcesForStrategy();
+
 		for (final File strategyFolder : strategySubFolders) {
 			System.out.print("Starting process for strategy " + strategyFolder.getName() + "...");
-			final ProcessBuilder pb = new ProcessBuilder(strategyFolder.getAbsolutePath() + "/" + STRATEGY_RUNNABLE,
-					this.executionDataZip.getAbsolutePath()).redirectOutput(Redirect.INHERIT)
-							.redirectError(Redirect.INHERIT);
+			interviewResources.add(0, strategyFolder.getAbsolutePath() + File.separator + STRATEGY_RUNNABLE);
+			File systemOut = new File(strategyFolder.getAbsolutePath() + File.separator + Config.SYSTEM_OUT_FILE);
+			File systemErr = new File(strategyFolder.getAbsolutePath() + File.separator + Config.SYSTEM_ERR_FILE);
+			String[] commandArguments = interviewResources.stream().toArray(String[]::new);
+			final ProcessBuilder pb = new ProcessBuilder(commandArguments).redirectOutput(Redirect.appendTo(systemOut))
+					.redirectError(Redirect.appendTo(systemErr));
 			try {
 				final Process p = pb.start();
 				this.strategyProcessList.add(p);
@@ -324,6 +330,22 @@ public class PrototypeBasedComposer {
 			}
 		}
 
+	}
+
+	private List<String> getInterviewResourcesForStrategy() {
+		List<String> commandArgumentList = new ArrayList<>();
+
+		final File[] interviewResources = this.interviewResourcesDirectory.listFiles(new FileFilter() {
+			@Override
+			public boolean accept(final File file) {
+				return file.isFile();
+			}
+		});
+
+		for (File resource : interviewResources) {
+			commandArgumentList.add(resource.getAbsolutePath());
+		}
+		return commandArgumentList;
 	}
 
 	private void shutdownInternalBenchmarkService() {
@@ -360,7 +382,7 @@ public class PrototypeBasedComposer {
 			}
 
 			final File fValueFile = new File(
-					strategy.getAbsolutePath() + File.separator + OUTPUT_DIR + File.separator + "f.value");
+					strategy.getAbsolutePath() + File.separator + Config.OUTPUT_DIR + File.separator + "f.value");
 			if (!fValueFile.exists()) {
 				System.out.println(
 						"f.value file was not found for strategy; ignoring it: " + fValueFile.getAbsolutePath());
@@ -386,7 +408,7 @@ public class PrototypeBasedComposer {
 		}
 
 		final File winningStrategy = new File(
-				this.strategyDirectory + File.separator + winningStrategyName + File.separator + OUTPUT_DIR);
+				this.strategyDirectory + File.separator + winningStrategyName + File.separator + Config.OUTPUT_DIR);
 		for (final File strategyFile : winningStrategy.listFiles()) {
 			if (strategyFile.isFile()) {
 				final File groundingFolderFile = new File(
@@ -454,28 +476,35 @@ public class PrototypeBasedComposer {
 	 * all the files into the execution folder. Afterwards execute the initial
 	 * configuration routine of the prototype.
 	 *
-	 * @param prototypeName
+	 * @param prototypeId
 	 * @throws IOException
 	 */
-	private void initializeExecutionEnvironment(final String prototypeName) throws IOException {
+	private void initializeExecutionEnvironment(final String prototypeId) throws IOException {
 		// copy prototype skeleton and data zip to temporary execution folder
 		System.out.print("Copy prototype files to temporary execution directory...");
 
 		// set execution directory
-		this.executionDirectory = new File(
-				EXECUTIONS.getAbsolutePath() + File.separator + prototypeName + "-" + System.currentTimeMillis());
+		this.executionDirectory = new File(Config.EXECUTIONS.getAbsolutePath() + File.separator + prototypeId);
 		// set data zip file for execution
-		this.executionDataZip = new File(this.executionDirectory.getAbsolutePath() + "/" + DATAFILE_NAME);
+		// this.executionDataZip = new
+		// File(this.executionDirectory.getAbsolutePath() + "/" +
+		// DATAFILE_NAME);
 
 		// initialize variables for working directories
-		this.benchmarksDirectory = new File(this.executionDirectory.getAbsolutePath() + File.separator + BENCHMARKS);
-		this.groundingDirectory = new File(this.executionDirectory.getAbsolutePath() + File.separator + GROUNDING);
-		this.strategyDirectory = new File(this.executionDirectory.getAbsolutePath() + File.separator + STRATEGIES);
-		this.configDirectory = new File(this.executionDirectory.getAbsolutePath() + File.separator + CONFIG);
-		this.paramsDirectory = new File(this.executionDirectory.getAbsolutePath() + File.separator + PARAMS);
-		this.sourceDirectory = new File(this.executionDirectory.getAbsolutePath() + File.separator + SOURCE);
-		this.libsDirectory = new File(this.executionDirectory.getAbsolutePath() + File.separator + LIBS);
-		this.interviewDirectory = new File(this.executionDirectory.getAbsolutePath() + File.separator + INTERVIEW);
+		this.benchmarksDirectory = new File(
+				this.executionDirectory.getAbsolutePath() + File.separator + Config.BENCHMARKS);
+		this.groundingDirectory = new File(
+				this.executionDirectory.getAbsolutePath() + File.separator + Config.GROUNDING);
+		this.strategyDirectory = new File(
+				this.executionDirectory.getAbsolutePath() + File.separator + Config.STRATEGIES);
+		this.configDirectory = new File(this.executionDirectory.getAbsolutePath() + File.separator + Config.CONFIG);
+		this.paramsDirectory = new File(this.executionDirectory.getAbsolutePath() + File.separator + Config.PARAMS);
+		this.sourceDirectory = new File(this.executionDirectory.getAbsolutePath() + File.separator + Config.SOURCE);
+		this.libsDirectory = new File(this.executionDirectory.getAbsolutePath() + File.separator + Config.LIBS);
+		this.interviewDirectory = new File(
+				this.executionDirectory.getAbsolutePath() + File.separator + Config.INTERVIEW);
+		this.interviewResourcesDirectory = new File(
+				this.interviewDirectory.getAbsolutePath() + File.separator + Config.INTERVIEW_RESOURCES);
 
 		this.groundingFile = new File(this.executionDirectory.getAbsolutePath() + File.separator + GROUNDING_ROUTINE);
 

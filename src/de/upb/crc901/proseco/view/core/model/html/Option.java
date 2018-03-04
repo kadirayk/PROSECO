@@ -2,6 +2,12 @@ package de.upb.crc901.proseco.view.core.model.html;
 
 import java.util.Map;
 
+/**
+ * HTML Option element &lt;option\&gt;
+ * 
+ * @author kadirayk
+ *
+ */
 public class Option extends UIElement {
 
 	private static final String TAG = "option";

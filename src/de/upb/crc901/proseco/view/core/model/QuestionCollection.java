@@ -6,6 +6,12 @@ import java.util.Map;
 
 import de.upb.crc901.proseco.view.util.ListUtil;
 
+/**
+ * QuestionCollection provides easy access to questions by their path
+ * 
+ * @author kadirayk
+ *
+ */
 public class QuestionCollection {
 	private List<Question> questions;
 	private Map<String, Question> questionMap;

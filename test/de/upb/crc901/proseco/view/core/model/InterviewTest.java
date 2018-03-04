@@ -16,7 +16,7 @@ public class InterviewTest {
 		parser = new Parser();
 	}
 
-	@Test
+//	@Test
 	public void nextStateTest() throws NextStateNotFoundException {
 		String filePath = "test/data/game_interview.yaml";
 		Interview interview = parser.parseInterview(filePath);

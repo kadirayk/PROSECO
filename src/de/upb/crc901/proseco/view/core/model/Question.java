@@ -4,6 +4,13 @@ import java.io.Serializable;
 
 import de.upb.crc901.proseco.view.core.model.html.UIElement;
 
+/**
+ * Question is the building block of Interview which consists of UI element,
+ * question content, and answer
+ * 
+ * @author kadirayk
+ *
+ */
 public class Question implements Serializable {
 
 	/**

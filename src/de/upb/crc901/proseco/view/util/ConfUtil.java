@@ -7,6 +7,13 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
+/**
+ * Configuration utility class
+ * 
+ * 
+ * @author kadirayk
+ *
+ */
 public class ConfUtil {
 
 	private static Map<String, String> params = new HashMap<>();

@@ -15,8 +15,20 @@ import de.upb.crc901.proseco.view.core.model.QuestionCollection;
 import de.upb.crc901.proseco.view.core.model.State;
 import de.upb.crc901.proseco.view.util.ListUtil;
 
+/**
+ * Interview Parser utility
+ * 
+ * @author kadirayk
+ *
+ */
 public class Parser {
 
+	/**
+	 * Parses question repository with the given path
+	 * 
+	 * @param filePath
+	 * @return
+	 */
 	public QuestionCollection parseQuestion(String filePath) {
 		QuestionCollection qCollection = null;
 		ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
@@ -29,6 +41,13 @@ public class Parser {
 
 	}
 
+	/**
+	 * Parses interview definition with the given path and returns interview
+	 * object
+	 * 
+	 * @param filePath
+	 * @return
+	 */
 	public Interview parseInterview(String filePath) {
 		Interview interview = null;
 		ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
@@ -56,9 +75,9 @@ public class Parser {
 							questionSetItem.append(".").append(q.getId());
 							String qId = q.getQuestionId();
 							Question question = qCollection.getQuestionById(qId);
-							if(question!=null){
+							if (question != null) {
 								q.setContent(question.getContent());
-								q.setUiElement(question.getUiElement());	
+								q.setUiElement(question.getUiElement());
 							}
 							questionSet.add(questionSetItem.toString());
 						}

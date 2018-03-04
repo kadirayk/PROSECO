@@ -9,7 +9,14 @@ import de.upb.crc901.proseco.view.core.model.html.HTMLConstants;
 import de.upb.crc901.proseco.view.util.ConfUtil;
 import de.upb.crc901.proseco.view.util.ListUtil;
 
-public class Initiator {
+/**
+ * Interview Data Transfer Object class
+ * 
+ * 
+ * @author kadirayk
+ *
+ */
+public class InterviewDTO {
 
 	private String content;
 
@@ -23,6 +30,8 @@ public class Initiator {
 
 	private boolean showSubmit;
 
+	private boolean showConsole;
+
 	private boolean upload;
 
 	public boolean isUpload() {
@@ -31,6 +40,14 @@ public class Initiator {
 
 	public void setUpload(boolean upload) {
 		this.upload = upload;
+	}
+
+	public boolean isShowConsole() {
+		return showConsole;
+	}
+
+	public void setShowConsole(boolean showConsole) {
+		this.showConsole = showConsole;
 	}
 
 	public boolean isShowSubmit() {
@@ -61,6 +78,10 @@ public class Initiator {
 		return interview;
 	}
 
+	/**
+	 * Do not show submit button for questions without uiElements (i.e. pages
+	 * that do not require input)
+	 */
 	private void setShowSubmitValue() {
 		List<Question> questions = interview.getCurrentState().getQuestions();
 		if (ListUtil.isNotEmpty(questions)) {
@@ -73,37 +94,30 @@ public class Initiator {
 
 	}
 
-	private void setIsUploadValue() {
-		List<Question> questions = interview.getCurrentState().getQuestions();
-		if (ListUtil.isNotEmpty(questions)) {
-			for (Question q : questions) {
-				if (q.getUiElement() != null) {
-					if (q.getUiElement().getAttributes() != null) {
-						if ("file".equals(q.getUiElement().getAttributes().get("type"))) {
-							upload = true;
-						}
-					}
-				}
-			}
-		}
-	}
-
 	public void setInterview(Interview interview) {
 		this.interview = interview;
 		this.id = interview.getId();
 		this.interviewHTML = interview.getCurrentState().toHTML();
 		setShowSubmitValue();
 
-		StringBuilder htmlElement = new StringBuilder();
+		setDebugHtml(interview);
+	}
 
+	/**
+	 * Creates debug HTML table for interview
+	 * 
+	 * @param interview
+	 */
+	private void setDebugHtml(Interview interview) {
 		if (ConfUtil.getValue(ConfUtil.DEBUG)) {
-			htmlElement.append("<div style=\"position:fixed;bottom:0;margin-bottom:50px;width:100%\">");
+			StringBuilder htmlElement = new StringBuilder();
+			htmlElement.append("<div>");
 			htmlElement.append(HTMLConstants.LINE_BREAK).append("Debug: ");
 			htmlElement.append("<table style=\"width:30%\" border=\"1\"><tr><th>").append("State").append("</th><th>")
 					.append("question").append("</th><th>").append("answer").append("</th></tr>");
 			for (State state : interview.getStates()) {
 				htmlElement.append("<tr");
-				if (state == interview.getCurrentState()) {
+				if (state.getName().equals(interview.getCurrentState().getName())) {
 					htmlElement.append(" bgcolor=\"#b4ff99\" ");
 				}
 				htmlElement.append("><td rowspan=\"").append(state.getQuestions().size()).append("\">")
@@ -113,7 +127,7 @@ public class Initiator {
 				for (Question question : state.getQuestions()) {
 					if (isFirstLoop) {
 						htmlElement.append("<tr");
-						if (state == interview.getCurrentState()) {
+						if (state.getName().equals(interview.getCurrentState().getName())) {
 							htmlElement.append(" bgcolor=\"#b4ff99\" ");
 						}
 						htmlElement.append(">");

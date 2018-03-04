@@ -2,7 +2,17 @@ package de.upb.crc901.proseco.view.core.model.html;
 
 import java.util.Map;
 
+/**
+ * HTML Input element &lt;input\&gt;
+ * 
+ * @author kadirayk
+ *
+ */
 public class Input extends UIElement {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	private static final String TAG = "input";
 
 	public Input() {

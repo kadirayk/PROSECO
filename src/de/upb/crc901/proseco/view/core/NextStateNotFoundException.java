@@ -1,5 +1,10 @@
 package de.upb.crc901.proseco.view.core;
 
+/**
+ * 
+ * @author kadirayk
+ *
+ */
 public class NextStateNotFoundException extends Exception {
 
 	/**

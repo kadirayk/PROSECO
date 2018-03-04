@@ -3,6 +3,13 @@ package de.upb.crc901.proseco.view.core.generator;
 import de.upb.crc901.proseco.view.core.model.Interview;
 import de.upb.crc901.proseco.view.util.FileUtil;
 
+/**
+ * HTML Generator for Interview definition Converts UI elements of the interview
+ * to concrete HTML elements
+ * 
+ * @author kadirayk
+ *
+ */
 public class HtmlGenerator {
 	private String filePath;
 
@@ -21,7 +28,7 @@ public class HtmlGenerator {
 			html.append("</html>");
 		}
 
-		FileUtil.writeToFile(filePath + interview.getContext() + ".html", html.toString());
+		FileUtil.writeToFile(filePath + interview.getPrototypeName() + ".html", html.toString());
 
 		return html.toString();
 	}

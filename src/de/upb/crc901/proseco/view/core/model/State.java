@@ -4,13 +4,15 @@ import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 
-import com.fasterxml.jackson.annotation.JsonAnyGetter;
-import com.fasterxml.jackson.annotation.JsonAnySetter;
-
 import de.upb.crc901.proseco.view.core.model.html.HTMLConstants;
 import de.upb.crc901.proseco.view.core.model.html.UIElement;
 import de.upb.crc901.proseco.view.util.ListUtil;
 
+/**
+ * 
+ * @author kadirayk
+ *
+ */
 public class State implements Serializable {
 	/**
 	 * 
@@ -48,16 +50,20 @@ public class State implements Serializable {
 		this.name = name;
 	}
 
-	@JsonAnyGetter
 	public Map<String, String> getTransition() {
 		return transition;
 	}
 
-	@JsonAnySetter
 	public void setTransition(Map<String, String> transition) {
 		this.transition = transition;
 	}
 
+	/**
+	 * Generates concrete HTML element from the UI Elements of the questions to
+	 * make up the form
+	 * 
+	 * @return
+	 */
 	public String toHTML() {
 		StringBuilder htmlElement = new StringBuilder();
 

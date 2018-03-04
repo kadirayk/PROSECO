@@ -7,6 +7,14 @@ import java.util.Queue;
 
 import org.apache.commons.lang3.StringUtils;
 
+/**
+ * ExpressionEvaluator, parses infix expression and converts to postfix
+ * expression using Shunting-yard algorithm then operates over postfix
+ * expression to evaluate given expression
+ * 
+ * @author kadirayk
+ *
+ */
 public class ExpressionEvaluator {
 	Deque<Node> operatorStack;
 	Queue<Node> postfixQueue;
@@ -35,13 +43,12 @@ public class ExpressionEvaluator {
 		for (Node n : postfixQueue) {
 			if (n instanceof Operand) {
 				evaluationStack.push(n);
-			} else if (n instanceof Operator && n.getValue().equals(OperatorEnum.NOT.value())){
+			} else if (n instanceof Operator && n.getValue().equals(OperatorEnum.NOT.value())) {
 				Node node = evaluationStack.pop();
 				boolean evaluation = !Boolean.valueOf(node.getValue());
 				Node result = new Operand(String.valueOf(evaluation));
 				evaluationStack.push(result);
-			}
-			else if (n instanceof Operator) {
+			} else if (n instanceof Operator) {
 				Node nodeLast = evaluationStack.pop();
 				Node nodeFirst = evaluationStack.pop();
 				Node result = operate(nodeFirst, nodeLast, n);
