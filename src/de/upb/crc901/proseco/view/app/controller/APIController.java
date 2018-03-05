@@ -52,16 +52,23 @@ public class APIController {
 			boolean isComplete = false;
 			String resultDirectory = null;
 			int animationDots = 0;
+			int countDown = 30;
 			while (!isComplete) {
 				animationDots = animationDots % 3;
 				resultDirectory = checkStatus(id);
 				isComplete = resultDirectory != null;
 				try {
 					if (!isComplete) {
-						emitter.send(new String(new char[animationDots + 1]).replace("\0", ". "), MediaType.TEXT_PLAIN);
-						animationDots++;
+						if (countDown > 0) {
+							emitter.send(countDown + "s", MediaType.TEXT_PLAIN);
+							countDown--;
+						} else {
+							emitter.send(new String(new char[animationDots + 1]).replace("\0", ". "),
+									MediaType.TEXT_PLAIN);
+							animationDots++;
+						}
 					}
-					Thread.sleep(500);
+					Thread.sleep(1000);
 				} catch (Exception e) {
 					emitter.completeWithError(e);
 					e.printStackTrace();
