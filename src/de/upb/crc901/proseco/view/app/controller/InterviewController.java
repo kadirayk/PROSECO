@@ -41,6 +41,7 @@ public class InterviewController {
 	Interview interview;
 	private static final String INIT_TEMPLATE = "initiator";
 	private static final String RESULT_TEMPLATE = "result";
+	private static final String ERROR_TEMPLATE = "error";
 
 	private File executionDirectory;
 	private File prototypeDirectory;
@@ -75,6 +76,8 @@ public class InterviewController {
 		} else if (StringUtils.containsIgnoreCase(init.getContent(), "play a game", Locale.ENGLISH)) {
 			prototypeName = "game";
 
+		} else {
+			return ERROR_TEMPLATE;
 		}
 		findInterviewOfPrototype(prototypeName, init);
 		copyPrototypeSkeleton(prototypeName);
