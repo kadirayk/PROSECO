@@ -12,7 +12,7 @@ import de.upb.crc901.proseco.PrototypeProperties;
  */
 public class Config {
 
-	private static final PrototypeProperties PROPS = new PrototypeProperties("config/PrototypeBasedComposer.conf");
+	public static final PrototypeProperties PROPS = new PrototypeProperties("config/PrototypeBasedComposer.conf");
 
 	public static final boolean FINAL_CLEAN_UP = Boolean.parseBoolean(PROPS.getProperty("pbc.final_clean_up"));
 
@@ -34,6 +34,16 @@ public class Config {
 	public static final String EXECUTIONS_PATH = PROPS.getProperty("pbc.executions_path");
 	public static final String INTERVIEW_PATH = PROPS.getProperty("pbc.interview_path");
 	public static final String INTERVIEW_RESOUCES_PATH = PROPS.getProperty("pbc.interview_resources_path");
+	
+	
+	public static final String INTERNAL_BENCHMARK_FOLDER = "benchmarks/";
+
+	public static final String DATAFILE_NAME = "data.zip";
+	public static final String STRATEGY_RUNNABLE = "run.bat";
+	public static final String GROUNDING_ROUTINE = "groundingroutine.bat";
+	public static final String INIT_CONFIGURATION_EXEC = "initconfiguration.bat";
+	public static final String BENCHMARK_SERVICE = "benchmarkService.bat";
+	public static final String EXEC_FINAL_TEST = "src/test.bat";
 
 	public static final String OUTPUT_DIR = PROPS.getProperty("pbc.output_directory");
 

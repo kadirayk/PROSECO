@@ -144,7 +144,11 @@ public class InterviewController {
 				|| interview.getCurrentState().getTransition().isEmpty()) {
 
 			Runnable task = () -> {
-				PrototypeBasedComposer.run(interview.getPrototypeName() + "-" + init.getId());
+				try {
+					PrototypeBasedComposer.run(interview.getPrototypeName() + "-" + init.getId());
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
 			};
 			new Thread(task).start();
 			init.setInterview(interview);
