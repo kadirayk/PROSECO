@@ -19,10 +19,12 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import de.upb.crc901.proseco.command.ExecuteStrategiesCommand;
 import de.upb.crc901.proseco.command.InitializeExecutionEnvironmentCommand;
 import de.upb.crc901.proseco.command.InternalBenchmarkServiceBootUpCommand;
 import de.upb.crc901.proseco.command.InternalBenchmarkServiceShutDownCommand;
 import de.upb.crc901.proseco.command.ValidatePrototypeCommand;
+import de.upb.crc901.proseco.command.WaitForStrategiesCommand;
 import de.upb.crc901.proseco.prototype.ExecutionEnvironment;
 import de.upb.crc901.proseco.util.Config;
 import jaicore.basic.FileUtil;
@@ -86,12 +88,8 @@ public class PrototypeBasedComposer {
 		return null;
 	}
 
-	// private final String dataFilePath;
 	private final String prototypeName;
 	private final String prototypeId;
-
-	// private File executionDirectory;
-	// private File executionDataZip;
 
 	private Process internalBenchmarkService;
 
@@ -122,15 +120,17 @@ public class PrototypeBasedComposer {
 		PerformanceLogger.logStart("bootUpInternalBenchmarkService");
 		InternalBenchmarkServiceBootUpCommand internalBenchmarkServiceBootUpCommand = new InternalBenchmarkServiceBootUpCommand(
 				executionEnvironment);
-		initializeExecutionEnvironmentCommand.execute();
+		internalBenchmarkServiceBootUpCommand.execute();
 		this.internalBenchmarkService = internalBenchmarkServiceBootUpCommand.getInternalBenchmarkService();
 		PerformanceLogger.logEnd("bootUpInternalBenchmarkService");
 
-		this.strategyProcessList = new LinkedList<>();
 		PerformanceLogger.logStart("executeStrategies");
-		this.executeStrategies();
+		ExecuteStrategiesCommand executeStrategiesCommand = new ExecuteStrategiesCommand(executionEnvironment);
+		executeStrategiesCommand.execute();
+		this.strategyProcessList = executeStrategiesCommand.getStrategyProcessList();
 
-		this.waitForStrategiesToTerminate();
+		WaitForStrategiesCommand waitForStrategiesCommand = new WaitForStrategiesCommand(strategyProcessList);
+		waitForStrategiesCommand.execute();
 		PerformanceLogger.logEnd("executeStrategies");
 
 		// shutdown internal benchmark, since strategies already terminated
@@ -242,41 +242,6 @@ public class PrototypeBasedComposer {
 		System.out.println("DONE.");
 	}
 
-	/**
-	 * Search for strategy subfolders and forking a new process for each
-	 * strategy.
-	 */
-	private void executeStrategies() {
-
-		final File[] strategySubFolders = executionEnvironment.getStrategyDirectory().listFiles(new FileFilter() {
-			@Override
-			public boolean accept(final File file) {
-				return file.isDirectory();
-			}
-		});
-
-		List<String> interviewResources = getInterviewResourcesForStrategy();
-
-		for (final File strategyFolder : strategySubFolders) {
-			System.out.print("Starting process for strategy " + strategyFolder.getName() + "...");
-			interviewResources.add(0, strategyFolder.getAbsolutePath() + File.separator + Config.STRATEGY_RUNNABLE);
-			File systemOut = new File(strategyFolder.getAbsolutePath() + File.separator + Config.SYSTEM_OUT_FILE);
-			File systemErr = new File(strategyFolder.getAbsolutePath() + File.separator + Config.SYSTEM_ERR_FILE);
-			String[] commandArguments = interviewResources.stream().toArray(String[]::new);
-			final ProcessBuilder pb = new ProcessBuilder(commandArguments).redirectOutput(Redirect.appendTo(systemOut))
-					.redirectError(Redirect.appendTo(systemErr));
-			try {
-				final Process p = pb.start();
-				this.strategyProcessList.add(p);
-				System.out.println("DONE.");
-			} catch (final IOException e) {
-				System.out.println("Could not create process for strategy " + strategyFolder.getName());
-				e.printStackTrace();
-			}
-		}
-
-	}
-
 	private List<String> getInterviewResourcesForStrategy() {
 		List<String> commandArgumentList = new ArrayList<>();
 
@@ -372,32 +337,6 @@ public class PrototypeBasedComposer {
 			e1.printStackTrace();
 		}
 		System.out.println("DONE.");
-	}
-
-	/**
-	 * Wait (busy waiting) for the processes to terminate that have been started
-	 * to execute the different strategies.
-	 *
-	 */
-	private void waitForStrategiesToTerminate() {
-		System.out.println("PBC: Wait for strategies to terminate.");
-		boolean oneRunning = true;
-		while (oneRunning) {
-			oneRunning = false;
-
-			for (final Process p : this.strategyProcessList) {
-				if (p.isAlive()) {
-					oneRunning = true;
-					break;
-				}
-			}
-			try {
-				Thread.sleep(2000);
-			} catch (final InterruptedException e) {
-				e.printStackTrace();
-			}
-		}
-		System.out.println("PBC: Wait for strategies to terminate.");
 	}
 
 }
