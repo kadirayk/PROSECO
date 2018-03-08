@@ -1,15 +1,11 @@
 package de.upb.crc901.proseco;
 
 import java.io.BufferedOutputStream;
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
 import java.io.PrintStream;
 import java.lang.ProcessBuilder.Redirect;
 import java.nio.file.Files;
@@ -24,6 +20,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import de.upb.crc901.proseco.command.InitializeExecutionEnvironmentCommand;
+import de.upb.crc901.proseco.command.InternalBenchmarkServiceBootUpCommand;
+import de.upb.crc901.proseco.command.InternalBenchmarkServiceShutDownCommand;
 import de.upb.crc901.proseco.command.ValidatePrototypeCommand;
 import de.upb.crc901.proseco.prototype.ExecutionEnvironment;
 import de.upb.crc901.proseco.util.Config;
@@ -122,7 +120,10 @@ public class PrototypeBasedComposer {
 		this.executionEnvironment = initializeExecutionEnvironmentCommand.getExecutionEnvironment();
 
 		PerformanceLogger.logStart("bootUpInternalBenchmarkService");
-		this.bootUpInternalBenchmarkService();
+		InternalBenchmarkServiceBootUpCommand internalBenchmarkServiceBootUpCommand = new InternalBenchmarkServiceBootUpCommand(
+				executionEnvironment);
+		initializeExecutionEnvironmentCommand.execute();
+		this.internalBenchmarkService = internalBenchmarkServiceBootUpCommand.getInternalBenchmarkService();
 		PerformanceLogger.logEnd("bootUpInternalBenchmarkService");
 
 		this.strategyProcessList = new LinkedList<>();
@@ -134,7 +135,9 @@ public class PrototypeBasedComposer {
 
 		// shutdown internal benchmark, since strategies already terminated
 		PerformanceLogger.logStart("shutdownInternalBenchmarkService");
-		this.shutdownInternalBenchmarkService();
+		InternalBenchmarkServiceShutDownCommand internalBenchmarkServiceShutDownCommand = new InternalBenchmarkServiceShutDownCommand(
+				this.internalBenchmarkService);
+		internalBenchmarkServiceShutDownCommand.execute();
 		PerformanceLogger.logEnd("shutdownInternalBenchmarkService");
 
 		PerformanceLogger.logStart("movePlaceholderFilesToSource");
@@ -239,35 +242,6 @@ public class PrototypeBasedComposer {
 		System.out.println("DONE.");
 	}
 
-	private void bootUpInternalBenchmarkService() {
-		System.out.print("Boot up internal benchmark service...");
-
-		final File benchmarkExec = new File(executionEnvironment.getExecutionDirectory().getAbsolutePath() + "/"
-				+ Config.INTERNAL_BENCHMARK_FOLDER + Config.BENCHMARK_SERVICE);
-		final ProcessBuilder pb = new ProcessBuilder(benchmarkExec.getAbsolutePath()).redirectOutput(Redirect.INHERIT)
-				.redirectError(Redirect.INHERIT);
-
-		try {
-			this.internalBenchmarkService = pb.start();
-
-			try (BufferedReader br = new BufferedReader(
-					new InputStreamReader(this.internalBenchmarkService.getErrorStream()))) {
-				String line;
-				boolean serviceUpAndRunning = false;
-				while (!serviceUpAndRunning && ((line = br.readLine()) != null)) {
-					if (line.contains("Service up and running")) {
-						serviceUpAndRunning = true;
-					}
-				}
-			}
-			System.out.println("DONE.");
-
-		} catch (final IOException e) {
-			System.err.println("ERROR: Could not boot benchmark service.");
-			System.exit(1);
-		}
-	}
-
 	/**
 	 * Search for strategy subfolders and forking a new process for each
 	 * strategy.
@@ -318,23 +292,6 @@ public class PrototypeBasedComposer {
 			commandArgumentList.add(resource.getAbsolutePath());
 		}
 		return commandArgumentList;
-	}
-
-	private void shutdownInternalBenchmarkService() {
-		System.out.print("Shutdown internal benchmark service...");
-		try (BufferedWriter bw = new BufferedWriter(
-				new OutputStreamWriter(this.internalBenchmarkService.getOutputStream()))) {
-			bw.write("q\n");
-		} catch (final IOException e1) {
-			e1.printStackTrace();
-		}
-
-		try {
-			this.internalBenchmarkService.waitFor();
-		} catch (final InterruptedException e) {
-			e.printStackTrace();
-		}
-		System.out.println("DONE.");
 	}
 
 	/**
