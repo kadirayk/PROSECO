@@ -9,11 +9,11 @@ import java.lang.ProcessBuilder.Redirect;
 import de.upb.crc901.proseco.prototype.ExecutionEnvironment;
 import de.upb.crc901.proseco.util.Config;
 
-public class InternalBenchmarkServiceBootUpCommand implements Command {
+public class BootUpInternalBenchmarkServiceCommand implements Command {
 	private ExecutionEnvironment executionEnvironment;
 	private Process internalBenchmarkService;
 
-	public InternalBenchmarkServiceBootUpCommand(ExecutionEnvironment executionEnvironment) {
+	public BootUpInternalBenchmarkServiceCommand(ExecutionEnvironment executionEnvironment) {
 		this.executionEnvironment = executionEnvironment;
 	}
 

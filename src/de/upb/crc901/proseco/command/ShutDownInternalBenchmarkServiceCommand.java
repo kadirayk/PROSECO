@@ -4,10 +4,10 @@ import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 
-public class InternalBenchmarkServiceShutDownCommand implements Command {
+public class ShutDownInternalBenchmarkServiceCommand implements Command {
 	private Process internalBenchmarkService;
 
-	public InternalBenchmarkServiceShutDownCommand(Process internalBenchmarkService) {
+	public ShutDownInternalBenchmarkServiceCommand(Process internalBenchmarkService) {
 		this.internalBenchmarkService = internalBenchmarkService;
 	}
 

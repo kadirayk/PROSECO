@@ -21,8 +21,8 @@ import org.slf4j.LoggerFactory;
 
 import de.upb.crc901.proseco.command.ExecuteStrategiesCommand;
 import de.upb.crc901.proseco.command.InitializeExecutionEnvironmentCommand;
-import de.upb.crc901.proseco.command.InternalBenchmarkServiceBootUpCommand;
-import de.upb.crc901.proseco.command.InternalBenchmarkServiceShutDownCommand;
+import de.upb.crc901.proseco.command.BootUpInternalBenchmarkServiceCommand;
+import de.upb.crc901.proseco.command.ShutDownInternalBenchmarkServiceCommand;
 import de.upb.crc901.proseco.command.ValidatePrototypeCommand;
 import de.upb.crc901.proseco.command.WaitForStrategiesCommand;
 import de.upb.crc901.proseco.prototype.ExecutionEnvironment;
@@ -38,6 +38,13 @@ public class PrototypeBasedComposer {
 	private final File prototypeDirectory;
 
 	private ExecutionEnvironment executionEnvironment;
+
+	private final String prototypeName;
+	private final String prototypeId;
+
+	private Process internalBenchmarkService;
+
+	List<Process> strategyProcessList = new LinkedList<>();
 
 	public static void run(String prototypeId) throws Exception {
 		Thread.currentThread().setName("PrototypeBasedComposer");
@@ -59,13 +66,6 @@ public class PrototypeBasedComposer {
 		}
 		return null;
 	}
-
-	private final String prototypeName;
-	private final String prototypeId;
-
-	private Process internalBenchmarkService;
-
-	List<Process> strategyProcessList = new LinkedList<>();
 
 	/**
 	 * Instantiate a new PrototypeBasedComposer for executing the prototype
@@ -90,10 +90,10 @@ public class PrototypeBasedComposer {
 		this.executionEnvironment = initializeExecutionEnvironmentCommand.getExecutionEnvironment();
 
 		PerformanceLogger.logStart("bootUpInternalBenchmarkService");
-		InternalBenchmarkServiceBootUpCommand internalBenchmarkServiceBootUpCommand = new InternalBenchmarkServiceBootUpCommand(
+		BootUpInternalBenchmarkServiceCommand bootUpInternalBenchmarkServiceCommand = new BootUpInternalBenchmarkServiceCommand(
 				executionEnvironment);
-		internalBenchmarkServiceBootUpCommand.execute();
-		this.internalBenchmarkService = internalBenchmarkServiceBootUpCommand.getInternalBenchmarkService();
+		bootUpInternalBenchmarkServiceCommand.execute();
+		this.internalBenchmarkService = bootUpInternalBenchmarkServiceCommand.getInternalBenchmarkService();
 		PerformanceLogger.logEnd("bootUpInternalBenchmarkService");
 
 		PerformanceLogger.logStart("executeStrategies");
@@ -107,9 +107,9 @@ public class PrototypeBasedComposer {
 
 		// shutdown internal benchmark, since strategies already terminated
 		PerformanceLogger.logStart("shutdownInternalBenchmarkService");
-		InternalBenchmarkServiceShutDownCommand internalBenchmarkServiceShutDownCommand = new InternalBenchmarkServiceShutDownCommand(
+		ShutDownInternalBenchmarkServiceCommand shutDownInternalBenchmarkServiceCommand = new ShutDownInternalBenchmarkServiceCommand(
 				this.internalBenchmarkService);
-		internalBenchmarkServiceShutDownCommand.execute();
+		shutDownInternalBenchmarkServiceCommand.execute();
 		PerformanceLogger.logEnd("shutdownInternalBenchmarkService");
 
 		PerformanceLogger.logStart("movePlaceholderFilesToSource");
