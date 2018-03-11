@@ -1,25 +1,18 @@
 package de.upb.crc901.proseco;
 
-import java.io.BufferedOutputStream;
 import java.io.File;
-import java.io.FileFilter;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.PrintStream;
 import java.lang.ProcessBuilder.Redirect;
-import java.nio.file.Files;
-import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import de.upb.crc901.proseco.command.BootUpInternalBenchmarkServiceCommand;
+import de.upb.crc901.proseco.command.CleanExecutionEnvironmentCommand;
+import de.upb.crc901.proseco.command.ExecuteGroundingRoutineCommand;
 import de.upb.crc901.proseco.command.ExecuteStrategiesCommand;
 import de.upb.crc901.proseco.command.InitializeExecutionEnvironmentCommand;
 import de.upb.crc901.proseco.command.MovePlaceholderFilesToSourceCommand;
@@ -55,16 +48,6 @@ public class PrototypeBasedComposer {
 			System.out.println("Prototype is not given");
 			System.exit(1);
 		}
-	}
-
-	protected PrintStream outputFile(String name) {
-		try {
-			return new PrintStream(new BufferedOutputStream(new FileOutputStream(name)), true);
-		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		return null;
 	}
 
 	/**
@@ -113,16 +96,20 @@ public class PrototypeBasedComposer {
 		PerformanceLogger.logEnd("shutdownInternalBenchmarkService");
 
 		PerformanceLogger.logStart("movePlaceholderFilesToSource");
-		MovePlaceholderFilesToSourceCommand movePlaceholderFilesToSourceCommand = new MovePlaceholderFilesToSourceCommand(executionEnvironment);
+		MovePlaceholderFilesToSourceCommand movePlaceholderFilesToSourceCommand = new MovePlaceholderFilesToSourceCommand(
+				executionEnvironment);
 		movePlaceholderFilesToSourceCommand.execute();
 		PerformanceLogger.logEnd("movePlaceholderFilesToSource");
 
 		PerformanceLogger.logStart("executeGroundingRoutine");
-		this.executeGroundingRoutine();
+		ExecuteGroundingRoutineCommand executeGroundingRoutineCommand = new ExecuteGroundingRoutineCommand(
+				executionEnvironment);
+		executeGroundingRoutineCommand.execute();
 		PerformanceLogger.logEnd("executeGroundingRoutine");
 
 		PerformanceLogger.logStart("cleanUp");
-		this.clean();
+		CleanExecutionEnvironmentCommand cleanExecutionEnvironmentCommand = new CleanExecutionEnvironmentCommand();
+		cleanExecutionEnvironmentCommand.execute();
 		PerformanceLogger.logEnd("cleanUp");
 
 		PerformanceLogger.logEnd("TotalRuntime");
@@ -150,51 +137,6 @@ public class PrototypeBasedComposer {
 		System.out.println("DONE.");
 	}
 
-	private void clean() {
-		if (Config.FINAL_CLEAN_UP) {
-			System.out.print("Clean up execution directory...");
-
-			try {
-				// delete working directories
-				FileUtils.deleteDirectory(executionEnvironment.getBenchmarksDirectory());
-				FileUtils.deleteDirectory(executionEnvironment.getConfigDirectory());
-				FileUtils.deleteDirectory(executionEnvironment.getGroundingDirectory());
-				FileUtils.deleteDirectory(executionEnvironment.getParamsDirectory());
-				FileUtils.deleteDirectory(executionEnvironment.getStrategyDirectory());
-				FileUtils.deleteDirectory(executionEnvironment.getLibsDirectory());
-				FileUtils.deleteDirectory(executionEnvironment.getInterviewDirectory());
-
-				new File(executionEnvironment.getExecutionDirectory().getAbsolutePath() + File.separator
-						+ "contTrainingInstances.serialized").delete();
-				new File(executionEnvironment.getExecutionDirectory().getAbsolutePath() + File.separator
-						+ "testInstances.serialized").delete();
-
-				final String[] filesInMainDir = { "GroundingRoutine.jar", "InitConfiguration.jar",
-						"initconfiguration.bat", "groundingroutine.bat", "src/contTrainingInstances.serialized",
-						"src/testInstances.serialized", "src/compile.bat", "src/train.bat" };
-				for (final String filename : filesInMainDir) {
-					Files.delete(new File(
-							executionEnvironment.getExecutionDirectory().getAbsolutePath() + File.separator + filename)
-									.toPath());
-				}
-			} catch (final IOException e) {
-				e.printStackTrace();
-			}
-			for (final File placeholderFile : executionEnvironment.getSourceDirectory().listFiles()) {
-				if (placeholderFile.isFile()
-						&& FilenameUtils.getExtension(placeholderFile.getAbsolutePath()).equals("ph")) {
-					try {
-						Files.delete(placeholderFile.toPath());
-					} catch (final IOException e) {
-						System.out.println("Could not delete placeholder file : " + placeholderFile.getAbsolutePath());
-						e.printStackTrace();
-					}
-				}
-			}
-			System.out.println("DONE.");
-		}
-	}
-
 	private void initConfigurationRoutine() throws IOException {
 		// execute script file for initial configuration process
 		System.out.print("Execute initial configuration process...");
@@ -211,42 +153,6 @@ public class PrototypeBasedComposer {
 			System.out.println("Initial configuration process failed.");
 			e.printStackTrace();
 			System.exit(-1);
-		}
-		System.out.println("DONE.");
-	}
-
-	private List<String> getInterviewResourcesForStrategy() {
-		List<String> commandArgumentList = new ArrayList<>();
-
-		final File[] interviewResources = executionEnvironment.getInterviewResourcesDirectory()
-				.listFiles(new FileFilter() {
-					@Override
-					public boolean accept(final File file) {
-						return file.isFile();
-					}
-				});
-
-		for (File resource : interviewResources) {
-			commandArgumentList.add(resource.getAbsolutePath());
-		}
-		return commandArgumentList;
-	}
-
-	private void executeGroundingRoutine() {
-		final ProcessBuilder pb = new ProcessBuilder(executionEnvironment.getGroundingFile().getAbsolutePath());
-		System.out.print("Execute grounding process...");
-		Process p;
-		try {
-			p = pb.start();
-			while (p.isAlive()) {
-				try {
-					Thread.sleep(1000);
-				} catch (final InterruptedException e) {
-					e.printStackTrace();
-				}
-			}
-		} catch (final IOException e1) {
-			e1.printStackTrace();
 		}
 		System.out.println("DONE.");
 	}
