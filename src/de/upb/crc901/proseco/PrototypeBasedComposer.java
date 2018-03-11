@@ -39,34 +39,6 @@ public class PrototypeBasedComposer {
 
 	private ExecutionEnvironment executionEnvironment;
 
-	/**
-	 * Start the PrototypeBasedComposer with the given command line arguments.
-	 *
-	 * @param args
-	 *            Command line arguments consisting of a prototype name and a
-	 *            path to the data zip file.
-	 */
-	public static void main(final String[] args) {
-		Thread.currentThread().setName("PrototypeBasedComposer");
-		final String prototypeName;
-		final String dataFilePath;
-
-		// Ensure required arguments for initializing the prototype based
-		// composition process
-		if (args.length != 2) {
-			System.out.println("Provided arguments do not match the usage requirements.");
-			System.out.println("Correct usage: java PrototypeBasedComposer [prototype name] [path to data file]");
-			System.exit(1);
-		}
-
-		// copy prototype name from arguments
-		prototypeName = args[0];
-		// copy data file path from arguments
-		dataFilePath = args[1];
-
-		// new PrototypeBasedComposer(prototypeName, dataFilePath);
-	}
-
 	public static void run(String prototypeId) throws Exception {
 		Thread.currentThread().setName("PrototypeBasedComposer");
 
