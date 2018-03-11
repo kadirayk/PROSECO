@@ -1,8 +1,6 @@
 package de.upb.crc901.proseco;
 
 import java.io.File;
-import java.io.IOException;
-import java.lang.ProcessBuilder.Redirect;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -20,7 +18,6 @@ import de.upb.crc901.proseco.command.ShutDownInternalBenchmarkServiceCommand;
 import de.upb.crc901.proseco.command.ValidatePrototypeCommand;
 import de.upb.crc901.proseco.command.WaitForStrategiesCommand;
 import de.upb.crc901.proseco.prototype.ExecutionEnvironment;
-import de.upb.crc901.proseco.util.Config;
 import jaicore.basic.PerformanceLogger;
 
 public class PrototypeBasedComposer {
@@ -119,42 +116,6 @@ public class PrototypeBasedComposer {
 		PerformanceLogger.saveGlobalLogToFile(
 				new File(executionEnvironment.getExecutionDirectory().getAbsolutePath() + "/" + "PBC_performance.log"));
 
-	}
-
-	private void executeFinalTest() {
-		System.out.print("Execute final test...");
-		try {
-			final Process finalTest = new ProcessBuilder(
-					executionEnvironment.getExecutionDirectory() + File.separator + Config.EXEC_FINAL_TEST).start();
-			finalTest.waitFor();
-		} catch (final InterruptedException e) {
-			System.err.println("Final test process failed");
-			e.printStackTrace();
-		} catch (final IOException e1) {
-			System.err.println("Could not start process for final test execution.");
-			e1.printStackTrace();
-		}
-		System.out.println("DONE.");
-	}
-
-	private void initConfigurationRoutine() throws IOException {
-		// execute script file for initial configuration process
-		System.out.print("Execute initial configuration process...");
-		final ProcessBuilder pb = new ProcessBuilder(
-				executionEnvironment.getExecutionDirectory().getAbsolutePath() + "/" + Config.INIT_CONFIGURATION_EXEC);
-		pb.redirectOutput(Redirect.INHERIT);
-		pb.redirectError(Redirect.INHERIT);
-
-		final Process initConfigProcess = pb.start();
-
-		try {
-			initConfigProcess.waitFor();
-		} catch (final InterruptedException e) {
-			System.out.println("Initial configuration process failed.");
-			e.printStackTrace();
-			System.exit(-1);
-		}
-		System.out.println("DONE.");
 	}
 
 }
