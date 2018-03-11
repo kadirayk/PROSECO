@@ -5,11 +5,11 @@ import java.io.File;
 import de.upb.crc901.proseco.util.Config;
 import de.upb.crc901.proseco.util.Messages;
 
-public class ValidatePrototypeCommand implements Command {
+public class GetPrototypeDirectoryCommand implements Command {
 	private String prototypeName;
 	private File prototypeDirectory;
 
-	public ValidatePrototypeCommand(String prototypeName) {
+	public GetPrototypeDirectoryCommand(String prototypeName) {
 		this.prototypeName = prototypeName;
 		this.prototypeDirectory = new File(Config.PROTOTYPES.getAbsolutePath() + File.separator + this.prototypeName);
 	}
