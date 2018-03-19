@@ -76,6 +76,8 @@ public class InterviewController {
 		} else if (StringUtils.containsIgnoreCase(init.getContent(), "play a game", Locale.ENGLISH)) {
 			prototypeName = "game";
 
+		} else if (StringUtils.containsIgnoreCase(init.getContent(), "automl", Locale.ENGLISH)) {
+			prototypeName = "automl";
 		} else {
 			return ERROR_TEMPLATE;
 		}

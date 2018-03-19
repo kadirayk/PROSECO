@@ -99,7 +99,11 @@ public class APIController {
 		String resultDirectory = null;
 		for (LogPair log : findLogById(id)) {
 			if (log.getSystemOutLog().contains("Strategy is ready")) {
-				resultDirectory = log.getPrototypeName() + "-" + id + File.separator + Config.GROUNDING;
+				if (log.getPrototypeName().contains("automl")) {
+					resultDirectory = "<a href=\"localhost:8090\">localhost:8090</a>";
+				} else {
+					resultDirectory = log.getPrototypeName() + "-" + id + File.separator + Config.GROUNDING;
+				}
 				return resultDirectory;
 			}
 		}
