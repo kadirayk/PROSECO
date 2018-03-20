@@ -5,3 +5,9 @@ states:
   questions:
   - id: q1
     questionId: aml_q1
+  transition:
+    default: step2
+- name: step2
+  questions:
+  - id: q1
+    questionId: aml_q2

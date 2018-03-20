@@ -1,5 +1,12 @@
 questions:
 - id: aml_q1
+  content: upload training file.
+  uiElement:
+    '@type': Input
+    attributes:
+      name: trainingFile
+      type: file
+- id: aml_q2
   content: Click to run process
   uiElement:
     '@type': Input
