@@ -2,6 +2,7 @@
 ## Table of Contents
 * [Introduction and Usage](#introduction-and-usage)
 * [Setup of a Prototype Folder](#setup-of-a-prototype-folder)
+* [Starting The Server](#starting-the-server)
 
 ## Introduction and Usage
 The PROtotype-based SErvice COmposition (PROSECO) Framework is a free and open-source Java tool for automated service composition.
@@ -20,3 +21,13 @@ Every prototype must contain (we are working on a more flexible cersion to also 
  * a file "groundingroutine.bat" replaces the placeholders of the prototype by concrete values and builds the package
  * a file "initconfiguration.bat" bootstraps the ready software package for productive usage (if necessary)
  * a folder "strategies" containing the search strategies (sub-folders) to derive concrete compositions. Each search-strategy folder must contain a file run.bat that is used by PROSECO to launch a strategy
+
+## Starting The Server
+A web server is contained withing PROSECO to provide an interface to the user. A Prototype-specific interview is presented via this web server to get necessary inputs of the prototype from the user.
+ * Run `de.upb.crc901.proseco.view.app.Application` as java application to start up the server
+ * You can then access the web application via `http://localhost:8080/init`
+ * Fill the input with `ic` for imageclassification prototype or `automl` for AutoML prototype
+ * You will be presented with the interview of selected prototype, fill the necessary inputs of the interview
+ * At the end of the interview, best solution will be presented as result
+ 
+
