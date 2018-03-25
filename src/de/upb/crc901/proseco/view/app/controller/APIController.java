@@ -100,7 +100,11 @@ public class APIController {
 		for (LogPair log : findLogById(id)) {
 			if (log.getSystemOutLog().contains("Strategy is ready")) {
 				if (log.getPrototypeName().contains("automl")) {
-					resultDirectory = "<a href=\"localhost:8090\">localhost:8090</a>";
+					String portNumber = findServicePortNumber(id);
+					if (portNumber != null) {
+						resultDirectory = "<a target=\"_blank\" href=\"http://localhost:" + portNumber + "\">localhost:"
+								+ portNumber + "</a>";
+					}
 				} else {
 					resultDirectory = log.getPrototypeName() + "-" + id + File.separator + Config.GROUNDING;
 				}
@@ -125,6 +129,99 @@ public class APIController {
 
 		return ResponseEntity.ok(result);
 
+	}
+
+	@GetMapping("/api/stopService/{id}")
+	public String stopService(@PathVariable("id") String id) {
+		String result = "success";
+		String PID = findServicePID(id);
+		try {
+			String cmd = "tskill " + PID;
+			Runtime.getRuntime().exec(cmd);
+		} catch (IOException e) {
+			return "failure";
+		}
+
+		return result;
+	}
+
+	private String getServiceLog(String id) {
+		File root = Config.EXECUTIONS;
+		String prototypeFolderWithID = null;
+		String protoypeName = null;
+		for (File file : root.listFiles()) {
+			if (file.isDirectory()) {
+				if (file.getName().contains(id)) {
+					prototypeFolderWithID = file.getAbsolutePath();
+					protoypeName = file.getName().split("-")[0];
+					break;
+				}
+			}
+		}
+
+		String serviceLogFile = prototypeFolderWithID + File.separator + Config.GROUNDING + File.separator
+				+ Config.SERVICE_LOG_FILE;
+
+		String serviceLog = FileUtil.readFile(serviceLogFile);
+		return serviceLog;
+	}
+
+	/**
+	 * Finds service's process ID on OS.
+	 * 
+	 * @param id
+	 * @return
+	 */
+	private String findServicePID(String id) {
+		String PID = null;
+		String serviceLog = getServiceLog(id);
+
+		if (serviceLog != null) {
+			String searchStartString = "with PID ";
+			String searchEndString = " ";
+			int startIndex = serviceLog.indexOf(searchStartString);
+			if (startIndex < 0) {
+				return PID;
+			}
+
+			startIndex += searchStartString.length();
+
+			int endIndex = serviceLog.indexOf(searchEndString, startIndex);
+			if (endIndex < 0) {
+				return PID;
+			}
+			PID = serviceLog.substring(startIndex, endIndex).trim();
+		}
+
+		return PID;
+
+	}
+
+	private String findServicePortNumber(String id) {
+		String port = null;
+		String serviceLog = getServiceLog(id);
+		if (serviceLog == null) {
+			return port;
+		}
+
+		String searchStartString = "Tomcat started on port(s): ";
+		String searchEndString = "(http)";
+
+		int startIndex = serviceLog.indexOf(searchStartString);
+		if (startIndex < 0) {
+			return port;
+		}
+
+		startIndex += searchStartString.length();
+
+		int endIndex = serviceLog.indexOf(searchEndString, startIndex);
+		if (endIndex < 0) {
+			return port;
+		}
+
+		port = serviceLog.substring(startIndex, endIndex).trim();
+
+		return port;
 	}
 
 	/**

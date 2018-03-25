@@ -34,6 +34,7 @@ public class Config {
 	public static final String EXECUTIONS_PATH = PROPS.getProperty("pbc.executions_path");
 	public static final String INTERVIEW_PATH = PROPS.getProperty("pbc.interview_path");
 	public static final String INTERVIEW_RESOUCES_PATH = PROPS.getProperty("pbc.interview_resources_path");
+	public static final String SERVICE_LOG_FILE = PROPS.getProperty("pbc.service_log_file");
 	
 	
 	public static final String INTERNAL_BENCHMARK_FOLDER = "benchmarks/";

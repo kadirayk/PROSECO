@@ -58,6 +58,25 @@ function StopSys() {
 	}
 }
 
+// Stop Created Prototype Service
+function StopService() {
+	currentUrl = window.location.href.split("/").pop();
+	$
+			.ajax({
+				type : "GET",
+				contentType : "application/json",
+				url : "/api/stopService/" + currentUrl,
+				cache : false,
+				timeout : 60000,
+				success : function(data) {
+					console.log(data);
+				},
+				error : function(e) {
+					console.log("ERROR : ", e);
+				}
+			});
+}
+
 // Poll System Logs
 function pollSys() {
 	currentUrl = window.location.href.split("/").pop();

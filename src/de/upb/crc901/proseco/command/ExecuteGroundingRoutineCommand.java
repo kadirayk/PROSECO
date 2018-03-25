@@ -1,9 +1,11 @@
 package de.upb.crc901.proseco.command;
 
+import java.io.File;
 import java.io.IOException;
 import java.lang.ProcessBuilder.Redirect;
 
 import de.upb.crc901.proseco.prototype.ExecutionEnvironment;
+import de.upb.crc901.proseco.util.Config;
 
 public class ExecuteGroundingRoutineCommand implements Command {
 	private ExecutionEnvironment executionEnvironment;
@@ -14,8 +16,10 @@ public class ExecuteGroundingRoutineCommand implements Command {
 
 	@Override
 	public void execute() throws Exception {
+		File groundingFolder = executionEnvironment.getGroundingDirectory();
+		File groundingLog = new File(groundingFolder.getAbsolutePath() + File.separator + Config.SERVICE_LOG_FILE);
 		final ProcessBuilder pb = new ProcessBuilder(executionEnvironment.getGroundingFile().getAbsolutePath())
-				.redirectOutput(Redirect.INHERIT).redirectError(Redirect.INHERIT);
+				.redirectOutput(Redirect.appendTo(groundingLog)).redirectError(Redirect.appendTo(groundingLog));
 		System.out.print("Execute grounding process...");
 		Process p;
 		try {
