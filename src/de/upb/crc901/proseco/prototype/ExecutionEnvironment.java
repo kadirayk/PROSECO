@@ -2,6 +2,13 @@ package de.upb.crc901.proseco.prototype;
 
 import java.io.File;
 
+/**
+ * ExecutionEnvironment, is the directory where an instance of the selected
+ * prototype is created.
+ * 
+ * @author kadirayk
+ *
+ */
 public class ExecutionEnvironment {
 	private final String prototypeId;
 	private final File executionDirectory;
@@ -16,6 +23,13 @@ public class ExecutionEnvironment {
 	private final File interviewResourcesDirectory;
 	private final File groundingFile;
 
+	/**
+	 * Builder, helps ExecutionEnvironment to be initiated with the selected
+	 * parameters
+	 * 
+	 * @author kadirayk
+	 *
+	 */
 	public static class Builder {
 		private final String prototypeId;
 		private final File executionDirectory;

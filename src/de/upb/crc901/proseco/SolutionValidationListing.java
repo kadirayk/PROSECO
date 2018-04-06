@@ -9,10 +9,15 @@ import java.io.IOException;
 import org.apache.commons.collections4.MultiValuedMap;
 import org.apache.commons.collections4.multimap.ArrayListValuedHashMap;
 
-
+/**
+ * 
+ * @deprecated
+ *
+ */
 public class SolutionValidationListing {
 
-	private static final File BASE_FOLDER = new File("execution/genderrecognition-1498652421363/strategies/htn/output/");
+	private static final File BASE_FOLDER = new File(
+			"execution/genderrecognition-1498652421363/strategies/htn/output/");
 
 	public static void main(final String[] args) {
 
@@ -24,7 +29,8 @@ public class SolutionValidationListing {
 			}
 
 			String classifier = "";
-			try (BufferedReader br = new BufferedReader(new FileReader(candidate.getAbsolutePath() + File.separator + "classifierdef"))) {
+			try (BufferedReader br = new BufferedReader(
+					new FileReader(candidate.getAbsolutePath() + File.separator + "classifierdef"))) {
 				classifier = br.readLine();
 			} catch (final FileNotFoundException e) {
 				e.printStackTrace();
@@ -33,7 +39,8 @@ public class SolutionValidationListing {
 			}
 
 			String fValue = "";
-			try (BufferedReader br = new BufferedReader(new FileReader(candidate.getAbsolutePath() + File.separator + "f.value"))) {
+			try (BufferedReader br = new BufferedReader(
+					new FileReader(candidate.getAbsolutePath() + File.separator + "f.value"))) {
 				fValue = br.readLine();
 			} catch (final FileNotFoundException e) {
 				e.printStackTrace();

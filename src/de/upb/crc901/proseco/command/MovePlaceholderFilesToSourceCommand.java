@@ -10,8 +10,9 @@ import de.upb.crc901.proseco.util.Config;
 import jaicore.basic.FileUtil;
 
 /**
- * Move all placeholder files created by the winning strategy to the source
- * folder as inputs for the grounding routine.
+ * MovePlaceholderFilesToSourceCommand, moves all placeholder files created by
+ * the winning strategy to the source folder as inputs for the grounding
+ * routine.
  * 
  * @author kadirayk
  * 

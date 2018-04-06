@@ -12,7 +12,10 @@ import de.upb.crc901.proseco.prototype.ExecutionEnvironment;
 import de.upb.crc901.proseco.util.Config;
 
 /**
- * Search for strategy subfolders and forking a new process for each strategy.
+ * ExecuteStrategiesCommand, searches for strategy subfolders and forking a new
+ * process for each strategy. Output and Error streams of these processes are
+ * directed to <code>systemlog/systemOut.log</code> and
+ * <code>systemlog/systemErr.log</code> files respectively.
  * 
  * @author kadirayk
  *

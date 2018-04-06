@@ -20,6 +20,16 @@ import de.upb.crc901.proseco.command.WaitForStrategiesCommand;
 import de.upb.crc901.proseco.prototype.ExecutionEnvironment;
 import jaicore.basic.PerformanceLogger;
 
+/**
+ * 
+ * PrototypeBasedComposer realizes the service construction of the selected
+ * prototype. After a prototype is found for the user's input, the construction
+ * steps for the prototype is executed.
+ * 
+ * <img alt="test" src="./doc-files/testimg.png">
+ * 
+ *
+ */
 public class PrototypeBasedComposer {
 	private static final Logger logger = LoggerFactory.getLogger(PrototypeBasedComposer.class);
 
@@ -50,6 +60,7 @@ public class PrototypeBasedComposer {
 	 * @param prototypeId
 	 *            prototypeId consists of prototypeName-Id ie.
 	 *            imageClassification-E34A778BF1
+	 * @throws Exception
 	 */
 	public PrototypeBasedComposer(final String prototypeId) throws Exception {
 		setPrototypeDirectory(prototypeId);

@@ -5,6 +5,14 @@ import java.io.File;
 import de.upb.crc901.proseco.util.Config;
 import de.upb.crc901.proseco.util.Messages;
 
+/**
+ * GetPrototypeDirectoryCommand, searches for a prototype with the given name
+ * and returns it directory as File.
+ * 
+ * 
+ * @author kadirayk
+ *
+ */
 public class GetPrototypeDirectoryCommand implements Command {
 	private String prototypeName;
 	private File prototypeDirectory;

@@ -3,8 +3,8 @@ package de.upb.crc901.proseco.command;
 import java.util.List;
 
 /**
- * Wait (busy waiting) for the processes to terminate that have been started to
- * execute the different strategies.
+ * WaitForStrategiesCommand, waits (busy waiting) for the processes to terminate
+ * that have been started to execute the different strategies.
  * 
  * @author kadirayk
  *

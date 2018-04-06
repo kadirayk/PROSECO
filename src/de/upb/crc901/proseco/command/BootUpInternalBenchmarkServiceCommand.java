@@ -9,6 +9,16 @@ import java.lang.ProcessBuilder.Redirect;
 import de.upb.crc901.proseco.prototype.ExecutionEnvironment;
 import de.upb.crc901.proseco.util.Config;
 
+/**
+ * 
+ * BootUpInternalBenchmarkServiceCommand, finds the internal benchmark service
+ * <code>(benchmarkService.bat)</code> executable file of the selected
+ * prototype, and starts it as a process. Output and Error streams of this
+ * process is redirected to console.
+ * 
+ * @author kadirayk
+ *
+ */
 public class BootUpInternalBenchmarkServiceCommand implements Command {
 	private ExecutionEnvironment executionEnvironment;
 	private Process internalBenchmarkService;

@@ -7,6 +7,16 @@ import org.apache.commons.io.FileUtils;
 import de.upb.crc901.proseco.prototype.ExecutionEnvironment;
 import de.upb.crc901.proseco.util.Config;
 
+/**
+ * InitializeExecutionEnvironmentCommand, initializes the
+ * <code>ExecutionEnvironment</code> by creating a copy of the selected
+ * prototype skeleton.
+ * 
+ * @see ExecutionEnvironment
+ * 
+ * @author kadirayk
+ *
+ */
 public class InitializeExecutionEnvironmentCommand implements Command {
 	private File prototypeDirectory;
 	private File executionDirectory;

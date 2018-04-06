@@ -10,6 +10,14 @@ import org.apache.commons.io.FilenameUtils;
 import de.upb.crc901.proseco.prototype.ExecutionEnvironment;
 import de.upb.crc901.proseco.util.Config;
 
+/**
+ * CleanExecutionEnvironmentCommand cleans up the execution directory by
+ * deleting all the created files in the <code>ExecutionEnvironment</code>, if
+ * the <code>FINAL_CLEAN_UP</code> flag is active.
+ * 
+ * @author kadirayk
+ *
+ */
 public class CleanExecutionEnvironmentCommand implements Command {
 
 	private ExecutionEnvironment executionEnvironment;

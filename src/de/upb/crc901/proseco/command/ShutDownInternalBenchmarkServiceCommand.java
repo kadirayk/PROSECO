@@ -4,6 +4,14 @@ import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 
+/**
+ * ShutDownInternalBenchmarkServiceCommand, after execution of the strategies
+ * completed it waits for internal benchmark service
+ * <code>(benchmarkService.bat)</code> to terminate.
+ * 
+ * @author kadirayk
+ *
+ */
 public class ShutDownInternalBenchmarkServiceCommand implements Command {
 	private Process internalBenchmarkService;
 
