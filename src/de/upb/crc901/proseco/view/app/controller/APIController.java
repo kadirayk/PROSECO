@@ -2,20 +2,27 @@ package de.upb.crc901.proseco.view.app.controller;
 
 import java.io.File;
 import java.io.FileFilter;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+
+import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyEmitter;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
+import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
+import org.zeroturnaround.zip.ZipUtil;
 
 import de.upb.crc901.proseco.util.Config;
 import de.upb.crc901.proseco.view.app.model.LogPair;
@@ -50,13 +57,13 @@ public class APIController {
 		ExecutorService service = Executors.newSingleThreadExecutor();
 		service.execute(() -> {
 			boolean isComplete = false;
-			String resultDirectory = null;
+			String resultMessage = null;
 			int animationDots = 0;
 			int countDown = 30;
 			while (!isComplete) {
 				animationDots = animationDots % 3;
-				resultDirectory = checkStatus(id);
-				isComplete = resultDirectory != null;
+				resultMessage = checkStatus(id);
+				isComplete = resultMessage != null;
 				try {
 					if (!isComplete) {
 						if (countDown > 0) {
@@ -77,7 +84,7 @@ public class APIController {
 			}
 			try {
 				if (isComplete) {
-					emitter.send(resultDirectory, MediaType.TEXT_PLAIN);
+					emitter.send(resultMessage, MediaType.TEXT_PLAIN);
 				}
 			} catch (IOException e) {
 				emitter.completeWithError(e);
@@ -89,6 +96,24 @@ public class APIController {
 		return emitter;
 	}
 
+	@RequestMapping(value = "/api/download/{id}", method = RequestMethod.GET)
+	public StreamingResponseBody getGameClient(@PathVariable("id") String id, HttpServletResponse response)
+			throws IOException {
+		String clientPath = getGameClient(id);
+		response.setContentType("text/html;charset=UTF-8");
+		response.setHeader("Content-Disposition", "attachment; filename=\"client.zip\"");
+		InputStream inputStream = new FileInputStream(new File(clientPath));
+
+		return outputStream -> {
+			int nRead;
+			byte[] data = new byte[1024];
+			while ((nRead = inputStream.read(data, 0, data.length)) != -1) {
+				outputStream.write(data, 0, nRead);
+			}
+			inputStream.close();
+		};
+	}
+
 	/**
 	 * Checks if the search strategy completed
 	 * 
@@ -96,22 +121,26 @@ public class APIController {
 	 * @return
 	 */
 	private String checkStatus(String id) {
-		String resultDirectory = null;
+		String resultMessage = null;
 		for (LogPair log : findLogById(id)) {
 			if (log.getSystemOutLog().contains("Strategy is ready")) {
 				if (log.getPrototypeName().contains("automl")) {
 					String portNumber = findServicePortNumber(id);
 					if (portNumber != null) {
-						resultDirectory = "<a target=\"_blank\" href=\"http://localhost:" + portNumber + "\">localhost:"
+						resultMessage = "<a target=\"_blank\" href=\"http://localhost:" + portNumber + "\">localhost:"
 								+ portNumber + "</a>";
 					}
+				} else if (log.getSystemOutLog().contains("game")) {
+					String clientPath = "/api/download/" + id;
+					resultMessage = "<a target=\"_blank\" href=\"" + clientPath
+							+ "\" download> Download Game Client </a>";
 				} else {
-					resultDirectory = log.getPrototypeName() + "-" + id + File.separator + Config.GROUNDING;
+					resultMessage = log.getPrototypeName() + "-" + id + File.separator + Config.GROUNDING;
 				}
-				return resultDirectory;
+				return resultMessage;
 			}
 		}
-		return resultDirectory;
+		return resultMessage;
 	}
 
 	/**
@@ -143,6 +172,26 @@ public class APIController {
 		}
 
 		return result;
+	}
+
+	private String getGameClient(String id) {
+		String clientPath = null;
+		File root = Config.EXECUTIONS;
+		String prototypeFolderWithID = null;
+		for (File file : root.listFiles()) {
+			if (file.isDirectory()) {
+				if (file.getName().contains(id)) {
+					prototypeFolderWithID = file.getAbsolutePath();
+					break;
+				}
+			}
+		}
+
+		clientPath = prototypeFolderWithID + File.separator + "client";
+
+		ZipUtil.pack(new File(clientPath), new File(clientPath + ".zip"));
+
+		return clientPath + ".zip";
 	}
 
 	private String getServiceLog(String id) {

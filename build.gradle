@@ -92,6 +92,9 @@ dependencies {
 	// webjars for web ui
 	compile 'org.webjars:jquery:2.2.4'
 	compile 'org.webjars:bootstrap:3.3.7'
+	
+	//zip util
+	compile 'org.zeroturnaround:zt-zip:1.12'
 		
 }
 
