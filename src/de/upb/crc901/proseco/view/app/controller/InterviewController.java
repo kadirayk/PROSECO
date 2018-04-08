@@ -73,7 +73,8 @@ public class InterviewController {
 		if (StringUtils.containsIgnoreCase(init.getContent(), "image classification", Locale.ENGLISH)
 				|| StringUtils.containsIgnoreCase(init.getContent(), "ic", Locale.ENGLISH)) {
 			prototypeName = "imageclassification";
-		} else if (StringUtils.containsIgnoreCase(init.getContent(), "play a game", Locale.ENGLISH)) {
+		} else if (StringUtils.containsIgnoreCase(init.getContent(), "play a game", Locale.ENGLISH)
+				|| StringUtils.containsIgnoreCase(init.getContent(), "game", Locale.ENGLISH)) {
 			prototypeName = "game";
 
 		} else if (StringUtils.containsIgnoreCase(init.getContent(), "automl", Locale.ENGLISH)) {
