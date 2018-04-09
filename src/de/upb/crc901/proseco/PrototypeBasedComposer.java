@@ -26,7 +26,6 @@ import jaicore.basic.PerformanceLogger;
  * prototype. After a prototype is found for the user's input, the construction
  * steps for the prototype is executed.
  * 
- * <img alt="test" src="./doc-files/testimg.png">
  * 
  *
  */

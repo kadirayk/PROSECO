@@ -47,7 +47,9 @@ public class InterviewController {
 	private File prototypeDirectory;
 
 	/**
-	 * Displays Interview initiator
+	 * Displays Interview initiator. Interview initiator is the step where the
+	 * user inputs the required keywords for corresponding prototype to be
+	 * found.
 	 * 
 	 * @param model
 	 * @return
@@ -129,7 +131,7 @@ public class InterviewController {
 	 * Http Post method for /interview/{id} to post form values and continue to
 	 * the next step
 	 * 
-	 * @param init
+	 * @param interviewDTO
 	 * @param response
 	 *            is any string value that is filled in the form
 	 * @param file
@@ -138,7 +140,7 @@ public class InterviewController {
 	 * @throws NextStateNotFoundException
 	 */
 	@PostMapping("/interview/{id}")
-	public String nextPost(@ModelAttribute InterviewDTO init,
+	public String nextPost(@ModelAttribute InterviewDTO interviewDTO,
 			@RequestParam(required = false, name = "response") String response,
 			@RequestParam(required = false, name = "file") MultipartFile file) throws NextStateNotFoundException {
 
@@ -148,14 +150,14 @@ public class InterviewController {
 
 			Runnable task = () -> {
 				try {
-					PrototypeBasedComposer.run(interview.getPrototypeName() + "-" + init.getId());
+					PrototypeBasedComposer.run(interview.getPrototypeName() + "-" + interviewDTO.getId());
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
 			};
 			new Thread(task).start();
-			init.setInterview(interview);
-			init.setShowConsole(true);
+			interviewDTO.setInterview(interview);
+			interviewDTO.setShowConsole(true);
 			return RESULT_TEMPLATE;
 		}
 
@@ -167,9 +169,9 @@ public class InterviewController {
 			if (file != null && !file.isEmpty()) {
 				try {
 					byte[] bytes = file.getBytes();
-					Path path = Paths.get(Config.EXECUTIONS_PATH + interview.getPrototypeName() + "-" + init.getId()
-							+ File.separator + Config.INTERVIEW_PATH + Config.INTERVIEW_RESOUCES_PATH
-							+ file.getOriginalFilename());
+					Path path = Paths.get(Config.EXECUTIONS_PATH + interview.getPrototypeName() + "-"
+							+ interviewDTO.getId() + File.separator + Config.INTERVIEW_PATH
+							+ Config.INTERVIEW_RESOUCES_PATH + file.getOriginalFilename());
 					Files.write(path, bytes);
 
 					List<Question> questions = interview.getCurrentState().getQuestions();
@@ -206,11 +208,11 @@ public class InterviewController {
 
 			// continue to next interview state
 			interview.nextState();
-			init.setInterview(interview);
+			interviewDTO.setInterview(interview);
 
 		}
 		// save current interview state
-		saveInterviewState(init);
+		saveInterviewState(interviewDTO);
 
 		return RESULT_TEMPLATE;
 	}

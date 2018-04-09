@@ -1,6 +1,7 @@
 # PROSECO
 ## Table of Contents
 * [Overview](#overview)
+* [Demo](#demo)
 * [Introduction and Usage](#introduction-and-usage)
 * [Setup of a Prototype Folder](#setup-of-a-prototype-folder)
 * [Starting The Server](#starting-the-server)
@@ -21,6 +22,15 @@ In this phase, the best solution for users requirements are found. For example, 
 
 #### Run and Present Solution as a Service:
 Finally, an access point to the best solution is presented to the user. An access point can be a game client for cloud gaming service or a web application that the user can use for machine learning.
+
+## Demo
+
+#### Cloud Gaming
+![Cloud Gaming](https://thumbs.gfycat.com/GenuineRealFlyingfish-size_restricted.gif)
+
+#### Automated Machine Learning
+![Automated Machine Learning](https://thumbs.gfycat.com/SpitefulRegalAmericancreamdraft-size_restricted.gif)
+
 
 ## Introduction and Usage
 PROSECO creates executable services based on *prototypes*.

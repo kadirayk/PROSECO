@@ -96,6 +96,17 @@ public class APIController {
 		return emitter;
 	}
 
+	/**
+	 * getGameClient, returns the game client application to be downloaded by
+	 * the user.
+	 * 
+	 * @param id
+	 *            id of the session
+	 * @param response
+	 *            executable client application
+	 * @return
+	 * @throws IOException
+	 */
 	@RequestMapping(value = "/api/download/{id}", method = RequestMethod.GET)
 	public StreamingResponseBody getGameClient(@PathVariable("id") String id, HttpServletResponse response)
 			throws IOException {
@@ -121,6 +132,7 @@ public class APIController {
 	 * @return
 	 */
 	private String checkStatus(String id) {
+		// TODO: split to 2 methods
 		String resultMessage = null;
 		for (LogPair log : findLogById(id)) {
 			if (log.getSystemOutLog().contains("Strategy is ready")) {
@@ -160,6 +172,14 @@ public class APIController {
 
 	}
 
+	/**
+	 * Finds the deployed web application for with the given session id and
+	 * kills the process.
+	 * 
+	 * @param id
+	 *            id of the session
+	 * @return success if task is killed, failure if exception occured
+	 */
 	@GetMapping("/api/stopService/{id}")
 	public String stopService(@PathVariable("id") String id) {
 		String result = "success";
@@ -174,6 +194,14 @@ public class APIController {
 		return result;
 	}
 
+	/**
+	 * Returns the path of game client executable as zip with the given session
+	 * id
+	 * 
+	 * @param id
+	 *            id of the session
+	 * @return path of game client executable as zip
+	 */
 	private String getGameClient(String id) {
 		String clientPath = null;
 		File root = Config.EXECUTIONS;
@@ -194,6 +222,12 @@ public class APIController {
 		return clientPath + ".zip";
 	}
 
+	/**
+	 * Returns the service log file content as string with the given id.
+	 * 
+	 * @param id
+	 * @return
+	 */
 	private String getServiceLog(String id) {
 		File root = Config.EXECUTIONS;
 		String prototypeFolderWithID = null;
@@ -246,6 +280,13 @@ public class APIController {
 
 	}
 
+	/**
+	 * Returns the port number occupied by the deployed application for the
+	 * given session id
+	 * 
+	 * @param id
+	 * @return port number
+	 */
 	private String findServicePortNumber(String id) {
 		String port = null;
 		String serviceLog = getServiceLog(id);
