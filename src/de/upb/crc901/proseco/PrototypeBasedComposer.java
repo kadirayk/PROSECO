@@ -26,7 +26,8 @@ import jaicore.basic.PerformanceLogger;
  * prototype. After a prototype is found for the user's input, the construction
  * steps for the prototype is executed.
  * 
- * 
+ * <br><br>
+ * <img src="doc-files/PrototypeBasedComposer.png">
  *
  */
 public class PrototypeBasedComposer {
