@@ -1,12 +1,18 @@
 # PROSECO
 ## Table of Contents
+* [Overview](#overview)
 * [Introduction and Usage](#introduction-and-usage)
 * [Setup of a Prototype Folder](#setup-of-a-prototype-folder)
 * [Starting The Server](#starting-the-server)
 
-## Introduction and Usage
+## Overview
 The PROtotype-based SErvice COmposition (PROSECO) Framework is a free and open-source Java tool for automated service composition.
 
+![alt text](https://github.com/fmohr/PROSECO/raw/development/doc/img/proseco-overview.png "PROSECO Overview")
+
+
+
+## Introduction and Usage
 PROSECO creates executable services based on *prototypes*.
 The prototypes are the folders within the "prototypes" directory, which should contain "almost"-runnable software packages.
 A prototype folder basically consists of (i) a folder "src" containing the actual software package and (ii) control files that determine how the grounding of that particular prototype works; a detailed description of the requirements is given below.

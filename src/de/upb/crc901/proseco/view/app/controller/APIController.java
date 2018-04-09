@@ -316,8 +316,6 @@ public class APIController {
 			if (outLog != null && errLog != null) {
 				LogPair logPair = new LogPair(protoypeName, strategyFolder.getName(), outLog, errLog);
 				logList.add(logPair);
-				// added twice for demo purpose
-				logList.add(logPair);
 			}
 		}
 
