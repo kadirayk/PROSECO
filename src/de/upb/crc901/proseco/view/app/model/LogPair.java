@@ -11,12 +11,15 @@ public class LogPair {
 	private String strategyName;
 	private String systemOutLog;
 	private String systemErrorLog;
+	private String systemAllLog;
 
-	public LogPair(String prototypeName, String strategyName, String systemOutLog, String systemErrorLog) {
+	public LogPair(String prototypeName, String strategyName, String systemOutLog, String systemErrorLog,
+			String systemAllLog) {
 		this.prototypeName = prototypeName;
-		this.strategyName = strategyName;
+		this.strategyName = strategyName.replace(" ", "-");
 		this.systemOutLog = systemOutLog;
 		this.systemErrorLog = systemErrorLog;
+		this.systemAllLog = systemAllLog;
 	}
 
 	public String getStrategyName() {
@@ -41,6 +44,14 @@ public class LogPair {
 
 	public void setSystemErrorLog(String errorLog) {
 		this.systemErrorLog = errorLog;
+	}
+
+	public String getSystemAllLog() {
+		return systemAllLog;
+	}
+
+	public void setSystemAllLog(String systemAllLog) {
+		this.systemAllLog = systemAllLog;
 	}
 
 	public String getPrototypeName() {

@@ -23,27 +23,60 @@ function listenStrategyLogs() {
 		currentUrl = window.location.href.split("/").pop();
 		strategyLogSource = new EventSource("/api/strategyLogs/" + currentUrl);
 		strategyLogSource.onmessage = function(event) {
-			// document.getElementById("strategy-logs").innerHTML = event.data;
-			var field = "<div class=\"container\">";
+			var field = "<div class=\"container\" style=\"margin-top: 30px\">";
 			const data = JSON.parse(event.data);
 			for ( var logPair in data['logList']) {
+				var allLog = data['logList'][logPair]['systemAllLog'];
+				allLog = allLog.replace(/\$\_\(/g, '<span style=\"color:red\">');
+				allLog = allLog.replace(/\)\_\$/g, '</span>');
+				var errLog = data['logList'][logPair]['systemErrorLog'];
+				errLog = errLog.replace(/\$\_\(/g, '<span style=\"color:red\">');
+				errLog = errLog.replace(/\)\_\$/g, '</span>');
 				field = field
+						+ "<div class=\"col-xs-6\">"
+						+ "<ul class=\"nav nav-tabs\" style=\"max-width: 564px\">"
+						+ "<li class=\"active\"><a href=\"#merged-"
+						+ data['logList'][logPair]['strategyName']
+						+ "\" data-toggle=\"tab\">Merged</a></li>"
+						+ "<li><a href=\"#separated-"
+						+ data['logList'][logPair]['strategyName']
+						+ "\" data-toggle=\"tab\">Separated</a></li>"
+						+ "</ul>"
+						+ "<div class=\"tab-content\">"
+						+ "<div id=\"merged-"
+						+ data['logList'][logPair]['strategyName']
+						+ "\" class=\"tab-pane active\">"
+						+ "<div class=\"col-xs-12\">"
+						+ data['logList'][logPair]['strategyName']
+						+ " System Out &amp; Err"
+						+ "<div class=\"pre-scrollable\" style=\"min-height: 200px; max-height: 200px; max-width: 600px;\">"
+						+ "<pre>"
+						+ allLog
+						+ "</pre>"
+						+ "</div>"
+						+ "</div>"
+						+ "</div>"
+						+ "<div id=\"separated-"
+						+ data['logList'][logPair]['strategyName']
+						+ "\" class=\"tab-pane\">"
 						+ "<div class=\"row\">"
 						+ "<div class=\"col-xs-6\">"
 						+ data['logList'][logPair]['strategyName']
 						+ " System Out"
-						+ "<div class=\"pre-scrollable\" style=\"min-height: 200px; max-height: 200px; max-width: 600px;\">"
+						+ "<div class=\"pre-scrollable\" style=\"min-height: 200px; max-height: 200px; max-width: 300px;\">"
 						+ "<pre>"
 						+ data['logList'][logPair]['systemOutLog']
 						+ "</pre>"
-						+ "</div> </div>"
+						+ "</div>"
+						+ "</div>"
 						+ "<div class=\"row\">"
 						+ "<div class=\"col-xs-6\">"
 						+ data['logList'][logPair]['strategyName']
-						+ " System Error"
-						+ "<div class=\"pre-scrollable\" style=\"min-height: 200px; max-height: 200px; max-width: 600px;\">"
-						+ "<pre>" + data['logList'][logPair]['systemErrorLog']
-						+ "</pre>" + "</div> </div> </div> </div>"
+						+ "System Error"
+						+ "<div class=\"pre-scrollable\" style=\"min-height: 200px; max-height: 200px; max-width: 300px;\">"
+						+ "<pre>" + errLog
+						+ "</pre>"
+						+ "</div></div></div></div></div></div></div>";
 
 			}
 

@@ -39,6 +39,13 @@ import de.upb.crc901.proseco.view.util.FileUtil;
 @RestController
 public class APIController {
 
+	/**
+	 * Returns SystemOut and SystemError logs of Strategies of prototype with
+	 * the given ID
+	 * 
+	 * @param id
+	 * @return
+	 */
 	@RequestMapping("/api/strategyLogs/{id}")
 	public ResponseBodyEmitter pushStrategyLogs(@PathVariable("id") String id) {
 		final SseEmitter emitter = new SseEmitter(3600000L);
@@ -376,11 +383,20 @@ public class APIController {
 		for (final File strategyFolder : strategySubFolders) {
 			String systemOut = strategyFolder.getAbsolutePath() + File.separator + Config.SYSTEM_OUT_FILE;
 			String systemErr = strategyFolder.getAbsolutePath() + File.separator + Config.SYSTEM_ERR_FILE;
+			String systemAll = strategyFolder.getAbsolutePath() + File.separator + Config.SYSTEM_ALL_FILE;
 			String outLog = FileUtil.readFile(systemOut);
 			String errLog = FileUtil.readFile(systemErr);
+			String allLog = FileUtil.readFile(systemAll);
+
 			if (outLog != null && errLog != null) {
-				LogPair logPair = new LogPair(protoypeName, strategyFolder.getName(), outLog, errLog);
+				LogPair logPair = new LogPair(protoypeName, strategyFolder.getName(), outLog, errLog, allLog);
 				logList.add(logPair);
+				LogPair testLogPair = new LogPair(protoypeName, "Test Strategy", outLog, errLog, allLog);
+				logList.add(testLogPair);
+				LogPair testLog2Pair = new LogPair(protoypeName, "Test Strategy2", outLog, errLog, allLog);
+				logList.add(testLog2Pair);
+				LogPair testLog3Pair = new LogPair(protoypeName, "Test Strategy3", outLog, errLog, allLog);
+				logList.add(testLog3Pair);
 			}
 		}
 

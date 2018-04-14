@@ -30,6 +30,7 @@ public class Config {
 	public static final String INTERVIEW_RESOURCES = PROPS.getProperty("pbc.interview_resources_path");
 	public static final String SYSTEM_OUT_FILE = PROPS.getProperty("pbc.system_out_file");
 	public static final String SYSTEM_ERR_FILE = PROPS.getProperty("pbc.system_err_file");
+	public static final String SYSTEM_ALL_FILE = PROPS.getProperty("pbc.system_all_file");
 	public static final String PROTOTYPES_PATH = PROPS.getProperty("pbc.prototypes_path");
 	public static final String EXECUTIONS_PATH = PROPS.getProperty("pbc.executions_path");
 	public static final String INTERVIEW_PATH = PROPS.getProperty("pbc.interview_path");
