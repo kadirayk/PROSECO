@@ -39,6 +39,30 @@ import de.upb.crc901.proseco.view.util.FileUtil;
 @RestController
 public class APIController {
 
+	@RequestMapping("/api/strategyLogs/{id}")
+	public ResponseBodyEmitter pushStrategyLogs(@PathVariable("id") String id) {
+		final SseEmitter emitter = new SseEmitter(3600000L);
+		if (id.equals("init")) {
+			emitter.complete();
+			return emitter;
+		}
+		ExecutorService service = Executors.newSingleThreadExecutor();
+		service.execute(() -> {
+			LogResponseBody result = new LogResponseBody();
+			result.setLogList(findLogById(id));
+			try {
+				emitter.send(result, MediaType.APPLICATION_JSON);
+			} catch (IOException e) {
+				emitter.completeWithError(e);
+				e.printStackTrace();
+			}
+			emitter.complete();
+		});
+
+		return emitter;
+
+	}
+
 	/**
 	 * Server-Sent Event Emitter for search process result Provides feedback to
 	 * the caller while search process continues returns location of the

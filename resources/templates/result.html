@@ -32,14 +32,14 @@
 
 		<p th:if="${interviewDTO.showConsole}">
 		<div class="container" style="margin-top: 25px;">
-			<input type="button" id="btn-poll" class="btn btn-default"
-				onclick="StopSys()" value="Stop Console" /> <span
+			<input type="button" id="btn-strategy-log-listener" class="btn btn-default"
+				onclick="stopListeningStrategyLogs()" value="Stop Console" /> <span
 				style="margin-left: 10px; font-size: 18px"
 				class="label label-success">Result: <span
 				class="label label-success" id="strategy-result"> </span>
 			</span> <input type="button" id="btn-stop-service" class="btn btn-default"
 				onclick="StopService()" value="Stop Service" />
-			<div id="feedback" class="container"></div>
+			<div id="strategy-logs" class="container"></div>
 		</div>
 		</p>
 
