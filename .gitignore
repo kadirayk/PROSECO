@@ -56,9 +56,9 @@ local.properties
 # Generated files
 data/stored
 
-!prototypes/*/*.dll
-!prototypes/*/*.exe
-!prototypes/*/mod
+!*.dll
+!*.exe
+!/mod
 
 # JDT-specific (Eclipse Java Development Tools)		
 .classpath
