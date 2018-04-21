@@ -116,6 +116,9 @@ public class InterviewDTO {
 			htmlElement.append("<table style=\"width:30%\" border=\"1\"><tr><th>").append("State").append("</th><th>")
 					.append("question").append("</th><th>").append("answer").append("</th></tr>");
 			for (State state : interview.getStates()) {
+				if (state.getName().equals("timeout")) {
+					continue;
+				}
 				htmlElement.append("<tr");
 				if (state.getName().equals(interview.getCurrentState().getName())) {
 					htmlElement.append(" bgcolor=\"#b4ff99\" ");

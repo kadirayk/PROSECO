@@ -5,13 +5,26 @@ $(document).ready(function() {
 
 var strategyLogSource;
 
+var timeoutAsked;
+
 // bind to Server-Sent Event Emitter to check process result
 function checkResult() {
 	if (typeof (EventSource) !== "undefined") {
 		currentUrl = window.location.href.split("/").pop();
 		var source = new EventSource("/api/result/" + currentUrl);
 		source.onmessage = function(event) {
-			document.getElementById("strategy-result").innerHTML = event.data;
+			if (!timeoutAsked && event.data.includes('.')) {
+				if (!confirm("Time out reached do you want to continue?")) {
+					document.getElementById("strategy-result").innerHTML = "Canceled";
+					source.close();
+					strategyLogSource.close();
+				} else {
+					timeoutAsked = true;
+					document.getElementById("strategy-result").innerHTML = event.data;
+				}
+			} else {
+				document.getElementById("strategy-result").innerHTML = event.data;
+			}
 		};
 	} else {
 		document.getElementById("strategy-result").innerHTML = "Your browser does not support server-sent events.";
@@ -27,10 +40,12 @@ function listenStrategyLogs() {
 			const data = JSON.parse(event.data);
 			for ( var logPair in data['logList']) {
 				var allLog = data['logList'][logPair]['systemAllLog'];
-				allLog = allLog.replace(/\$\_\(/g, '<span style=\"color:red\">');
+				allLog = allLog
+						.replace(/\$\_\(/g, '<span style=\"color:red\">');
 				allLog = allLog.replace(/\)\_\$/g, '</span>');
 				var errLog = data['logList'][logPair]['systemErrorLog'];
-				errLog = errLog.replace(/\$\_\(/g, '<span style=\"color:red\">');
+				errLog = errLog
+						.replace(/\$\_\(/g, '<span style=\"color:red\">');
 				errLog = errLog.replace(/\)\_\$/g, '</span>');
 				field = field
 						+ "<div class=\"col-xs-6\">"
@@ -74,8 +89,7 @@ function listenStrategyLogs() {
 						+ data['logList'][logPair]['strategyName']
 						+ "System Error"
 						+ "<div class=\"pre-scrollable\" style=\"min-height: 200px; max-height: 200px; max-width: 300px;\">"
-						+ "<pre>" + errLog
-						+ "</pre>"
+						+ "<pre>" + errLog + "</pre>"
 						+ "</div></div></div></div></div></div></div>";
 
 			}

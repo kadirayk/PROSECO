@@ -7,7 +7,7 @@ import java.nio.file.Files;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 
-import de.upb.crc901.proseco.prototype.ExecutionEnvironment;
+import de.upb.crc901.proseco.ExecutionEnvironment;
 import de.upb.crc901.proseco.util.Config;
 
 /**

@@ -1,4 +1,4 @@
-package de.upb.crc901.proseco.prototype;
+package de.upb.crc901.proseco;
 
 import java.io.File;
 

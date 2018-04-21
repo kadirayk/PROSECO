@@ -17,7 +17,6 @@ import de.upb.crc901.proseco.command.InitializeExecutionEnvironmentCommand;
 import de.upb.crc901.proseco.command.MovePlaceholderFilesToSourceCommand;
 import de.upb.crc901.proseco.command.ShutDownInternalBenchmarkServiceCommand;
 import de.upb.crc901.proseco.command.WaitForStrategiesCommand;
-import de.upb.crc901.proseco.prototype.ExecutionEnvironment;
 import jaicore.basic.PerformanceLogger;
 
 /**

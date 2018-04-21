@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import de.upb.crc901.proseco.prototype.ExecutionEnvironment;
+import de.upb.crc901.proseco.ExecutionEnvironment;
 import de.upb.crc901.proseco.util.Config;
 
 /**

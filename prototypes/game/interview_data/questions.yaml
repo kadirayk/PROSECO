@@ -18,6 +18,10 @@ questions:
       content: OpenTTD
       attributes:
         value: OpenTTD
+    - '@type': Option
+      content: Desktop
+      attributes:
+        value: Desktop
 - id: g_q2
   content: Click to run process
   uiElement:

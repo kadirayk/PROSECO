@@ -27,7 +27,9 @@ import org.zeroturnaround.zip.ZipUtil;
 import de.upb.crc901.proseco.util.Config;
 import de.upb.crc901.proseco.view.app.model.LogPair;
 import de.upb.crc901.proseco.view.app.model.LogResponseBody;
+import de.upb.crc901.proseco.view.core.model.Interview;
 import de.upb.crc901.proseco.view.util.FileUtil;
+import de.upb.crc901.proseco.view.util.SerializationUtil;
 
 /**
  * API End Point for web service calls
@@ -90,7 +92,7 @@ public class APIController {
 			boolean isComplete = false;
 			String resultMessage = null;
 			int animationDots = 0;
-			int countDown = 30;
+			int countDown = getTimeoutValue(id);
 			while (!isComplete) {
 				animationDots = animationDots % 3;
 				resultMessage = checkStatus(id);
@@ -125,6 +127,27 @@ public class APIController {
 		});
 
 		return emitter;
+	}
+
+	private int getTimeoutValue(String id) {
+		File root = Config.EXECUTIONS;
+		String prototypeFolderWithID = null;
+		for (File file : root.listFiles()) {
+			if (file.isDirectory()) {
+				if (file.getName().contains(id)) {
+					prototypeFolderWithID = file.getAbsolutePath();
+					break;
+				}
+			}
+		}
+
+		String interviewPath = prototypeFolderWithID + File.separator + Config.INTERVIEW_PATH + File.separator;
+
+		Interview interview = SerializationUtil.readAsJSON(interviewPath);
+
+		String timeoutValule = interview.getQuestionByPath("timeout.timeout").getAnswer();
+
+		return Integer.parseInt(timeoutValule);
 	}
 
 	/**

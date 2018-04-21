@@ -1,8 +1,11 @@
 package de.upb.crc901.proseco.view.core;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
@@ -13,6 +16,7 @@ import de.upb.crc901.proseco.view.core.model.Interview;
 import de.upb.crc901.proseco.view.core.model.Question;
 import de.upb.crc901.proseco.view.core.model.QuestionCollection;
 import de.upb.crc901.proseco.view.core.model.State;
+import de.upb.crc901.proseco.view.core.model.html.Input;
 import de.upb.crc901.proseco.view.util.ListUtil;
 
 /**
@@ -85,12 +89,45 @@ public class Parser {
 				}
 
 			}
+			setTimeOutQuestion(interview);
 			String id = UUID.randomUUID().toString().replace("-", "").substring(0, 10).toUpperCase();
 			interview.setId(id);
 
 		}
 
 		return interview;
+	}
+
+	private void setTimeOutQuestion(Interview interview) {
+		List<State> states = interview.getStates();
+		State stateBeforeTimeout = states.get(states.size() - 2);
+		State stateAfterTimeout = states.get(states.size() - 1);
+		Map<String, String> transition = new HashMap<>();
+		transition.put("default", "timeout");
+		stateBeforeTimeout.setTransition(transition);
+		State timeOutState = new State();
+		timeOutState.setName("timeout");
+		Map<String, String> timeoutTransition = new HashMap<>();
+		timeoutTransition.put("default", stateAfterTimeout.getName());
+		timeOutState.setTransition(timeoutTransition);
+		List<Question> questions = new ArrayList<>();
+		Question q = new Question();
+		q.setId("timeout");
+		q.setQuestionId("timeout_1");
+		q.setContent("Please specify a time out value in seconds");
+		Input input = new Input();
+		Map<String, String> attributeMap = new HashMap<>();
+		attributeMap.put("name", "timeout");
+		attributeMap.put("type", "number");
+		input.setAttributes(attributeMap);
+		q.setUiElement(input);
+		questions.add(q);
+		timeOutState.setQuestions(questions);
+		states.add(timeOutState);
+		Map<String, State> stateMap = interview.getStateMap();
+		stateMap.put("timeout", timeOutState);
+		Set<String> questionSet = interview.getQuestionSet();
+		questionSet.add("timeout.timeout");
 	}
 
 }

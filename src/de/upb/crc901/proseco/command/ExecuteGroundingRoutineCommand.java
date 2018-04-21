@@ -4,7 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.lang.ProcessBuilder.Redirect;
 
-import de.upb.crc901.proseco.prototype.ExecutionEnvironment;
+import de.upb.crc901.proseco.ExecutionEnvironment;
 import de.upb.crc901.proseco.util.Config;
 
 /**
