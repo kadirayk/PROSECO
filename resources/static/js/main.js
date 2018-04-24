@@ -16,6 +16,7 @@ function checkResult() {
 			if (!timeoutAsked && event.data.includes('.')) {
 				if (!confirm("Time out reached do you want to continue?")) {
 					document.getElementById("strategy-result").innerHTML = "Canceled";
+					StopService();
 					source.close();
 					strategyLogSource.close();
 				} else {
