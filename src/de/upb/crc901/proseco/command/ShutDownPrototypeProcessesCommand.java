@@ -13,8 +13,8 @@ public class ShutDownPrototypeProcessesCommand implements Command {
 	private Process benckmarkService;
 
 	public ShutDownPrototypeProcessesCommand(String prototypeId) {
-		this.strategyProcessList = PrototypeBasedComposer.prototypeProcesses.get(prototypeId);
-		this.benckmarkService = PrototypeBasedComposer.prototypeBenchmarkProcess.get(prototypeId);
+//		this.strategyProcessList = PrototypeBasedComposer.prototypeProcesses.get(prototypeId);
+//		this.benckmarkService = PrototypeBasedComposer.prototypeBenchmarkProcess.get(prototypeId);
 
 	}
 
