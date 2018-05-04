@@ -6,7 +6,6 @@ tmp/
 *.swp
 *~.nib
 local.properties
-.settings/
 .loadpath
 .recommenders
 
@@ -60,5 +59,3 @@ data/stored
 !*.exe
 !/mod
 
-# JDT-specific (Eclipse Java Development Tools)		
-.classpath
