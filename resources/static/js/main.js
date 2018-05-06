@@ -50,11 +50,11 @@ function listenStrategyLogs() {
 				errLog = errLog.replace(/\)\_\$/g, '</span>');
 				field = field
 						+ "<div class=\"col-xs-6\">"
-						+ "<ul class=\"nav nav-tabs\" style=\"max-width: 564px\">"
-						+ "<li class=\"active\"><a href=\"#merged-"
+						+ "<ul class=\"nav nav-tabs\" id=\"myTab\" style=\"max-width: 564px\">"
+						+ "<li role=\"tab\" class=\"active\"><a href=\"#merged-"
 						+ data['logList'][logPair]['strategyName']
 						+ "\" data-toggle=\"tab\">Merged</a></li>"
-						+ "<li><a href=\"#separated-"
+						+ "<li role=\"tab\"><a href=\"#separated-"
 						+ data['logList'][logPair]['strategyName']
 						+ "\" data-toggle=\"tab\">Separated</a></li>"
 						+ "</ul>"
@@ -96,6 +96,9 @@ function listenStrategyLogs() {
 			}
 
 			$('#strategy-logs').html(field);
+			for (var i = 0, len = tabArray.length; i < len; i++) {
+				$('.nav-tabs a[href="' + tabArray[i] + '"]').tab('show');
+			}
 
 			// set scroll bar to the bottom
 			$('.pre-scrollable').scrollTop(1E10);
@@ -147,3 +150,10 @@ function StopService() {
 		}
 	});
 }
+
+var tabArray = []
+
+$(document).on('shown.bs.tab', function(e) {
+	console.log(e.target.hash);
+	tabArray.push(e.target.hash);
+});
