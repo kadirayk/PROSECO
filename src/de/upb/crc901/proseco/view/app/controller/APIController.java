@@ -414,12 +414,6 @@ public class APIController {
 			if (outLog != null && errLog != null) {
 				LogPair logPair = new LogPair(protoypeName, strategyFolder.getName(), outLog, errLog, allLog);
 				logList.add(logPair);
-				LogPair testLogPair = new LogPair(protoypeName, "Test Strategy", outLog, errLog, allLog);
-				logList.add(testLogPair);
-				LogPair testLog2Pair = new LogPair(protoypeName, "Test Strategy2", outLog, errLog, allLog);
-				logList.add(testLog2Pair);
-				LogPair testLog3Pair = new LogPair(protoypeName, "Test Strategy3", outLog, errLog, allLog);
-				logList.add(testLog3Pair);
 			}
 		}
 
