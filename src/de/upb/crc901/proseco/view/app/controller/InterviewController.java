@@ -196,12 +196,14 @@ public class InterviewController {
 				if (ListUtil.isNotEmpty(questions)) {
 					int i = 0;
 					for (Question q : questions) {
-						if (!"file".equals(q.getUiElement().getAttributes().get("type"))) {
-							if (i < answers.size()) {
-								q.setAnswer(answers.get(i));
+						if (StringUtils.isEmpty(q.getAnswer())) {
+							if (!"file".equals(q.getUiElement().getAttributes().get("type"))) {
+								if (i < answers.size()) {
+									q.setAnswer(answers.get(i));
+								}
 							}
+							i++;
 						}
-						i++;
 					}
 				}
 			}

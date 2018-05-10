@@ -6,6 +6,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.lang3.StringUtils;
+
 import de.upb.crc901.proseco.view.core.AnswerInterpreter;
 import de.upb.crc901.proseco.view.core.NextStateNotFoundException;
 import de.upb.crc901.proseco.view.util.ListUtil;
@@ -32,10 +34,9 @@ public class Interview implements Serializable {
 	private String id;
 	private Set<String> questionSet;
 
-
 	/**
 	 * Returns question with the given path i.e. "step1.q1"
-	 *  
+	 * 
 	 * @param path
 	 * @return
 	 */
@@ -84,7 +85,26 @@ public class Interview implements Serializable {
 		this.id = id;
 	}
 
+	/**
+	 * return currentState if every previous question is answered, if not return
+	 * first state without answer
+	 * 
+	 * @return
+	 */
 	public State getCurrentState() {
+		if (ListUtil.isNotEmpty(this.states)) {
+			for (State s : this.states) {
+				List<Question> questions = s.getQuestions();
+				if (ListUtil.isNotEmpty(questions)) {
+					for (Question q : questions) {
+						if (StringUtils.isEmpty(q.getAnswer())) {
+							currentState = s;
+							return currentState;
+						}
+					}
+				}
+			}
+		}
 		return currentState;
 	}
 
@@ -93,8 +113,8 @@ public class Interview implements Serializable {
 	}
 
 	public void setStates(List<State> states) {
-		this.states = states;
 		if (ListUtil.isNotEmpty(states)) {
+			this.states = states;
 			currentState = states.get(0);
 			stateMap = new HashMap<>();
 			for (State s : states) {

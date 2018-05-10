@@ -4,6 +4,8 @@ import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang3.StringUtils;
+
 import de.upb.crc901.proseco.view.core.model.html.HTMLConstants;
 import de.upb.crc901.proseco.view.core.model.html.UIElement;
 import de.upb.crc901.proseco.view.util.ListUtil;
@@ -69,13 +71,16 @@ public class State implements Serializable {
 
 		if (ListUtil.isNotEmpty(questions)) {
 			for (Question q : questions) {
-				String formQuestion = q.getContent();
-				if (formQuestion != null) {
-					htmlElement.append(HTMLConstants.LINE_BREAK).append(formQuestion).append(HTMLConstants.LINE_BREAK);
-				}
-				UIElement formUiElement = q.getUiElement();
-				if (formUiElement != null) {
-					htmlElement.append(formUiElement.toHTML()).append(HTMLConstants.LINE_BREAK).append("\n");
+				if (StringUtils.isEmpty(q.getAnswer())) {
+					String formQuestion = q.getContent();
+					if (formQuestion != null) {
+						htmlElement.append(HTMLConstants.LINE_BREAK).append(formQuestion)
+								.append(HTMLConstants.LINE_BREAK);
+					}
+					UIElement formUiElement = q.getUiElement();
+					if (formUiElement != null) {
+						htmlElement.append(formUiElement.toHTML()).append(HTMLConstants.LINE_BREAK).append("\n");
+					}
 				}
 			}
 		}
