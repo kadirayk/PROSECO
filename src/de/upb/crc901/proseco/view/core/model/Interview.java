@@ -92,7 +92,19 @@ public class Interview implements Serializable {
 	 * @return
 	 */
 	public State getCurrentState() {
+		if(currentState!=null){
+			// if current state has unanwered questions return current state
+			List<Question> questions = currentState.getQuestions();
+			if (ListUtil.isNotEmpty(questions)) {
+				for (Question q : questions) {
+					if (StringUtils.isEmpty(q.getAnswer())) {
+						return currentState;
+					}
+				}
+			}
+		}
 		if (ListUtil.isNotEmpty(this.states)) {
+			// set current state to a state with unanswered question
 			for (State s : this.states) {
 				List<Question> questions = s.getQuestions();
 				if (ListUtil.isNotEmpty(questions)) {

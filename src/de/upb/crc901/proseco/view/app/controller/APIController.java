@@ -145,9 +145,13 @@ public class APIController {
 
 		Interview interview = SerializationUtil.readAsJSON(interviewPath);
 
-		String timeoutValule = interview.getQuestionByPath("timeout.timeout").getAnswer();
+		String timeoutValue = interview.getQuestionByPath("timeout.timeout").getAnswer();
+		
+		if(timeoutValue==null){
+			timeoutValue="120";
+		}
 
-		return Integer.parseInt(timeoutValule);
+		return Integer.parseInt(timeoutValue);
 	}
 
 	/**
