@@ -8,6 +8,7 @@ import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
 
+import de.upb.crc901.proseco.view.app.model.Resolution;
 import de.upb.crc901.proseco.view.core.AnswerInterpreter;
 import de.upb.crc901.proseco.view.core.NextStateNotFoundException;
 import de.upb.crc901.proseco.view.util.ListUtil;
@@ -33,6 +34,7 @@ public class Interview implements Serializable {
 	private State currentState;
 	private String id;
 	private Set<String> questionSet;
+	private Resolution resolution;
 
 	/**
 	 * Returns question with the given path i.e. "step1.q1"
@@ -85,6 +87,14 @@ public class Interview implements Serializable {
 		this.id = id;
 	}
 
+	public Resolution getResolution() {
+		return resolution;
+	}
+
+	public void setResolution(Resolution resolution) {
+		this.resolution = resolution;
+	}
+
 	/**
 	 * return currentState if every previous question is answered, if not return
 	 * first state without answer
@@ -92,7 +102,7 @@ public class Interview implements Serializable {
 	 * @return
 	 */
 	public State getCurrentState() {
-		if(currentState!=null){
+		if (currentState != null) {
 			// if current state has unanwered questions return current state
 			List<Question> questions = currentState.getQuestions();
 			if (ListUtil.isNotEmpty(questions)) {

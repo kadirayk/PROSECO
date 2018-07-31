@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyEmitter;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
@@ -25,8 +26,10 @@ import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBo
 import org.zeroturnaround.zip.ZipUtil;
 
 import de.upb.crc901.proseco.util.Config;
+import de.upb.crc901.proseco.view.app.model.InterviewDTO;
 import de.upb.crc901.proseco.view.app.model.LogPair;
 import de.upb.crc901.proseco.view.app.model.LogResponseBody;
+import de.upb.crc901.proseco.view.app.model.Resolution;
 import de.upb.crc901.proseco.view.core.model.Interview;
 import de.upb.crc901.proseco.view.util.FileUtil;
 import de.upb.crc901.proseco.view.util.SerializationUtil;
@@ -146,9 +149,9 @@ public class APIController {
 		Interview interview = SerializationUtil.readAsJSON(interviewPath);
 
 		String timeoutValue = interview.getQuestionByPath("timeout.timeout").getAnswer();
-		
-		if(timeoutValue==null){
-			timeoutValue="120";
+
+		if (timeoutValue == null) {
+			timeoutValue = "120";
 		}
 
 		return Integer.parseInt(timeoutValue);
@@ -208,6 +211,10 @@ public class APIController {
 					resultMessage = log.getPrototypeName() + "-" + id + File.separator + Config.GROUNDING;
 				}
 				return resultMessage;
+			} else if (getServiceLog(id) != null && getServiceLog(id).contains("launch success")) {
+				String clientPath = "/api/download/" + id;
+				resultMessage = "<a target=\"_blank\" href=\"" + clientPath + "\" download> Download Game Client </a>";
+				return resultMessage;
 			}
 		}
 		return resultMessage;
@@ -228,6 +235,42 @@ public class APIController {
 
 		return ResponseEntity.ok(result);
 
+	}
+
+	@GetMapping(value = "/api/sendResolution/{id}")
+	public ResponseEntity<?> sendResolution(@PathVariable("id") String id, @RequestParam(name = "height") String height,
+			@RequestParam(name = "width") String width) {
+
+		Resolution res = new Resolution(height, width);
+
+		Interview interview = findInterview(id);
+		if (interview == null) {
+			return ResponseEntity.ok("failure");
+		}
+		interview.setResolution(res);
+
+		saveInterviewState(interview, id);
+
+		return ResponseEntity.ok("success");
+	}
+
+	private void saveInterviewState(Interview interview, String id) {
+		SerializationUtil.writeAsJSON(Config.EXECUTIONS_PATH + interview.getPrototypeName() + "-" + id + File.separator
+				+ Config.INTERVIEW_PATH, interview);
+	}
+
+	private Interview findInterview(String id) {
+		String folder = null;
+		File root = Config.EXECUTIONS;
+		for (File file : root.listFiles()) {
+			if (file.isDirectory()) {
+				if (file.getName().contains(id)) {
+					folder = file.getAbsolutePath();
+				}
+			}
+		}
+
+		return folder == null ? null : SerializationUtil.readAsJSON(folder + File.separator + Config.INTERVIEW_PATH);
 	}
 
 	/**
@@ -289,14 +332,10 @@ public class APIController {
 	private String getServiceLog(String id) {
 		File root = Config.EXECUTIONS;
 		String prototypeFolderWithID = null;
-		String protoypeName = null;
 		for (File file : root.listFiles()) {
-			if (file.isDirectory()) {
-				if (file.getName().contains(id)) {
-					prototypeFolderWithID = file.getAbsolutePath();
-					protoypeName = file.getName().split("-")[0];
-					break;
-				}
+			if (file.isDirectory() && file.getName().contains(id)) {
+				prototypeFolderWithID = file.getAbsolutePath();
+				break;
 			}
 		}
 

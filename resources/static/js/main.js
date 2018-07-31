@@ -1,6 +1,7 @@
 $(document).ready(function() {
 	checkResult();
 	listenStrategyLogs();
+	SendResolution();
 });
 
 var strategyLogSource;
@@ -140,6 +141,26 @@ function StopService() {
 		type : "GET",
 		contentType : "application/json",
 		url : "/api/stopService/" + currentUrl,
+		cache : false,
+		timeout : 60000,
+		success : function(data) {
+			console.log(data);
+		},
+		error : function(e) {
+			console.log("ERROR : ", e);
+		}
+	});
+}
+
+function SendResolution() {
+	var screenHeight = window.screen.height;
+	var screenWidth = window.screen.width;
+
+	currentUrl = window.location.href.split("/").pop();
+	$.ajax({
+		type : "GET",
+		contentType : "application/json",
+		url : "/api/sendResolution/" + currentUrl + "?height=" + screenHeight + "&width=" + screenWidth,
 		cache : false,
 		timeout : 60000,
 		success : function(data) {
