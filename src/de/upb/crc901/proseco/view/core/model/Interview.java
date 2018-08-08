@@ -8,6 +8,8 @@ import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import de.upb.crc901.proseco.view.app.model.Resolution;
 import de.upb.crc901.proseco.view.core.AnswerInterpreter;
 import de.upb.crc901.proseco.view.core.NextStateNotFoundException;
@@ -34,6 +36,7 @@ public class Interview implements Serializable {
 	private State currentState;
 	private String id;
 	private Set<String> questionSet;
+	@JsonIgnore
 	private Resolution resolution;
 
 	/**
