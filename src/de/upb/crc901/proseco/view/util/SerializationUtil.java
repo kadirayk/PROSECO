@@ -42,7 +42,7 @@ public class SerializationUtil {
 		try {
 			interview = mapper.readValue(new File(filePath), Interview.class);
 		} catch (IOException e) {
-			e.printStackTrace();
+			
 		}
 		return interview;
 	}

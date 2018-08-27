@@ -51,7 +51,9 @@ public class Interview implements Serializable {
 			String state = path.split("\\.")[0];
 			String question = path.split("\\.")[1];
 			State s = stateMap.get(state);
-			q = s.getQuestionById(question);
+			if (s != null) {
+				q = s.getQuestionById(question);
+			}
 		}
 
 		return q;

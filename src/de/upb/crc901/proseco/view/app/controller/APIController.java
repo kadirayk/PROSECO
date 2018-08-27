@@ -12,6 +12,7 @@ import java.util.concurrent.Executors;
 
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.catalina.connector.ClientAbortException;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -26,11 +27,11 @@ import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBo
 import org.zeroturnaround.zip.ZipUtil;
 
 import de.upb.crc901.proseco.util.Config;
-import de.upb.crc901.proseco.view.app.model.InterviewDTO;
 import de.upb.crc901.proseco.view.app.model.LogPair;
 import de.upb.crc901.proseco.view.app.model.LogResponseBody;
 import de.upb.crc901.proseco.view.app.model.Resolution;
 import de.upb.crc901.proseco.view.core.model.Interview;
+import de.upb.crc901.proseco.view.core.model.Question;
 import de.upb.crc901.proseco.view.util.FileUtil;
 import de.upb.crc901.proseco.view.util.SerializationUtil;
 
@@ -45,8 +46,8 @@ import de.upb.crc901.proseco.view.util.SerializationUtil;
 public class APIController {
 
 	/**
-	 * Returns SystemOut and SystemError logs of Strategies of prototype with
-	 * the given ID
+	 * Returns SystemOut and SystemError logs of Strategies of prototype with the
+	 * given ID
 	 * 
 	 * @param id
 	 * @return
@@ -76,9 +77,9 @@ public class APIController {
 	}
 
 	/**
-	 * Server-Sent Event Emitter for search process result Provides feedback to
-	 * the caller while search process continues returns location of the
-	 * solution at the end of the process
+	 * Server-Sent Event Emitter for search process result Provides feedback to the
+	 * caller while search process continues returns location of the solution at the
+	 * end of the process
 	 * 
 	 * @param id
 	 * @return
@@ -96,6 +97,7 @@ public class APIController {
 			String resultMessage = null;
 			int animationDots = 0;
 			int countDown = getTimeoutValue(id);
+			boolean countDownDone = false;
 			while (!isComplete) {
 				animationDots = animationDots % 3;
 				resultMessage = checkStatus(id);
@@ -105,7 +107,8 @@ public class APIController {
 						if (countDown > 0) {
 							emitter.send(countDown + "s", MediaType.TEXT_PLAIN);
 							countDown--;
-						} else {
+							countDownDone = true;
+						} else if (countDownDone) {
 							emitter.send(new String(new char[animationDots + 1]).replace("\0", ". "),
 									MediaType.TEXT_PLAIN);
 							animationDots++;
@@ -113,6 +116,9 @@ public class APIController {
 					}
 					Thread.sleep(1000);
 				} catch (Exception e) {
+					if(e instanceof ClientAbortException) {
+						return;
+					}
 					emitter.completeWithError(e);
 					e.printStackTrace();
 					return;
@@ -148,23 +154,26 @@ public class APIController {
 
 		Interview interview = SerializationUtil.readAsJSON(interviewPath);
 
-		String timeoutValue = interview.getQuestionByPath("timeout.timeout").getAnswer();
+		Question question = interview.getQuestionByPath("timeout.timeout");
+		String timeoutValue = null;
+		if (question != null) {
+			timeoutValue = interview.getQuestionByPath("timeout.timeout").getAnswer();
+
+		}
 
 		if (timeoutValue == null) {
-			timeoutValue = "120";
+			timeoutValue = "0";
 		}
 
 		return Integer.parseInt(timeoutValue);
 	}
 
 	/**
-	 * getGameClient, returns the game client application to be downloaded by
-	 * the user.
+	 * getGameClient, returns the game client application to be downloaded by the
+	 * user.
 	 * 
-	 * @param id
-	 *            id of the session
-	 * @param response
-	 *            executable client application
+	 * @param id       id of the session
+	 * @param response executable client application
 	 * @return
 	 * @throws IOException
 	 */
@@ -221,8 +230,8 @@ public class APIController {
 	}
 
 	/**
-	 * Returns SystemOut and SystemError logs of Strategies of prototype with
-	 * the given ID
+	 * Returns SystemOut and SystemError logs of Strategies of prototype with the
+	 * given ID
 	 * 
 	 * @param id
 	 * @return
@@ -274,11 +283,10 @@ public class APIController {
 	}
 
 	/**
-	 * Finds the deployed web application for with the given session id and
-	 * kills the process.
+	 * Finds the deployed web application for with the given session id and kills
+	 * the process.
 	 * 
-	 * @param id
-	 *            id of the session
+	 * @param id id of the session
 	 * @return success if task is killed, failure if exception occured
 	 */
 	@GetMapping("/api/stopService/{id}")
@@ -296,11 +304,9 @@ public class APIController {
 	}
 
 	/**
-	 * Returns the path of game client executable as zip with the given session
-	 * id
+	 * Returns the path of game client executable as zip with the given session id
 	 * 
-	 * @param id
-	 *            id of the session
+	 * @param id id of the session
 	 * @return path of game client executable as zip
 	 */
 	private String getGameClient(String id) {
@@ -378,8 +384,8 @@ public class APIController {
 	}
 
 	/**
-	 * Returns the port number occupied by the deployed application for the
-	 * given session id
+	 * Returns the port number occupied by the deployed application for the given
+	 * session id
 	 * 
 	 * @param id
 	 * @return port number
@@ -412,8 +418,8 @@ public class APIController {
 	}
 
 	/**
-	 * returns list of log pairs(SystemOut, SystemErr) of strategies of
-	 * prototype with the given id
+	 * returns list of log pairs(SystemOut, SystemErr) of strategies of prototype
+	 * with the given id
 	 * 
 	 * @param id
 	 * @return
