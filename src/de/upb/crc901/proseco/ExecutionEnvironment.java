@@ -22,7 +22,6 @@ public class ExecutionEnvironment {
 	private final File interviewDirectory;
 	private final File interviewResourcesDirectory;
 	private final File groundingFile;
-
 	/**
 	 * Builder, helps ExecutionEnvironment to be initiated with the selected
 	 * parameters

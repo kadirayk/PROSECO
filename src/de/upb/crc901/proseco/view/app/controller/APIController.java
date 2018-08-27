@@ -26,6 +26,7 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
 import org.zeroturnaround.zip.ZipUtil;
 
+import de.upb.crc901.proseco.command.ShutDownPrototypeProcessesCommand;
 import de.upb.crc901.proseco.util.Config;
 import de.upb.crc901.proseco.view.app.model.LogPair;
 import de.upb.crc901.proseco.view.app.model.LogResponseBody;
@@ -76,6 +77,20 @@ public class APIController {
 
 	}
 
+	@RequestMapping("/api/shutdown/{id}")
+	public ResponseEntity<?> shutDownService(@PathVariable("id") String id) {
+
+		ShutDownPrototypeProcessesCommand command = new ShutDownPrototypeProcessesCommand(id);
+		try {
+			command.execute();
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		return ResponseEntity.ok("Success");
+	}
+
 	/**
 	 * Server-Sent Event Emitter for search process result Provides feedback to the
 	 * caller while search process continues returns location of the solution at the
@@ -116,7 +131,7 @@ public class APIController {
 					}
 					Thread.sleep(1000);
 				} catch (Exception e) {
-					if(e instanceof ClientAbortException) {
+					if (e instanceof ClientAbortException) {
 						return;
 					}
 					emitter.completeWithError(e);
@@ -299,7 +314,9 @@ public class APIController {
 		} catch (IOException e) {
 			return "failure";
 		}
-
+		
+		shutDownService(id);
+		
 		return result;
 	}
 

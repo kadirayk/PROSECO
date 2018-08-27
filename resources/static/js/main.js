@@ -5,6 +5,7 @@ $(document).ready(function() {
 });
 
 var strategyLogSource;
+var resultSource;
 
 var timeoutAsked;
 
@@ -12,13 +13,13 @@ var timeoutAsked;
 function checkResult() {
 	if (typeof (EventSource) !== "undefined") {
 		currentUrl = window.location.href.split("/").pop();
-		var source = new EventSource("/api/result/" + currentUrl);
-		source.onmessage = function(event) {
+		resultSource = new EventSource("/api/result/" + currentUrl);
+		resultSource.onmessage = function(event) {
 			if (!timeoutAsked && event.data.includes('.')) {
 				if (!confirm("Time out reached do you want to continue?")) {
 					document.getElementById("strategy-result").innerHTML = "Canceled";
 					StopService();
-					source.close();
+					resultSource.close();
 					strategyLogSource.close();
 				} else {
 					timeoutAsked = true;
@@ -150,6 +151,9 @@ function StopService() {
 			console.log("ERROR : ", e);
 		}
 	});
+	document.getElementById("strategy-result").innerHTML = "Canceled";
+	resultSource.close();
+	strategyLogSource.close();
 }
 
 function SendResolution() {
@@ -160,7 +164,8 @@ function SendResolution() {
 	$.ajax({
 		type : "GET",
 		contentType : "application/json",
-		url : "/api/sendResolution/" + currentUrl + "?height=" + screenHeight + "&width=" + screenWidth,
+		url : "/api/sendResolution/" + currentUrl + "?height=" + screenHeight
+				+ "&width=" + screenWidth,
 		cache : false,
 		timeout : 60000,
 		success : function(data) {

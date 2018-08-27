@@ -1,42 +1,38 @@
 package de.upb.crc901.proseco.command;
 
-import java.io.IOException;
-import java.lang.management.ManagementFactory;
-import java.util.List;
-
-import de.upb.crc901.proseco.PrototypeBasedComposer;
-import de.upb.crc901.proseco.view.util.ListUtil;
+import java.io.BufferedReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 
 public class ShutDownPrototypeProcessesCommand implements Command {
 
-	private List<Process> strategyProcessList;
-	private Process benckmarkService;
+	private String prototypeId;
 
 	public ShutDownPrototypeProcessesCommand(String prototypeId) {
-//		this.strategyProcessList = PrototypeBasedComposer.prototypeProcesses.get(prototypeId);
-//		this.benckmarkService = PrototypeBasedComposer.prototypeBenchmarkProcess.get(prototypeId);
-
+		this.prototypeId = prototypeId;
 	}
 
 	@Override
 	public void execute() throws Exception {
+		BufferedReader in = null;
+		try {
+			Process p = Runtime.getRuntime().exec("jps -m");
+			InputStream s = p.getInputStream();
 
-		if (this.benckmarkService != null && this.benckmarkService.isAlive()) {
-			this.benckmarkService.destroy();
-			if (this.benckmarkService.isAlive()) {
-				this.benckmarkService.destroyForcibly();
-			}
-		}
+			in = new BufferedReader(new InputStreamReader(s));
+			String temp;
 
-		if (ListUtil.isNotEmpty(this.strategyProcessList)) {
-			for (final Process p : this.strategyProcessList) {
-				if (p.isAlive()) {
-					p.destroy();
-					if (p.isAlive()) {
-						p.destroyForcibly();
-					}
+			while ((temp = in.readLine()) != null) {
+				if (temp.contains(prototypeId)) {
+					String pid = temp.split(" ")[0];
+					Runtime.getRuntime().exec("taskkill /F /PID " + pid);
 				}
 			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			if (in != null)
+				in.close();
 		}
 	}
 
