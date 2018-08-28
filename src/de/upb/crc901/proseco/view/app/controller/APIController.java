@@ -307,16 +307,19 @@ public class APIController {
 	@GetMapping("/api/stopService/{id}")
 	public String stopService(@PathVariable("id") String id) {
 		String result = "success";
-		String PID = findServicePID(id);
+		String PID = findServicePIDForAutoML(id);
+		if (PID == null) {
+			PID = findServicePIDForGA(id);
+		}
 		try {
 			String cmd = "tskill " + PID;
 			Runtime.getRuntime().exec(cmd);
 		} catch (IOException e) {
 			return "failure";
 		}
-		
+
 		shutDownService(id);
-		
+
 		return result;
 	}
 
@@ -375,10 +378,12 @@ public class APIController {
 	 * @param id
 	 * @return
 	 */
-	private String findServicePID(String id) {
+	private String findServicePIDForAutoML(String id) {
+		// TODO: differentiate between different prototypes
 		String PID = null;
 		String serviceLog = getServiceLog(id);
 
+		// for AutoML
 		if (serviceLog != null) {
 			String searchStartString = "with PID ";
 			String searchEndString = " ";
@@ -397,7 +402,57 @@ public class APIController {
 		}
 
 		return PID;
+	}
 
+	private String findServicePIDForGA(String id) {
+		String PID = null;
+		// for GamingAnywhere
+		String gaLog = getGALog(id);
+
+		if (gaLog != null) {
+			String searchStartString = "launch success (pid=";
+			String searchEndString = ")";
+			int startIndex = gaLog.lastIndexOf(searchStartString);
+			if (startIndex < 0) {
+				return PID;
+			}
+
+			startIndex += searchStartString.length();
+
+			int endIndex = gaLog.indexOf(searchEndString, startIndex);
+			if (endIndex < 0) {
+				return PID;
+			}
+			PID = gaLog.substring(startIndex, endIndex).trim();
+		}
+
+		return PID;
+	}
+
+	/**
+	 * get GamingAnywhere server log
+	 * 
+	 * @param id
+	 * @return
+	 */
+	private String getGALog(String id) {
+		File root = Config.EXECUTIONS;
+		String prototypeFolderWithID = null;
+		for (File file : root.listFiles()) {
+			if (file.isDirectory() && file.getName().contains(id)) {
+				prototypeFolderWithID = file.getAbsolutePath();
+				break;
+			}
+		}
+
+		Interview interview = findInterview(id);
+		String gameSelection = interview.getQuestionByPath("step1.q1").getAnswer();
+
+		String gaLogFile = prototypeFolderWithID + File.separator + Config.BENCHMARKS + File.separator + gameSelection
+				+ ".log";
+
+		String gaLog = FileUtil.readFile(gaLogFile);
+		return gaLog;
 	}
 
 	/**
