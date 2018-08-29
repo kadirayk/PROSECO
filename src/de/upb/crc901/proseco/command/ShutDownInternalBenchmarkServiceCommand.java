@@ -26,7 +26,7 @@ public class ShutDownInternalBenchmarkServiceCommand implements Command {
 				new OutputStreamWriter(this.internalBenchmarkService.getOutputStream()))) {
 			bw.write("q\n");
 		} catch (final IOException e1) {
-			e1.printStackTrace();
+			//e1.printStackTrace();
 		}
 
 		try {

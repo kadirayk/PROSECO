@@ -132,10 +132,10 @@ public class APIController {
 					Thread.sleep(1000);
 				} catch (Exception e) {
 					if (e instanceof ClientAbortException) {
+						emitter.completeWithError(e);
 						return;
 					}
 					emitter.completeWithError(e);
-					e.printStackTrace();
 					return;
 				}
 			}
@@ -145,7 +145,6 @@ public class APIController {
 				}
 			} catch (IOException e) {
 				emitter.completeWithError(e);
-				e.printStackTrace();
 			}
 			emitter.complete();
 		});
@@ -309,18 +308,54 @@ public class APIController {
 		String result = "success";
 		String PID = findServicePIDForAutoML(id);
 		if (PID == null) {
-			PID = findServicePIDForGA(id);
+			PID = findBenchmarkPIDForGA(id);
 		}
 		try {
-			String cmd = "tskill " + PID;
-			Runtime.getRuntime().exec(cmd);
+			if(PID!=null) {
+				String cmd = "tskill " + PID;
+				Runtime.getRuntime().exec(cmd);	
+			}
 		} catch (IOException e) {
 			return "failure";
 		}
-
+		
+		String servicePIDForGA = findServicePIDForGA(id);
+		try {
+			if(servicePIDForGA!=null) {
+				String cmd = "tskill " + servicePIDForGA;
+				Runtime.getRuntime().exec(cmd);	
+			}
+		} catch (IOException e) {
+			return "failure";
+		}
+		
 		shutDownService(id);
 
 		return result;
+	}
+
+	private String findServicePIDForGA(String id) {
+		String PID = null;
+		String serviceLog = getServiceLog(id);
+
+		if (serviceLog != null) {
+			String searchStartString = "launch success (pid=";
+			String searchEndString = ")";
+			int startIndex = serviceLog.indexOf(searchStartString);
+			if (startIndex < 0) {
+				return PID;
+			}
+
+			startIndex += searchStartString.length();
+
+			int endIndex = serviceLog.indexOf(searchEndString, startIndex);
+			if (endIndex < 0) {
+				return PID;
+			}
+			PID = serviceLog.substring(startIndex, endIndex).trim();
+		}
+
+		return PID;
 	}
 
 	/**
@@ -379,7 +414,6 @@ public class APIController {
 	 * @return
 	 */
 	private String findServicePIDForAutoML(String id) {
-		// TODO: differentiate between different prototypes
 		String PID = null;
 		String serviceLog = getServiceLog(id);
 
@@ -404,7 +438,7 @@ public class APIController {
 		return PID;
 	}
 
-	private String findServicePIDForGA(String id) {
+	private String findBenchmarkPIDForGA(String id) {
 		String PID = null;
 		// for GamingAnywhere
 		String gaLog = getGALog(id);
