@@ -1,22 +1,22 @@
 package de.upb.crc901.proseco.view.core;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
 
+import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 
-import de.upb.crc901.proseco.view.core.model.Interview;
-import de.upb.crc901.proseco.view.core.model.Question;
-import de.upb.crc901.proseco.view.core.model.QuestionCollection;
-import de.upb.crc901.proseco.view.core.model.State;
-import de.upb.crc901.proseco.view.core.model.html.Input;
+import de.upb.crc901.proseco.core.interview.Interview;
+import de.upb.crc901.proseco.core.interview.Question;
+import de.upb.crc901.proseco.core.interview.QuestionCollection;
+import de.upb.crc901.proseco.core.interview.State;
+import de.upb.crc901.proseco.view.html.Input;
 import de.upb.crc901.proseco.view.util.ListUtil;
 
 /**
@@ -46,55 +46,50 @@ public class Parser {
 	}
 
 	/**
-	 * Parses interview definition with the given path and returns interview
-	 * object
+	 * Parses interview definition with the given path and returns interview object
 	 * 
 	 * @param filePath
 	 * @return
+	 * @throws IOException 
+	 * @throws JsonMappingException 
+	 * @throws JsonParseException 
 	 */
-	public Interview parseInterview(String filePath) {
+	public Interview initializeInterviewFromConfig(File interviewFile) throws JsonParseException, JsonMappingException, IOException {
+		
+		/* load and parse interview core file */
+		File interviewFolder = interviewFile.getParentFile();
 		Interview interview = null;
 		ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
-		try {
-			interview = mapper.readValue(new File(filePath), Interview.class);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-
-		if (interview != null) {
-			String questionPath = interview.getQuestionRepo();
-
-			QuestionCollection qCollection = parseQuestion(questionPath);
-
-			Set<String> questionSet = new HashSet<>();
-			interview.setQuestionSet(questionSet);
-
-			if (qCollection != null) {
-
-				for (State s : interview.getStates()) {
-					List<Question> questions = s.getQuestions();
-					if (ListUtil.isNotEmpty(questions)) {
-						for (Question q : questions) {
-							StringBuilder questionSetItem = new StringBuilder(s.getName());
-							questionSetItem.append(".").append(q.getId());
-							String qId = q.getQuestionId();
-							Question question = qCollection.getQuestionById(qId);
-							if (question != null) {
-								q.setContent(question.getContent());
-								q.setUiElement(question.getUiElement());
-							}
-							questionSet.add(questionSetItem.toString());
+		interview = mapper.readValue(interviewFile, Interview.class);
+		if (interview == null)
+			throw new IllegalStateException("Interview parser returned NULL");
+		
+		/* retrieve questions specified in question repository (if any exists) */
+		String questionPath = interview.getQuestionRepo();
+		File questionFile = new File(interviewFolder + File.separator + questionPath);
+		QuestionCollection qCollection = parseQuestion(questionFile.getAbsolutePath());
+		
+		/* check whether questions of the interview file must be overwritten by those in the question file (iff the content is undefined) */
+//		Set<String> questionSet = new HashSet<>();
+//		interview.setQuestionSet(questionSet);
+		if (qCollection != null) {
+			for (State s : interview.getStates()) {
+				List<Question> questions = s.getQuestions();
+				if (ListUtil.isNotEmpty(questions)) {
+					for (Question q : new ArrayList<>(questions)) {
+//						StringBuilder questionSetItem = new StringBuilder(s.getName());
+//						questionSetItem.append(".").append(q.getId());
+						if (q.getContent() == null) { // overwrite question by the question in the question file if no content is provided
+							questions.remove(q);
+							questions.add(qCollection.getQuestionById(q.getId()));
 						}
+//						questionSet.add(questionSetItem.toString());
 					}
 				}
-
 			}
-			setTimeOutQuestion(interview);
-			String id = UUID.randomUUID().toString().replace("-", "").substring(0, 10).toUpperCase();
-			interview.setId(id);
 
 		}
-
+		setTimeOutQuestion(interview);
 		return interview;
 	}
 
@@ -113,7 +108,6 @@ public class Parser {
 		List<Question> questions = new ArrayList<>();
 		Question q = new Question();
 		q.setId("timeout");
-		q.setQuestionId("timeout_1");
 		q.setContent("Please specify a time out value in seconds");
 		Input input = new Input();
 		Map<String, String> attributeMap = new HashMap<>();
@@ -126,8 +120,6 @@ public class Parser {
 		states.add(timeOutState);
 		Map<String, State> stateMap = interview.getStateMap();
 		stateMap.put("timeout", timeOutState);
-		Set<String> questionSet = interview.getQuestionSet();
-		questionSet.add("timeout.timeout");
 	}
 
 }

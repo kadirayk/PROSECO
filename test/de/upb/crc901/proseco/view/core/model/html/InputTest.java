@@ -7,6 +7,8 @@ import java.util.Map;
 
 import org.junit.Test;
 
+import de.upb.crc901.proseco.view.html.Input;
+
 public class InputTest {
 
 	@Test

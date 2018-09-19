@@ -10,7 +10,8 @@ import java.io.ObjectOutputStream;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import de.upb.crc901.proseco.view.core.model.Interview;
+import de.upb.crc901.proseco.core.interview.Interview;
+import de.upb.crc901.proseco.core.interview.InterviewFillout;
 
 /**
  * Serialization utility class
@@ -23,10 +24,9 @@ public class SerializationUtil {
 	private SerializationUtil() {
 	}
 
-	public static void writeAsJSON(String path, Interview interview) {
-		String filePath = path + "interview_state.json";
+	public static void writeAsJSON(File folder, InterviewFillout interview) {
 		ObjectMapper mapper = new ObjectMapper();
-		File file = new File(filePath);
+		File file = new File(folder + File.separator + "interview_state.json");
 		try {
 			mapper.writeValue(file, interview);
 		} catch (IOException e) {
@@ -35,12 +35,12 @@ public class SerializationUtil {
 
 	}
 
-	public static Interview readAsJSON(String path) {
-		String filePath = path + "interview_state.json";
-		Interview interview = null;
+	public static InterviewFillout readAsJSON(File path) {
+		String filePath = path + File.separator + "interview_state.json";
+		InterviewFillout interview = null;
 		ObjectMapper mapper = new ObjectMapper();
 		try {
-			interview = mapper.readValue(new File(filePath), Interview.class);
+			interview = mapper.readValue(new File(filePath), InterviewFillout.class);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

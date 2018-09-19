@@ -5,6 +5,7 @@ import static org.junit.Assert.assertEquals;
 import org.junit.Before;
 import org.junit.Test;
 
+import de.upb.crc901.proseco.core.interview.QuestionCollection;
 import de.upb.crc901.proseco.view.core.Parser;
 
 public class QuestionTest {

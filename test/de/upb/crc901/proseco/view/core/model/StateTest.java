@@ -9,8 +9,10 @@ import java.util.Map;
 
 import org.junit.Test;
 
-import de.upb.crc901.proseco.view.core.model.html.Option;
-import de.upb.crc901.proseco.view.core.model.html.Select;
+import de.upb.crc901.proseco.core.interview.Question;
+import de.upb.crc901.proseco.core.interview.State;
+import de.upb.crc901.proseco.view.html.Option;
+import de.upb.crc901.proseco.view.html.Select;
 
 public class StateTest {
 

@@ -2,10 +2,10 @@ package de.upb.crc901.proseco.view.app.model;
 
 import java.util.List;
 
-import de.upb.crc901.proseco.view.core.model.Interview;
-import de.upb.crc901.proseco.view.core.model.Question;
-import de.upb.crc901.proseco.view.core.model.State;
-import de.upb.crc901.proseco.view.core.model.html.HTMLConstants;
+import de.upb.crc901.proseco.core.interview.InterviewFillout;
+import de.upb.crc901.proseco.core.interview.Question;
+import de.upb.crc901.proseco.core.interview.State;
+import de.upb.crc901.proseco.view.html.HTMLConstants;
 import de.upb.crc901.proseco.view.util.ConfUtil;
 import de.upb.crc901.proseco.view.util.ListUtil;
 
@@ -18,15 +18,15 @@ import de.upb.crc901.proseco.view.util.ListUtil;
  */
 public class InterviewDTO {
 
+	private String processId; // the PROSECO service construction process id to which this interview belongs
+	
 	private String content;
 
-	private Interview interview;
+	private InterviewFillout interviewFillout;
 
 	private String interviewHTML;
 
 	private String debugHTML;
-
-	private String id;
 
 	private boolean showSubmit;
 
@@ -58,12 +58,12 @@ public class InterviewDTO {
 		this.showSubmit = showSubmit;
 	}
 
-	public String getId() {
-		return id;
+	public String getProcessId() {
+		return processId;
 	}
 
-	public void setId(String id) {
-		this.id = id;
+	public void setProcessId(String id) {
+		this.processId = id;
 	}
 
 	public String getContent() {
@@ -74,8 +74,8 @@ public class InterviewDTO {
 		this.content = content;
 	}
 
-	public Interview getInterview() {
-		return interview;
+	public InterviewFillout getInterviewFillout() {
+		return interviewFillout;
 	}
 
 	/**
@@ -83,7 +83,7 @@ public class InterviewDTO {
 	 * that do not require input)
 	 */
 	private void setShowSubmitValue() {
-		List<Question> questions = interview.getCurrentState().getQuestions();
+		List<Question> questions = interviewFillout.getCurrentState().getQuestions();
 		if (ListUtil.isNotEmpty(questions)) {
 			for (Question q : questions) {
 				if (q.getUiElement() != null) {
@@ -94,13 +94,11 @@ public class InterviewDTO {
 
 	}
 
-	public void setInterview(Interview interview) {
-		this.interview = interview;
-		this.id = interview.getId();
-		this.interviewHTML = interview.getCurrentState().toHTML();
+	public void setInterviewFillout(InterviewFillout interviewFillout) {
+		this.interviewFillout = interviewFillout;
+		this.interviewHTML = interviewFillout.getHTMLOfOpenQuestionsInCurrentState();
 		setShowSubmitValue();
-
-		setDebugHtml(interview);
+		setDebugHtml(interviewFillout);
 	}
 
 	/**
@@ -108,19 +106,19 @@ public class InterviewDTO {
 	 * 
 	 * @param interview
 	 */
-	private void setDebugHtml(Interview interview) {
+	private void setDebugHtml(InterviewFillout interviewFillout) {
 		if (ConfUtil.getValue(ConfUtil.DEBUG)) {
 			StringBuilder htmlElement = new StringBuilder();
 			htmlElement.append("<div>");
 			htmlElement.append(HTMLConstants.LINE_BREAK).append("Debug: ");
 			htmlElement.append("<table style=\"width:30%\" border=\"1\"><tr><th>").append("State").append("</th><th>")
-					.append("question").append("</th><th>").append("answer").append("</th></tr>");
-			for (State state : interview.getStates()) {
+					.append("qId").append("</th><th>").append("Question").append("</th><th>").append("answer").append("</th></tr>");
+			for (State state : interviewFillout.getInterview().getStates()) {
 				if (state.getName().equals("timeout")) {
 					continue;
 				}
 				htmlElement.append("<tr");
-				if (state.getName().equals(interview.getCurrentState().getName())) {
+				if (state.getName().equals(interviewFillout.getCurrentState().getName())) {
 					htmlElement.append(" bgcolor=\"#b4ff99\" ");
 				}
 				htmlElement.append("><td rowspan=\"").append(state.getQuestions().size()).append("\">")
@@ -130,14 +128,16 @@ public class InterviewDTO {
 				for (Question question : state.getQuestions()) {
 					if (isFirstLoop) {
 						htmlElement.append("<tr");
-						if (state.getName().equals(interview.getCurrentState().getName())) {
+						if (state.getName().equals(interviewFillout.getCurrentState().getName())) {
 							htmlElement.append(" bgcolor=\"#b4ff99\" ");
 						}
 						htmlElement.append(">");
 					}
-					htmlElement.append("<td>").append(question.getId()).append("</td><td>");
-					if (question.getAnswer() != null) {
-						htmlElement.append(question.getAnswer());
+					htmlElement.append("<td>").append(question.getId()).append("</td>");
+					htmlElement.append("<td>").append(question.getContent()).append("</td>");
+					htmlElement.append("<td>");
+					if (interviewFillout.getAnswers().containsKey(question.getId())) {
+						htmlElement.append(interviewFillout.getAnswers().get(question.getId()));
 					}
 					htmlElement.append("</td></tr>");
 					isFirstLoop = true;
@@ -165,4 +165,9 @@ public class InterviewDTO {
 		this.debugHTML = debugHTML;
 	}
 
+	@Override
+	public String toString() {
+		return "InterviewDTO [processId=" + processId + ", content=" + content + ", interviewFillout=" + interviewFillout + ", interviewHTML=" + interviewHTML + ", debugHTML="
+				+ debugHTML + ", showSubmit=" + showSubmit + ", showConsole=" + showConsole + ", upload=" + upload + "]";
+	}
 }

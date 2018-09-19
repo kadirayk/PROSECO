@@ -5,12 +5,12 @@ import java.io.File;
 import org.junit.Before;
 import org.junit.Test;
 
-import de.upb.crc901.proseco.ExecutionEnvironment;
+import de.upb.crc901.proseco.core.composition.PROSECOProcessEnvironment;
 import de.upb.crc901.proseco.util.Config;
 
 public class ExecuteGroundingRoutineCommandTest {
 
-	private ExecutionEnvironment executionEnvironment;
+	private PROSECOProcessEnvironment executionEnvironment;
 
 	@Before
 	public void initEnvironment() throws Exception {

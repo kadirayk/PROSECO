@@ -10,9 +10,9 @@ import java.util.Set;
 import org.junit.Before;
 import org.junit.Test;
 
-import de.upb.crc901.proseco.view.core.model.Interview;
-import de.upb.crc901.proseco.view.core.model.Question;
-import de.upb.crc901.proseco.view.core.model.State;
+import de.upb.crc901.proseco.core.interview.Interview;
+import de.upb.crc901.proseco.core.interview.Question;
+import de.upb.crc901.proseco.core.interview.State;
 
 public class AnswerInterpreterTest {
 	Parser parser;

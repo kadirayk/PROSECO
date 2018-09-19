@@ -9,6 +9,9 @@ import java.util.Map;
 
 import org.junit.Test;
 
+import de.upb.crc901.proseco.view.html.Option;
+import de.upb.crc901.proseco.view.html.Select;
+
 public class SelectTest {
 
 	@Test

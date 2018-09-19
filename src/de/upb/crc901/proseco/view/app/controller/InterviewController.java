@@ -6,26 +6,34 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
+import java.util.UUID;
 
+import org.aeonbits.owner.ConfigCache;
 import org.apache.commons.io.FileUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 import org.thymeleaf.util.StringUtils;
 
-import de.upb.crc901.proseco.PrototypeBasedComposer;
-import de.upb.crc901.proseco.util.Config;
+import de.upb.crc901.proseco.core.composition.CompositionAlgorithm;
+import de.upb.crc901.proseco.core.composition.PROSECOProcessEnvironment;
+import de.upb.crc901.proseco.core.interview.InterviewFillout;
+import de.upb.crc901.proseco.core.interview.Question;
+import de.upb.crc901.proseco.util.PROSECOConfig;
 import de.upb.crc901.proseco.view.app.model.InterviewDTO;
 import de.upb.crc901.proseco.view.core.NextStateNotFoundException;
 import de.upb.crc901.proseco.view.core.Parser;
-import de.upb.crc901.proseco.view.core.model.Interview;
-import de.upb.crc901.proseco.view.core.model.Question;
 import de.upb.crc901.proseco.view.util.ListUtil;
 import de.upb.crc901.proseco.view.util.SerializationUtil;
 
@@ -38,18 +46,15 @@ import de.upb.crc901.proseco.view.util.SerializationUtil;
  */
 @Controller
 public class InterviewController {
-	Interview interview;
+
+	private static final Logger logger = LoggerFactory.getLogger(InterviewController.class);
+	private static final PROSECOConfig config = ConfigCache.getOrCreate(PROSECOConfig.class);
 	private static final String INIT_TEMPLATE = "initiator";
 	private static final String RESULT_TEMPLATE = "result";
 	private static final String ERROR_TEMPLATE = "error";
 
-	private File executionDirectory;
-	private File prototypeDirectory;
-
 	/**
-	 * Displays Interview initiator. Interview initiator is the step where the
-	 * user inputs the required keywords for corresponding prototype to be
-	 * found.
+	 * Displays Interview initiator. Interview initiator is the step where the user inputs the required keywords for corresponding prototype to be found.
 	 * 
 	 * @param model
 	 * @return
@@ -57,79 +62,75 @@ public class InterviewController {
 	@GetMapping("/init")
 	public String init(Model model) {
 		model.addAttribute("interviewDTO", new InterviewDTO());
-		interview = null;
 		return INIT_TEMPLATE;
 	}
 
 	/**
-	 * Initiates interview process and decides prototype according to given
-	 * information
+	 * Initiates interview process and decides prototype according to given information
 	 * 
 	 * @param init
 	 * @return
 	 * @throws NextStateNotFoundException
 	 */
 	@PostMapping("/init")
-	public String initSubmit(@ModelAttribute InterviewDTO init) throws NextStateNotFoundException {
+	public String initSubmit(@ModelAttribute InterviewDTO interviewDTO) throws NextStateNotFoundException {
+
+		/* determine prototype name */
 		String prototypeName = null;
-		if (StringUtils.containsIgnoreCase(init.getContent(), "image classification", Locale.ENGLISH)
-				|| StringUtils.containsIgnoreCase(init.getContent(), "ic", Locale.ENGLISH)) {
+		if (StringUtils.containsIgnoreCase(interviewDTO.getContent(), "image classification", Locale.ENGLISH)
+				|| StringUtils.containsIgnoreCase(interviewDTO.getContent(), "ic", Locale.ENGLISH)) {
 			prototypeName = "imageclassification";
-		} else if (StringUtils.containsIgnoreCase(init.getContent(), "play a game", Locale.ENGLISH)
-				|| StringUtils.containsIgnoreCase(init.getContent(), "game", Locale.ENGLISH)) {
+		} else if (StringUtils.containsIgnoreCase(interviewDTO.getContent(), "play a game", Locale.ENGLISH)
+				|| StringUtils.containsIgnoreCase(interviewDTO.getContent(), "game", Locale.ENGLISH)) {
 			prototypeName = "game";
 
-		} else if (StringUtils.containsIgnoreCase(init.getContent(), "automl", Locale.ENGLISH)) {
+		} else if (StringUtils.containsIgnoreCase(interviewDTO.getContent(), "automl", Locale.ENGLISH)) {
 			prototypeName = "automl";
 		} else {
 			return ERROR_TEMPLATE;
 		}
-		findInterviewOfPrototype(prototypeName, init);
-		copyPrototypeSkeleton(prototypeName);
-		saveInterviewState(init);
+
+		/* create a new PROSECO service construction process and retrieve the interview */
+		try {
+			String id = createConstructionProcess(prototypeName);
+			PROSECOProcessEnvironment env = getEnvironment(prototypeName + "-" + id);
+			System.out.println(env.getPrototypeConfig());
+			File file = new File(env.getInterviewDirectory().getAbsolutePath() + File.separator + "interview.yaml");
+			Parser parser = new Parser();
+			interviewDTO.setInterviewFillout(new InterviewFillout(parser.initializeInterviewFromConfig(file)));
+			interviewDTO.setProcessId(id);
+		} catch (IOException e) {
+			System.err.println("Error in creating a construction process for prototype " + prototypeName + ". The exception is as follows:");
+			e.printStackTrace();
+		}
+		saveInterviewState(interviewDTO);
 		return RESULT_TEMPLATE;
 	}
 
 	/**
-	 * Http Get method for /interview/{id} to display the current state of the
-	 * interview with the given {id}
+	 * Http Get method for /interview/{id} to display the current state of the interview with the given {id}
 	 * 
 	 * @param init
 	 * @return
 	 * @throws NextStateNotFoundException
 	 */
 	@GetMapping("/interview/{id}")
-	public String next(@ModelAttribute InterviewDTO init) throws NextStateNotFoundException {
-		interview = findInterview(init.getId());
-		if (interview != null) {
-			init.setInterview(interview);
-		}
+	public String next(@PathVariable("id") String id, @ModelAttribute InterviewDTO interviewDTO) throws NextStateNotFoundException {
+		populateInterviewDTO(interviewDTO, id);
+		return RESULT_TEMPLATE;
+	}
+
+	@GetMapping("/prev")
+	public String prev(@ModelAttribute InterviewDTO init) {
+		// if (memorizedInterview != null) {
+		// memorizedInterview.prevState();
+		// init.setInterview(memorizedInterview);
+		// }
 		return RESULT_TEMPLATE;
 	}
 
 	/**
-	 * Finds interview of the prototype with the given ID
-	 * 
-	 * @param id
-	 * @return
-	 */
-	private Interview findInterview(String id) {
-		String folder = null;
-		File root = Config.EXECUTIONS;
-		for (File file : root.listFiles()) {
-			if (file.isDirectory()) {
-				if (file.getName().contains(id)) {
-					folder = file.getAbsolutePath();
-				}
-			}
-		}
-
-		return SerializationUtil.readAsJSON(folder + File.separator + Config.INTERVIEW_PATH);
-	}
-
-	/**
-	 * Http Post method for /interview/{id} to post form values and continue to
-	 * the next step
+	 * Http Post method for /interview/{id} to post form values and continue to the next step
 	 * 
 	 * @param interviewDTO
 	 * @param response
@@ -140,131 +141,130 @@ public class InterviewController {
 	 * @throws NextStateNotFoundException
 	 */
 	@PostMapping("/interview/{id}")
-	public String nextPost(@ModelAttribute InterviewDTO interviewDTO,
-			@RequestParam(required = false, name = "response") String response,
+	public String nextPost(@PathVariable("id") String id, @ModelAttribute InterviewDTO interviewDTO, @RequestParam(required = false, name = "response") String response,
 			@RequestParam(required = false, name = "file") MultipartFile file) throws NextStateNotFoundException {
+		
+		/* retrieve the interview state */
+		logger.info("Receiving response {} and file {} for process id {}. Interview: {}", response, file, id, interviewDTO);
+		populateInterviewDTO(interviewDTO, id);
+		logger.info("Receiving response {} and file {} for process id {}. Interview: {}", response, file, id, interviewDTO);
+		InterviewFillout memorizedInterviewFillout = interviewDTO.getInterviewFillout();
+		PROSECOProcessEnvironment env = getEnvironment(memorizedInterviewFillout.getInterview().getPrototypeName() + "-" + id);
+		
+		Map<String,String> updatedAnswers = new HashMap<>(memorizedInterviewFillout.getAnswers());
 
 		// if it is final state run PrototypeBasedComposer with interview inputs
-		if (interview.getCurrentState().getTransition() == null
-				|| interview.getCurrentState().getTransition().isEmpty()) {
-
+		if (memorizedInterviewFillout.getCurrentState().getTransition() == null || memorizedInterviewFillout.getCurrentState().getTransition().isEmpty()) {
 			Runnable task = () -> {
 				try {
-					PrototypeBasedComposer.run(interview.getPrototypeName() + "-" + interviewDTO.getId());
+					CompositionAlgorithm pc = new CompositionAlgorithm(env, 100);
+					pc.run();
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
 			};
 			new Thread(task).start();
-			interviewDTO.setInterview(interview);
 			interviewDTO.setShowConsole(true);
 			return RESULT_TEMPLATE;
 		}
 
-		if (interview != null) {
-			// if a file is uploaded save the file to prototype's interview
-			// directory
-			// set the reference of file (file path) as answer to the respected
-			// question in the interview
-			if (file != null && !file.isEmpty()) {
-				try {
-					byte[] bytes = file.getBytes();
-					Path path = Paths.get(Config.EXECUTIONS_PATH + interview.getPrototypeName() + "-"
-							+ interviewDTO.getId() + File.separator + Config.INTERVIEW_PATH
-							+ Config.INTERVIEW_RESOUCES_PATH + file.getOriginalFilename());
-					Files.write(path, bytes);
+		// if a file is uploaded save the file to prototype's interview directory set the reference of file (file path) as answer to the respected question in the interview
+		if (file != null && !file.isEmpty()) {
+			try {
+				byte[] bytes = file.getBytes();
+				Path path = Paths.get(env.getInterviewResourcesDirectory() + File.separator + file.getOriginalFilename());
+				Files.write(path, bytes);
 
-					List<Question> questions = interview.getCurrentState().getQuestions();
-					if (ListUtil.isNotEmpty(questions)) {
-						for (Question q : questions) {
-							if ("file".equals(q.getUiElement().getAttributes().get("type"))) {
-								q.setAnswer(path.toString());
-							}
-						}
-					}
-
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-			}
-
-			// if any string response is given set the responses as answer to
-			// the respected interview question
-			if (response != null && !StringUtils.isEmpty(response)) {
-				List<String> answers = Arrays.asList(response.split(","));
-				List<Question> questions = interview.getCurrentState().getQuestions();
+				List<Question> questions = memorizedInterviewFillout.getCurrentState().getQuestions();
 				if (ListUtil.isNotEmpty(questions)) {
-					int i = 0;
 					for (Question q : questions) {
-						if (StringUtils.isEmpty(q.getAnswer())) {
-							if (!"file".equals(q.getUiElement().getAttributes().get("type"))) {
-								if (i < answers.size()) {
-									q.setAnswer(answers.get(i));
-								}
-							}
-							i++;
+						if ("file".equals(q.getUiElement().getAttributes().get("type"))) {
+							updatedAnswers.put(q.getId(), path.toString());
 						}
 					}
 				}
+
+			} catch (IOException e) {
+				e.printStackTrace();
 			}
-
-			// continue to next interview state
-			interview.nextState();
-			interviewDTO.setInterview(interview);
-
 		}
-		// save current interview state
+
+		// if any string response is given set the responses as answer to the respected interview question
+		if (response != null && !StringUtils.isEmpty(response)) {
+			List<String> answers = Arrays.asList(response.split(","));
+			List<Question> questions = memorizedInterviewFillout.getCurrentState().getQuestions();
+			if (ListUtil.isNotEmpty(questions)) {
+				int i = 0;
+				for (Question q : questions) {
+					String answerToThisQuestion = answers.get(i);
+					if (!StringUtils.isEmpty(answerToThisQuestion)) {
+						logger.warn("Question \"{}\"has already been answered.", q);
+						continue;
+					}
+					if ("file".equals(q.getUiElement().getAttributes().get("type"))) {
+						logger.warn("Cannot process file fields in standard process");
+						continue;
+					}
+					if (i < answers.size()) {
+						updatedAnswers.put(q.getId(), answerToThisQuestion);
+						i++;
+					}
+				}
+			}
+		}
+//		logger.info("Interview state after having processed the answers is {}. Questions: {}", interviewDTO.getInterviewFillout().getCurrentState(), interviewDTO.getInterviewFillout().getCurrentState().getQuestions().stream()
+//				.map(q -> "\n\t" + q.getContent() + "(" + q + "): " + q.getAnswer()).collect(Collectors.joining()));
+		// update current interview state (to the first state with an unanswered question) and save it
+		interviewDTO.setInterviewFillout(new InterviewFillout(memorizedInterviewFillout.getInterview(), updatedAnswers));
 		saveInterviewState(interviewDTO);
-
-		return RESULT_TEMPLATE;
-	}
-
-	@GetMapping("/prev")
-	public String prev(@ModelAttribute InterviewDTO init) {
-		if (interview != null) {
-			interview.prevState();
-			init.setInterview(interview);
-		}
+//		logger.info("Interview state after having it saved is {}. Questions: {}", interviewDTO.getInterviewFillout().getCurrentState(), interviewDTO.getInterviewFillout().getCurrentState().getQuestions().stream()
+//				.map(q -> "\n\t" + q.getContent() + "(" + q + "): " + q.getAnswer()).collect(Collectors.joining()));
+//		interviewDTO.getInterviewFillout().getStates().forEach(
+//				s -> logger.info("Saving interview state {} with questions:{}", s, s.getQuestions().stream().map(q -> "\n\t" + q.getContent() + "(" + q + "): " + q.getAnswer()).collect(Collectors.joining())));
 		return RESULT_TEMPLATE;
 	}
 
 	/**
-	 * Copies prototype skeleton for the current prototype instance
-	 */
-	private void copyPrototypeSkeleton(String prototypeName) {
-		prototypeDirectory = new File(Config.PROTOTYPES_PATH + File.separator + prototypeName);
-		this.executionDirectory = new File(
-				Config.EXECUTIONS.getAbsolutePath() + File.separator + prototypeName + "-" + interview.getId());
-		try {
-			FileUtils.copyDirectory(this.prototypeDirectory, this.executionDirectory);
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
-
-	/**
-	 * finds current prototype's interview to be showed in the web interface,
-	 * from the prototype's initial directory
+	 * Creates a new PROSECO service construction process for a given prototype. The prototype skeleton is copied for the new process.
 	 * 
-	 * @param init
+	 * @return id The id for the newly created process
+	 * @throws IOException
 	 */
-	private void findInterviewOfPrototype(String prototypeName, InterviewDTO init) {
-		String filePath = Config.PROTOTYPES_PATH + prototypeName + File.separator + Config.INTERVIEW_PATH
-				+ "interview.yaml";
-		Parser parser = new Parser();
-		interview = parser.parseInterview(filePath);
-		init.setInterview(interview);
+	private String createConstructionProcess(String prototypeName) throws IOException {
+		String id = UUID.randomUUID().toString().replace("-", "").substring(0, 10).toUpperCase();
+		PROSECOProcessEnvironment env = getEnvironment(prototypeName + "-" + id);
+		FileUtils.copyDirectory(env.getPrototypeDirectory(), env.getProcessDirectory());
+		return id;
+	}
+
+	/**
+	 * Finds interview of the prototype with the given ID
+	 * 
+	 * @param id
+	 * @return
+	 */
+	private void populateInterviewDTO(InterviewDTO interviewDTO, String id) {
+		PROSECOProcessEnvironment env = getEnvironment(Util.getPrototypeNameForProcessId(config, id));
+		InterviewFillout interview = SerializationUtil.readAsJSON(env.getInterviewStateDirectory());
+		interviewDTO.setInterviewFillout(interview);
+		interviewDTO.setProcessId(id);
 	}
 
 	/**
 	 * saves interview state on current prototype instance's directory
 	 * 
-	 * @param init
+	 * @param interviewDTO
 	 */
-	private void saveInterviewState(InterviewDTO init) {
-		SerializationUtil.writeAsJSON(Config.EXECUTIONS_PATH + interview.getPrototypeName() + "-" + init.getId()
-				+ File.separator + Config.INTERVIEW_PATH, interview);
+	private void saveInterviewState(InterviewDTO interviewDTO) {
+		PROSECOProcessEnvironment env = getEnvironment(interviewDTO.getInterviewFillout().getInterview().getPrototypeName() + "-" + interviewDTO.getProcessId());
+		SerializationUtil.writeAsJSON(env.getInterviewStateDirectory(), interviewDTO.getInterviewFillout());
 	}
 
+	private PROSECOProcessEnvironment getEnvironment(String processId) {
+		try {
+			return new PROSECOProcessEnvironment(config, processId);
+		} catch (Exception e) {
+			throw new RuntimeException("Could not create an environment object for process id " + processId, e);
+		}
+	}
 }
