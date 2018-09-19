@@ -119,7 +119,7 @@ public class CompositionAlgorithm implements Runnable {
 					FileUtils.deleteDirectory(executionEnvironment.getParamsDirectory());
 					FileUtils.deleteDirectory(executionEnvironment.getStrategyDirectory());
 					FileUtils.deleteDirectory(executionEnvironment.getLibsDirectory());
-					FileUtils.deleteDirectory(executionEnvironment.getInterviewDirectory());
+					FileUtils.deleteDirectory(executionEnvironment.getInterviewStateDirectory());
 					final String[] filesInMainDir = { "GroundingRoutine.jar", "InitConfiguration.jar", "initconfiguration.bat", "groundingroutine.bat",
 							"src/contTrainingInstances.serialized", "src/testInstances.serialized", "src/compile.bat", "src/train.bat" };
 					for (final String filename : filesInMainDir) {

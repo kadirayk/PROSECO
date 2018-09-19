@@ -49,7 +49,7 @@ public class StrategyExecutor {
 		List<String> interviewResources = getInterviewResourcesForStrategy();
 
 		for (final File strategyFolder : strategySubFolders) {
-			System.out.print("Starting process for strategy " + strategyFolder.getName() + "...");
+			System.out.print("Starting process for strategy " + strategyFolder + "...");
 			interviewResources.add(0, strategyFolder.getAbsolutePath() + File.separator + prototypeConfig.getSearchRunnable());
 			File systemOut = new File(strategyFolder.getAbsolutePath() + File.separator + prosecoConfig.getSystemOutFileName());
 			File systemErr = new File(strategyFolder.getAbsolutePath() + File.separator + prosecoConfig.getSystemErrFileName());

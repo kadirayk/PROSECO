@@ -6,7 +6,6 @@ import de.upb.crc901.proseco.core.interview.InterviewFillout;
 import de.upb.crc901.proseco.core.interview.Question;
 import de.upb.crc901.proseco.core.interview.State;
 import de.upb.crc901.proseco.view.html.HTMLConstants;
-import de.upb.crc901.proseco.view.util.ConfUtil;
 import de.upb.crc901.proseco.view.util.ListUtil;
 
 /**
@@ -107,7 +106,6 @@ public class InterviewDTO {
 	 * @param interview
 	 */
 	private void setDebugHtml(InterviewFillout interviewFillout) {
-		if (ConfUtil.getValue(ConfUtil.DEBUG)) {
 			StringBuilder htmlElement = new StringBuilder();
 			htmlElement.append("<div>");
 			htmlElement.append(HTMLConstants.LINE_BREAK).append("Debug: ");
@@ -146,7 +144,6 @@ public class InterviewDTO {
 			}
 			htmlElement.append("</table>").append("</div>");
 			this.debugHTML = htmlElement.toString();
-		}
 	}
 
 	public String getInterviewHTML() {
