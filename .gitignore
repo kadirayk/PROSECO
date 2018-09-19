@@ -62,3 +62,4 @@ data/stored
 !*.exe
 !/mod
 
+/.project

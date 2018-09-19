@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.lang.ProcessBuilder.Redirect;
+import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.util.List;
 import java.util.Optional;
@@ -12,8 +13,6 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import jaicore.basic.FileUtil;
 
 /**
  * 
@@ -80,7 +79,7 @@ public class CompositionAlgorithm implements Runnable {
 					logger.info("score file was not found for strategy; ignoring it: {}", fValueFile.getAbsolutePath());
 					continue;
 				}
-				Double parsedValue = Double.parseDouble(FileUtil.readFileAsString(fValueFile.getAbsolutePath()));
+				Double parsedValue = Double.parseDouble(FileUtils.readFileToString(fValueFile, Charset.defaultCharset()));
 				if (parsedValue < bestScoreSeen) {
 					winningStrategy = Optional.of(strategy);
 					bestScoreSeen = parsedValue;
