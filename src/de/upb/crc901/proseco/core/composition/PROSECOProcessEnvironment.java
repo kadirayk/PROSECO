@@ -4,20 +4,20 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 
-import de.upb.crc901.proseco.util.PROSECOConfig;
-import de.upb.crc901.proseco.util.PrototypeConfig;
+import de.upb.crc901.proseco.core.PROSECOConfig;
+import de.upb.crc901.proseco.core.PrototypeConfig;
 
 /**
  * ExecutionEnvironment, is the directory where an instance of the selected
  * prototype is created.
  * 
- * @author kadirayk
+ * @author fmohr
  *
  */
 public class PROSECOProcessEnvironment {
 	private final PROSECOConfig prosecoConfig;
 	private final PrototypeConfig prototypeConfig;
-	private final String prototypeId;
+	private final String processId;
 	private final String prototypeName;
 	private final File prototypeDirectory;
 	private final File executionDirectory;
@@ -36,7 +36,7 @@ public class PROSECOProcessEnvironment {
 
 	public PROSECOProcessEnvironment(final PROSECOConfig pConfig, final String pProcessId) throws FileNotFoundException, IOException {
 		prosecoConfig = pConfig;
-		prototypeId = pProcessId;
+		processId = pProcessId;
 		
 		/* prototype specific folders and configs */
 		if (!pProcessId.contains("-"))
@@ -48,7 +48,7 @@ public class PROSECOProcessEnvironment {
 		
 		/* process specific folders */
 		executionDirectory = pConfig.getExecutionFolder();
-		processDirectory = new File(executionDirectory + File.separator + prototypeId);
+		processDirectory = new File(executionDirectory + File.separator + processId);
 		benchmarksDirectory = new File(processDirectory + File.separator + prototypeConfig.getBenchmarkPath());
 		groundingDirectory = new File(processDirectory + File.separator + prototypeConfig.getNameOfGroundingFolder());
 		groundingRoutine = new File(groundingDirectory + File.separator + prototypeConfig.getNameOfGroundingRoutine());
@@ -61,8 +61,8 @@ public class PROSECOProcessEnvironment {
 		interviewResourcesDirectory = new File(interviewStateDirectory + File.separator + prototypeConfig.getNameOfInterviewResourceFolder());
 	}
 
-	public String getPrototypeId() {
-		return prototypeId;
+	public String getProcessId() {
+		return processId;
 	}
 
 	public File getPrototypeDirectory() {

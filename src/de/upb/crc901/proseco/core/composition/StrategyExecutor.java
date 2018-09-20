@@ -13,8 +13,8 @@ import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import de.upb.crc901.proseco.util.PROSECOConfig;
-import de.upb.crc901.proseco.util.PrototypeConfig;
+import de.upb.crc901.proseco.core.PROSECOConfig;
+import de.upb.crc901.proseco.core.PrototypeConfig;
 
 /**
  * ExecuteStrategiesCommand, searches for strategy subfolders and forking a new
@@ -56,11 +56,12 @@ public class StrategyExecutor {
 			File systemAll = new File(strategyFolder.getAbsolutePath() + File.separator + prosecoConfig.getSystemMergedOutputFileName());
 
 			String[] commandArguments = interviewResources.stream().toArray(String[]::new);
-			final ProcessBuilder pb = new ProcessBuilder(commandArguments).redirectOutput(Redirect.PIPE)
+			final ProcessBuilder pb = new ProcessBuilder(commandArguments).directory(executionEnvironment.getProcessDirectory()).redirectOutput(Redirect.PIPE)
 					.redirectError(Redirect.PIPE);
 
 			try {
 				final Process p = pb.start();
+				System.out.println("Process started, initializing stream output ...");
 				InputStream inputStream = p.getInputStream();
 				InputStream errorStream = p.getErrorStream();
 				streamToFile(inputStream, errorStream, systemOut, systemErr, systemAll);

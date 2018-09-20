@@ -2,7 +2,7 @@ package de.upb.crc901.proseco.view.app.controller;
 
 import java.io.File;
 
-import de.upb.crc901.proseco.util.PROSECOConfig;
+import de.upb.crc901.proseco.core.PROSECOConfig;
 
 public abstract class Util {
 	

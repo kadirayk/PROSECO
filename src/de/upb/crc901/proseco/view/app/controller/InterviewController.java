@@ -26,11 +26,11 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 import org.thymeleaf.util.StringUtils;
 
+import de.upb.crc901.proseco.core.PROSECOConfig;
 import de.upb.crc901.proseco.core.composition.CompositionAlgorithm;
 import de.upb.crc901.proseco.core.composition.PROSECOProcessEnvironment;
 import de.upb.crc901.proseco.core.interview.InterviewFillout;
 import de.upb.crc901.proseco.core.interview.Question;
-import de.upb.crc901.proseco.util.PROSECOConfig;
 import de.upb.crc901.proseco.view.app.model.InterviewDTO;
 import de.upb.crc901.proseco.view.core.NextStateNotFoundException;
 import de.upb.crc901.proseco.view.core.Parser;
@@ -171,15 +171,14 @@ public class InterviewController {
 		// if a file is uploaded save the file to prototype's interview directory set the reference of file (file path) as answer to the respected question in the interview
 		if (file != null && !file.isEmpty()) {
 			try {
-				byte[] bytes = file.getBytes();
-				Path path = Paths.get(env.getInterviewResourcesDirectory() + File.separator + file.getOriginalFilename());
-				Files.write(path, bytes);
-
 				List<Question> questions = memorizedInterviewFillout.getCurrentState().getQuestions();
 				if (ListUtil.isNotEmpty(questions)) {
 					for (Question q : questions) {
 						if ("file".equals(q.getUiElement().getAttributes().get("type"))) {
-							updatedAnswers.put(q.getId(), path.toString());
+							byte[] bytes = file.getBytes();
+							Path path = Paths.get(env.getInterviewResourcesDirectory() + File.separator + q.getId());
+							Files.write(path, bytes);
+							updatedAnswers.put(q.getId(), path.toFile().getName());
 						}
 					}
 				}

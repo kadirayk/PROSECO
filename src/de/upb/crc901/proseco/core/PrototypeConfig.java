@@ -1,4 +1,4 @@
-package de.upb.crc901.proseco.util;
+package de.upb.crc901.proseco.core;
 
 import java.io.File;
 import java.io.FileInputStream;

@@ -1,4 +1,4 @@
-package de.upb.crc901.proseco.util;
+package de.upb.crc901.proseco.core;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -6,10 +6,11 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Properties;
 
+import org.aeonbits.owner.Accessible;
 import org.aeonbits.owner.ConfigFactory;
 import org.aeonbits.owner.Mutable;
 
-public interface PROSECOConfig extends Mutable {
+public interface PROSECOConfig extends Mutable, Accessible {
 	
 	/* phase 1: identify prototype */
 	public static final String PROTOTYPES_PATH = "proseco.prototypes_path";

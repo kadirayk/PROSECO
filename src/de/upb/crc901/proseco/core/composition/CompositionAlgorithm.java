@@ -2,17 +2,24 @@ package de.upb.crc901.proseco.core.composition;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.lang.ProcessBuilder.Redirect;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
+import org.aeonbits.owner.ConfigCache;
+import org.aeonbits.owner.ConfigFactory;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import de.upb.crc901.proseco.core.PROSECOConfig;
 
 /**
  * 
@@ -48,14 +55,37 @@ public class CompositionAlgorithm implements Runnable {
 	public void run() {
 
 		try {
-
+			
+			/* serialize execution environment into the process folder */
+			File file = new File(executionEnvironment.getProcessDirectory() + File.separator + "proseco.conf");
+			Map<String,String> redefinedValues = new HashMap<>();
+			PROSECOConfig config = executionEnvironment.getProsecoConfig();
+			for (String key : config.propertyNames()) {
+				String val = "";
+				switch (key) {
+				case PROSECOConfig.PROTOTYPES_PATH:
+					val = config.getPathToPrototypes().getAbsolutePath();
+					break;
+				case PROSECOConfig.EXECUTIONS_PATH:
+					val = config.getExecutionFolder().getAbsolutePath();
+					break;
+				default:
+					val = config.getProperty(key);
+					break;
+				}
+				redefinedValues.put(key, val);
+			}
+			PROSECOConfig rewrittenConfig = ConfigFactory.create(PROSECOConfig.class, redefinedValues);
+			rewrittenConfig.store(new FileOutputStream(file), "copy of original proseco config for this execution");
+			FileUtils.writeStringToFile(new File(executionEnvironment.getProcessDirectory() + File.separator + "process.id"), executionEnvironment.getProcessId(), Charset.defaultCharset());
+			
 			/* execute hooks that should run prior to configuration */
 
 			/* invoke strategies */
 			StrategyExecutor executeStrategiesCommand = new StrategyExecutor(executionEnvironment);
 			executeStrategiesCommand.execute();
 			List<Process> strategyProcessList = executeStrategiesCommand.getStrategyProcessList();
-
+			
 			/* sleep for the predefined timeout the strategies have time to come up with a solution. Then kill all the search processes if not already terminated. */
 			Thread.sleep(timeoutInSeconds * 1000);
 			for (final Process p : strategyProcessList) {

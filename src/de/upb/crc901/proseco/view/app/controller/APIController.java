@@ -20,10 +20,10 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyEmitter;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
+import de.upb.crc901.proseco.core.PROSECOConfig;
 import de.upb.crc901.proseco.core.composition.PROSECOProcessEnvironment;
 import de.upb.crc901.proseco.core.interview.InterviewFillout;
 import de.upb.crc901.proseco.core.interview.Question;
-import de.upb.crc901.proseco.util.PROSECOConfig;
 import de.upb.crc901.proseco.view.app.model.LogPair;
 import de.upb.crc901.proseco.view.app.model.LogResponseBody;
 import de.upb.crc901.proseco.view.util.FileUtil;
