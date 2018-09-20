@@ -1,5 +1,20 @@
-apply plugin: 'java'
-apply plugin: 'eclipse-wtp'
+
+	//IDE
+	apply plugin: "java"
+	apply plugin: "eclipse"
+	apply plugin: "idea"
+
+	//Other
+	apply plugin: "maven"
+	apply plugin: "jacoco"
+
+	//Java version
+	sourceCompatibility = 1.8
+	targetCompatibility = 1.8
+
+	//Project properties
+	project.group = 'de.upb.isys'
+	project.version = '0.0.1-SNAPSHOT'
 
 sourceSets {
     main {
@@ -17,28 +32,6 @@ sourceSets {
     		srcDir 'test'
     	}
     }
-}
-
-task sourcesJar(type: Jar, dependsOn: classes) {
-    classifier = 'sources'
-    from sourceSets.main.allSource
-}
-
-task fatJar(type: Jar) {
-	manifest {
-        attributes 'Implementation-Title': 'Gradle Jar File Example',
-        	'Implementation-Version': 1,
-        	'Main-Class': 'de.upb.crc901.proseco.prototype.imageclassification.benchmark.Benchmark'
-    }
-    baseName = project.name + '-all'
-    from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
-    with jar
-}
-
-
-
-artifacts {
-    archives sourcesJar
 }
 
 dependencies {
