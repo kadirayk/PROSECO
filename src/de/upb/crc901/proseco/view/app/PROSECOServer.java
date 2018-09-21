@@ -21,5 +21,4 @@ public class PROSECOServer {
 	public static void main(String[] args) {
 		new PROSECOServer().launch();
 	}
-
 }

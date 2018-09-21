@@ -45,42 +45,26 @@
 			<param name="ConversionPattern" value="%-5p [%t] [%c{1}.%M:%L] - %m%n" />
 		</layout>
 	</appender>
+	
+	<logger name="org">
+    <level value="warn" />
+    <appender-ref ref="console" />
+    <appender-ref ref="infoFileAppender" />
+    <appender-ref ref="warnFileAppender" />
+    <appender-ref ref="errFileAppender" />
+    <appender-ref ref="traceFileAppender" />
+  </logger>
 
-	<logger name="jaicore">
-		<level value="warn" />
-		<appender-ref ref="console" />
-		<appender-ref ref="infoFileAppender" />
-		<appender-ref ref="warnFileAppender" />
-		<appender-ref ref="errFileAppender" />
-		<appender-ref ref="traceFileAppender" />
+	<logger name="org.springframework">
+		<level value="info" />
 	</logger>
-
+	
 	<logger name="de.upb.crc901">
-		<level value="warn" />
-		<appender-ref ref="console" />
-		<appender-ref ref="infoFileAppender" />
-		<appender-ref ref="warnFileAppender" />
-		<appender-ref ref="errFileAppender" />
-		<appender-ref ref="traceFileAppender" />
-	</logger>
-	
-	<logger name="de.upb.crc901.services">
-		<level value="warn" />
-	</logger>
-
-	<logger name="de.upb.crc901.taskconfigurator.classifiers">
-		<level value="info" />
-	</logger>
-
-	<logger name="de.upb.crc901.taskconfigurator.search.algorithms">
-		<level value="info" />
-	</logger>
-	
-	<logger name="jaicore.search.algorithms.parallel.parallelexploration.distributed">
-		<level value="info" />
-	</logger>
-	
-	<logger name="de.upb.crc901.proseco">
-		<level value="info" />
-	</logger>
+    <level value="info" />
+    <appender-ref ref="console" />
+    <appender-ref ref="infoFileAppender" />
+    <appender-ref ref="warnFileAppender" />
+    <appender-ref ref="errFileAppender" />
+    <appender-ref ref="traceFileAppender" />
+  </logger>
 </log4j:configuration>

@@ -176,6 +176,8 @@ public class InterviewController {
 					for (Question q : questions) {
 						if ("file".equals(q.getUiElement().getAttributes().get("type"))) {
 							byte[] bytes = file.getBytes();
+							if (!env.getInterviewResourcesDirectory().exists())
+								FileUtils.forceMkdir(env.getInterviewResourcesDirectory());
 							Path path = Paths.get(env.getInterviewResourcesDirectory() + File.separator + q.getId());
 							Files.write(path, bytes);
 							updatedAnswers.put(q.getId(), path.toFile().getName());
@@ -232,7 +234,8 @@ public class InterviewController {
 	private String createConstructionProcess(String prototypeName) throws IOException {
 		String id = UUID.randomUUID().toString().replace("-", "").substring(0, 10).toUpperCase();
 		PROSECOProcessEnvironment env = getEnvironment(prototypeName + "-" + id);
-		FileUtils.copyDirectory(env.getPrototypeDirectory(), env.getProcessDirectory());
+		FileUtils.forceMkdir(env.getInterviewStateDirectory());
+//		FileUtils.copyDirectory(env.getPrototypeDirectory(), env.getProcessDirectory());
 		return id;
 	}
 

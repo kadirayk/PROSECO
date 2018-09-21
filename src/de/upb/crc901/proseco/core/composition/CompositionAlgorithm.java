@@ -12,7 +12,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import org.aeonbits.owner.ConfigCache;
 import org.aeonbits.owner.ConfigFactory;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
@@ -79,6 +78,10 @@ public class CompositionAlgorithm implements Runnable {
 			rewrittenConfig.store(new FileOutputStream(file), "copy of original proseco config for this execution");
 			FileUtils.writeStringToFile(new File(executionEnvironment.getProcessDirectory() + File.separator + "process.id"), executionEnvironment.getProcessId(), Charset.defaultCharset());
 			
+			/* create search folder and the sub-folder for the inputs, and copy the interview resources here */
+			FileUtils.forceMkdir(executionEnvironment.getSearchDirectory());
+			FileUtils.copyDirectory(executionEnvironment.getInterviewResourcesDirectory(), executionEnvironment.getSearchInputDirectory());
+			
 			/* execute hooks that should run prior to configuration */
 
 			/* invoke strategies */
@@ -87,7 +90,8 @@ public class CompositionAlgorithm implements Runnable {
 			List<Process> strategyProcessList = executeStrategiesCommand.getStrategyProcessList();
 			
 			/* sleep for the predefined timeout the strategies have time to come up with a solution. Then kill all the search processes if not already terminated. */
-			Thread.sleep(timeoutInSeconds * 1000);
+//			Thread.sleep(timeoutInSeconds * 1000);
+			Thread.sleep(10 * 1000);
 			for (final Process p : strategyProcessList) {
 				if (p.isAlive()) {
 					logger.info("Process {} has not finished within the given timeout; enforcing its termination", p);
@@ -106,7 +110,7 @@ public class CompositionAlgorithm implements Runnable {
 				}
 				final File fValueFile = new File(strategy.getAbsolutePath() + File.separator + executionEnvironment.getProsecoConfig().getNameOfOutputFolder() + File.separator + "score");
 				if (!fValueFile.exists()) {
-					logger.info("score file was not found for strategy; ignoring it: {}", fValueFile.getAbsolutePath());
+					logger.info("score file was not found in file {} for strategy {}", fValueFile.getAbsolutePath(), strategy.getName());
 					continue;
 				}
 				Double parsedValue = Double.parseDouble(FileUtils.readFileToString(fValueFile, Charset.defaultCharset()));
@@ -119,6 +123,9 @@ public class CompositionAlgorithm implements Runnable {
 				logger.info("None of the strategies has found a solution.");
 				return;
 			}
+			logger.info("Identified {} as a winning strategy with score {}", winningStrategy.get(), bestScoreSeen);
+
+			System.exit(0);
 
 			/* move all placeholder files from the selected solution to the grounding folder */
 			for (final File strategyFile : new File(winningStrategy.get() + File.separator + executionEnvironment.getProsecoConfig().getNameOfOutputFolder()).listFiles()) {
@@ -141,13 +148,10 @@ public class CompositionAlgorithm implements Runnable {
 		} finally {
 
 			/* clean up workspace */
-			if (executionEnvironment.getProsecoConfig().isFinalCleanupEnabled()) {
+			if (false && executionEnvironment.getProsecoConfig().isFinalCleanupEnabled()) {
 				logger.info("Clean up execution directory...");
 				try {
-					FileUtils.deleteDirectory(executionEnvironment.getBenchmarksDirectory());
-					FileUtils.deleteDirectory(executionEnvironment.getGroundingDirectory());
 					FileUtils.deleteDirectory(executionEnvironment.getParamsDirectory());
-					FileUtils.deleteDirectory(executionEnvironment.getStrategyDirectory());
 					FileUtils.deleteDirectory(executionEnvironment.getLibsDirectory());
 					FileUtils.deleteDirectory(executionEnvironment.getInterviewStateDirectory());
 					final String[] filesInMainDir = { "GroundingRoutine.jar", "InitConfiguration.jar", "initconfiguration.bat", "groundingroutine.bat",

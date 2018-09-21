@@ -44,18 +44,12 @@ dependencies {
 	compile 'org.apache.commons:commons-collections4:4.1'
 	compile group: 'commons-io', name: 'commons-io', version: '2.5'
 	compile group: 'commons-fileupload', name: 'commons-fileupload', version: '1.3.3'
-	
-	// Google
-	compile 'com.google.guava:guava:18.0'
-	
-	// Logging
+		
+	// Testing
 	compile 'junit:junit:4.12'
-	compile 'org.slf4j:slf4j-api:1.7.13'
-	runtime 'org.slf4j:slf4j-log4j12:1.7.13', 'log4j:log4j:1.2.17'
 	
 	// Spring Boot
 	compile group: 'org.springframework.boot', name: 'spring-boot-starter-thymeleaf', version: '1.5.16.RELEASE'
-	compile group: 'org.springframework.boot', name: 'spring-boot-starter', version: '1.5.16.RELEASE'
 	
 	// Jackson for YAML
 	compile 'com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.8.10'
@@ -69,7 +63,12 @@ dependencies {
 	
 	//zip util
 	compile 'org.zeroturnaround:zt-zip:1.12'
-		
+}
+
+
+// since we use spring boot, we now work with logback. So in case that anybody else wants to work with log4j in slf4j, we deactivate that module. Log4j support is enabled automatically via slf4j-over-log4j
+configurations.all {
+  exclude module: 'slf4j-log4j12'
 }
 
 repositories {

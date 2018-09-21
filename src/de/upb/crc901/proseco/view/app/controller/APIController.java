@@ -404,10 +404,12 @@ public class APIController {
 			}
 		});
 
+		String outputPath = env.getSearchOutputDirectory().getAbsolutePath();
 		for (final File strategyFolder : strategySubFolders) {
-			String systemOut = strategyFolder.getAbsolutePath() + File.separator + config.getSystemOutFileName();
-			String systemErr = strategyFolder.getAbsolutePath() + File.separator + config.getSystemErrFileName();
-			String systemAll = strategyFolder.getAbsolutePath() + File.separator + config.getSystemMergedOutputFileName();
+			String outputPathOfThisStrategy = outputPath + File.separator + strategyFolder.getName();
+			String systemOut = outputPathOfThisStrategy + File.separator + config.getSystemOutFileName();
+			String systemErr = outputPathOfThisStrategy + File.separator + config.getSystemErrFileName();
+			String systemAll = outputPathOfThisStrategy + File.separator + config.getSystemMergedOutputFileName();
 			String outLog = FileUtil.readFile(systemOut);
 			String errLog = FileUtil.readFile(systemErr);
 			String allLog = FileUtil.readFile(systemAll);

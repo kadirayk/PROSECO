@@ -15,16 +15,23 @@ import de.upb.crc901.proseco.core.PrototypeConfig;
  *
  */
 public class PROSECOProcessEnvironment {
+	
+	/* PROSECO */
 	private final PROSECOConfig prosecoConfig;
-	private final PrototypeConfig prototypeConfig;
-	private final String processId;
-	private final String prototypeName;
 	private final File prototypeDirectory;
 	private final File executionDirectory;
-	private final File processDirectory;
+	
+	/* prototype-specific */
+	private final PrototypeConfig prototypeConfig;
+	private final String prototypeName;
 	private final File benchmarksDirectory;
 	private final File groundingDirectory;
 	private final File strategyDirectory;
+	
+	/* configuration-process-specific */
+	private final String processId;
+	private final File processDirectory;
+	private final File searchDirectory;
 //	private final File configDirectory;
 	private final File paramsDirectory;
 	private final File sourceDirectory;
@@ -45,15 +52,16 @@ public class PROSECOProcessEnvironment {
 		prototypeDirectory = new File(pConfig.getPathToPrototypes() + File.separator + prototypeName);
 		prototypeConfig = PrototypeConfig.get(prototypeDirectory + File.separator + "prototype.conf");
 		interviewDirectory = new File(prototypeDirectory + File.separator + prototypeConfig.getNameOfInterviewFolder());
+		benchmarksDirectory = new File(prototypeDirectory + File.separator + prototypeConfig.getBenchmarkPath());
+		groundingDirectory = new File(prototypeDirectory + File.separator + prototypeConfig.getNameOfGroundingFolder());
+		groundingRoutine = new File(prototypeDirectory + File.separator + prototypeConfig.getNameOfGroundingRoutine());
+		strategyDirectory = new File(prototypeDirectory + File.separator + prototypeConfig.getNameOfStrategyFolder());
 		
 		/* process specific folders */
 		executionDirectory = pConfig.getExecutionFolder();
 		processDirectory = new File(executionDirectory + File.separator + processId);
-		benchmarksDirectory = new File(processDirectory + File.separator + prototypeConfig.getBenchmarkPath());
-		groundingDirectory = new File(processDirectory + File.separator + prototypeConfig.getNameOfGroundingFolder());
-		groundingRoutine = new File(groundingDirectory + File.separator + prototypeConfig.getNameOfGroundingRoutine());
-		strategyDirectory = new File(processDirectory + File.separator + prototypeConfig.getNameOfStrategyFolder());
 //		configDirectory = new File(processDirectory + File.separator + prototype());;
+		searchDirectory = new File(processDirectory + File.separator + "search");
 		paramsDirectory = new File(processDirectory + File.separator + prototypeConfig.getPathToParams());
 		sourceDirectory = new File(processDirectory + File.separator + prototypeConfig.getPathToSource());
 		libsDirectory = new File(processDirectory + File.separator + prototypeConfig.getPathToLibs());
@@ -131,5 +139,21 @@ public class PROSECOProcessEnvironment {
 
 	public String getPrototypeName() {
 		return prototypeName;
+	}
+
+	public File getSearchDirectory() {
+		return searchDirectory;
+	}
+	
+	public File getSearchInputDirectory() {
+		return new File(searchDirectory + File.separator + "inputs");
+	}
+	
+	public File getSearchOutputDirectory() {
+		return new File(searchDirectory + File.separator + "outputs");
+	}
+	
+	public File getSearchStrategyOutputDirectory(String strategy) {
+		return new File(getSearchOutputDirectory() + File.separator + strategy);
 	}
 }

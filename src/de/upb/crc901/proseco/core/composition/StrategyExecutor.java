@@ -7,19 +7,19 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.lang.ProcessBuilder.Redirect;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import org.apache.commons.io.FileUtils;
+
 import de.upb.crc901.proseco.core.PROSECOConfig;
 import de.upb.crc901.proseco.core.PrototypeConfig;
 
 /**
- * ExecuteStrategiesCommand, searches for strategy subfolders and forking a new
- * process for each strategy. Output and Error streams of these processes are
- * directed to <code>systemlog/systemOut.log</code> and
+ * ExecuteStrategiesCommand, searches for strategy subfolders and forking a new process for each strategy. Output and Error streams of these processes are directed to <code>systemlog/systemOut.log</code> and
  * <code>systemlog/systemErr.log</code> files respectively.
  * 
  * @author kadirayk, fmohr
@@ -39,25 +39,30 @@ public class StrategyExecutor {
 	}
 
 	public void execute() throws Exception {
+		System.out.println("Executing strategies in " + executionEnvironment.getStrategyDirectory());
 		final File[] strategySubFolders = executionEnvironment.getStrategyDirectory().listFiles(new FileFilter() {
 			@Override
 			public boolean accept(final File file) {
 				return file.isDirectory();
 			}
 		});
-
-		List<String> interviewResources = getInterviewResourcesForStrategy();
+		System.out.println(" go ...");
 
 		for (final File strategyFolder : strategySubFolders) {
-			System.out.print("Starting process for strategy " + strategyFolder + "...");
-			interviewResources.add(0, strategyFolder.getAbsolutePath() + File.separator + prototypeConfig.getSearchRunnable());
-			File systemOut = new File(strategyFolder.getAbsolutePath() + File.separator + prosecoConfig.getSystemOutFileName());
-			File systemErr = new File(strategyFolder.getAbsolutePath() + File.separator + prosecoConfig.getSystemErrFileName());
-			File systemAll = new File(strategyFolder.getAbsolutePath() + File.separator + prosecoConfig.getSystemMergedOutputFileName());
 
-			String[] commandArguments = interviewResources.stream().toArray(String[]::new);
-			final ProcessBuilder pb = new ProcessBuilder(commandArguments).directory(executionEnvironment.getProcessDirectory()).redirectOutput(Redirect.PIPE)
-					.redirectError(Redirect.PIPE);
+			String[] commandArguments = new String[4];
+			commandArguments[0] = strategyFolder.getAbsolutePath() + File.separator + prototypeConfig.getSearchRunnable();
+			commandArguments[1] = executionEnvironment.getProcessDirectory().getAbsolutePath();
+			commandArguments[2] = executionEnvironment.getSearchInputDirectory().getAbsolutePath();
+			String outputPath = executionEnvironment.getSearchOutputDirectory().getAbsolutePath() + File.separator + strategyFolder.getName();
+			commandArguments[3] = outputPath;
+			final ProcessBuilder pb = new ProcessBuilder(commandArguments).redirectOutput(Redirect.PIPE).redirectError(Redirect.PIPE);
+			System.out.print("Starting process for strategy " + strategyFolder + ": " + Arrays.toString(commandArguments));
+			
+			FileUtils.forceMkdir(new File(outputPath));
+			File systemOut = new File(outputPath + File.separator + prosecoConfig.getSystemOutFileName());
+			File systemErr = new File(outputPath + File.separator + prosecoConfig.getSystemErrFileName());
+			File systemAll = new File(outputPath + File.separator + prosecoConfig.getSystemMergedOutputFileName());
 
 			try {
 				final Process p = pb.start();
@@ -74,8 +79,7 @@ public class StrategyExecutor {
 		}
 	}
 
-	private void streamToFile(InputStream inputStream, InputStream errorStream, File outFile, File errFile,
-			File allFile) {
+	private void streamToFile(InputStream inputStream, InputStream errorStream, File outFile, File errFile, File allFile) {
 
 		ExecutorService executor = Executors.newFixedThreadPool(2);
 
@@ -155,10 +159,7 @@ public class StrategyExecutor {
 		}
 
 		/**
-		 * Marks beginning and end of error stream lines with <b> $_( </b> and
-		 * <b> )_$ </b>. To mark with these characters byte values of these
-		 * characters are appended to beginning and end of the read bytes from
-		 * the stream <br>
+		 * Marks beginning and end of error stream lines with <b> $_( </b> and <b> )_$ </b>. To mark with these characters byte values of these characters are appended to beginning and end of the read bytes from the stream <br>
 		 * $ : 36 <br>
 		 * _ : 95 <br>
 		 * ( : 40 <br>
@@ -170,8 +171,7 @@ public class StrategyExecutor {
 		 * @param outBytes
 		 * @throws IOException
 		 */
-		private void writeErrorStream(OutputStream outputStream, OutputStream allOutStream, int outRead,
-				byte[] outBytes) throws IOException {
+		private void writeErrorStream(OutputStream outputStream, OutputStream allOutStream, int outRead, byte[] outBytes) throws IOException {
 			byte[] markedBytes = new byte[1024];
 			markedBytes[0] = 36; // $
 			markedBytes[1] = 95; // _
@@ -195,21 +195,20 @@ public class StrategyExecutor {
 		return strategyProcessList;
 	}
 
-	private List<String> getInterviewResourcesForStrategy() {
-		List<String> commandArgumentList = new ArrayList<>();
-
-		final File[] interviewResources = executionEnvironment.getInterviewResourcesDirectory()
-				.listFiles(new FileFilter() {
-					@Override
-					public boolean accept(final File file) {
-						return file.isFile();
-					}
-				});
-
-		for (File resource : interviewResources) {
-			commandArgumentList.add(resource.getAbsolutePath());
-		}
-		return commandArgumentList;
-	}
+//	private List<String> getInterviewResourcesForStrategy() {
+//		List<String> commandArgumentList = new ArrayList<>();
+//
+//		final File[] interviewResources = executionEnvironment.getInterviewResourcesDirectory().listFiles(new FileFilter() {
+//			@Override
+//			public boolean accept(final File file) {
+//				return file.isFile();
+//			}
+//		});
+//
+//		for (File resource : interviewResources) {
+//			commandArgumentList.add(resource.getAbsolutePath());
+//		}
+//		return commandArgumentList;
+//	}
 
 }
