@@ -29,6 +29,8 @@ public class InterviewDTO {
 
 	private boolean showSubmit;
 
+	private boolean showConfigurationPane;
+	
 	private boolean showConsole;
 
 	private boolean upload;
@@ -144,6 +146,14 @@ public class InterviewDTO {
 			}
 			htmlElement.append("</table>").append("</div>");
 			this.debugHTML = htmlElement.toString();
+	}
+
+	public boolean isShowConfigurationPane() {
+		return showConfigurationPane;
+	}
+
+	public void setShowConfigurationPane(boolean showConfigurationPane) {
+		this.showConfigurationPane = showConfigurationPane;
 	}
 
 	public String getInterviewHTML() {

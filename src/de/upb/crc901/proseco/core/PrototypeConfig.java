@@ -17,26 +17,33 @@ import org.aeonbits.owner.Mutable;
  */
 public interface PrototypeConfig extends Mutable {
 
-	/* phase 2: conduct interview */
+	/* Interview */
 	public static final String INTERVIEW = "pbc.interview_path";
 	public static final String INTERVIEW_RESOURCES = "pbc.interview_resources_path";
 
-	/* phase 3: PROSECO composition phase */
-
-	/* 3a: execution environment for the selected prototype */
-	public static final String BENCHMARK_PATH = "pbc.benchmarks_path";
+	/* search */
 	public static final String STRATEGIES = "pbc.strategies_path";
-	public static final String SOURCE = "pbc.source_path";
-	public static final String CONFIG = "pbc.config_path";
-	public static final String GROUNDING_FOLDER = "pbc.grounding_path";
-	public static final String PARAMS = "pbc.params_path";
-	public static final String LIBS = "pbc.libs_path";
-	public static final String INTERNAL_BENCHMARK_FOLDER = "benchmarks/";
-
 	public static final String STRATEGY_RUNNABLE = "pbc.strategy.runnable";
-	public static final String GROUNDING_ROUTINE = "groundingroutine.bat";
-	public static final String INIT_CONFIGURATION_EXEC = "initconfiguration.bat";
+	
+	/* pre-grounding filter */
+	public static final String PRE_GROUNDING_HOOK = "pbc.hook.preground";
+	
+	/* grounding */
+	public static final String GROUNDING_FOLDER = "proseco.grounding.folder";
+	public static final String GROUNDING_EXEC = "proseco.grounding.executable";
+	
+	/* deployment */
+	public static final String DEPLOYMENT_EXEC = "proseco.deployment.executable";
+	public static final String DEPLOYMENT_HOST = "proseco.deployment.host";
+	public static final String DEPLOYMENT_PORT_MIN = "proseco.deployment.minport";
+	public static final String DEPLOYMENT_PORT_MAX = "proseco.deployment.maxport";
+	public static final String DEPLOYMENT_ENTRYPOINT = "proseco.deployment.entrypoint";
+	
+	/* benchmarking */
 	public static final String BENCHMARK_SERVICE = "benchmarkService.bat";
+	public static final String BENCHMARK_PATH = "pbc.benchmarks_path";
+	public static final String INTERNAL_BENCHMARK_FOLDER = "benchmarks/";
+	
 	public static final String EXEC_FINAL_TEST = "src/test.bat";
 
 	@Key(BENCHMARK_PATH)
@@ -47,21 +54,33 @@ public interface PrototypeConfig extends Mutable {
 	@DefaultValue("strategies")
 	public String getNameOfStrategyFolder();
 
-	@Key(SOURCE)
-	public File getPathToSource();
-
 	@Key(GROUNDING_FOLDER)
+	@DefaultValue(".")
 	public String getNameOfGroundingFolder();
 
-	@Key(GROUNDING_ROUTINE)
-	public String getNameOfGroundingRoutine();
-
-	@Key(PARAMS)
-	public File getPathToParams();
-
-	@Key(LIBS)
-	@DefaultValue("libs")
-	public File getPathToLibs();
+	@Key(GROUNDING_EXEC)
+	@DefaultValue("grounding.sh")
+	public String getGroundingCommand();
+	
+	@Key(DEPLOYMENT_EXEC)
+	@DefaultValue("deployment.sh")
+	public String getDeploymentCommand();
+	
+	@Key(DEPLOYMENT_HOST)
+	@DefaultValue("localhost")
+	public String getDeploymentHost();
+	
+	@Key(DEPLOYMENT_PORT_MIN)
+	@DefaultValue("8100")
+	public int getDeploymentMinPort();
+	
+	@Key(DEPLOYMENT_PORT_MAX)
+	@DefaultValue("8200")
+	public int getDeploymentMaxPort();
+	
+	@Key(DEPLOYMENT_ENTRYPOINT)
+	@DefaultValue("")
+	public String getDeploymentEntryPoint();
 
 	@Key(INTERVIEW)
 	@DefaultValue("interview")
@@ -95,4 +114,8 @@ public interface PrototypeConfig extends Mutable {
 
 		return ConfigFactory.create(PrototypeConfig.class, props);
 	}
+	
+	@Key(PRE_GROUNDING_HOOK)
+	@DefaultValue("analysis.sh")
+	public File getHookForPreGrounding();
 }

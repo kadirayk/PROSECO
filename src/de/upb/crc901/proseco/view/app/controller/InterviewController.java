@@ -164,6 +164,7 @@ public class InterviewController {
 				}
 			};
 			new Thread(task).start();
+			interviewDTO.setShowConfigurationPane(true);
 			interviewDTO.setShowConsole(true);
 			return RESULT_TEMPLATE;
 		}
@@ -232,7 +233,7 @@ public class InterviewController {
 	 * @throws IOException
 	 */
 	private String createConstructionProcess(String prototypeName) throws IOException {
-		String id = UUID.randomUUID().toString().replace("-", "").substring(0, 10).toUpperCase();
+		String id = UUID.randomUUID().toString().replace("-", "").substring(0, 10).toLowerCase();
 		PROSECOProcessEnvironment env = getEnvironment(prototypeName + "-" + id);
 		FileUtils.forceMkdir(env.getInterviewStateDirectory());
 //		FileUtils.copyDirectory(env.getPrototypeDirectory(), env.getProcessDirectory());

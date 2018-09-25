@@ -7,6 +7,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.nio.charset.Charset;
+import java.util.Arrays;
 
 import org.apache.commons.io.FileUtils;
 
@@ -20,10 +21,11 @@ public abstract class SearchStrategy implements Runnable {
 	private final File dirOfInputs;
 	private final File dirOfOutputs;
 	private final PROSECOProcessEnvironment environment;
+	private final long deadline;
 
 	public SearchStrategy(String[] args) throws FileNotFoundException, IOException {
-		if (args.length != 3) {
-			throw new IllegalArgumentException("A search strategy must be invoked with an array of exactly three arguments (folder with PROSECO conf and process id, input and output folder)");
+		if (args.length != 4) {
+			throw new IllegalArgumentException("A search strategy must be invoked with an array of exactly four arguments (folder with PROSECO conf and process id, input folder, output folder, and timeout in seconds).\nThe following arguments were given: " + Arrays.toString(args));
 		}
 		File environmentDir = new File(args[0]);
 		this.environment = new PROSECOProcessEnvironment(PROSECOConfig.get(new File(environmentDir + File.separator + "proseco.conf")),
@@ -31,6 +33,7 @@ public abstract class SearchStrategy implements Runnable {
 		this.dirOfInputs = new File(args[1]);
 		this.dirOfOutputs = new File(args[2]);
 		this.strategyName = this.dirOfOutputs.getName();
+		this.deadline= System.currentTimeMillis() + Integer.valueOf(args[3]) * 1000;
 		System.out.println("Retrieving interview data from " + this.environment.getInterviewStateDirectory());
 	}
 
@@ -49,6 +52,16 @@ public abstract class SearchStrategy implements Runnable {
 	public String getStrategyName() {
 		return strategyName;
 	}
+	
+	protected boolean checkCandidate(File candidateOutputFolder) throws InterruptedException, IOException {
+		File analysisProcessFile = environment.getAnalysisRoutine();
+		System.out.println("Running analysis " + analysisProcessFile.getAbsolutePath() + " on " + candidateOutputFolder.getAbsolutePath());
+		ProcessBuilder sb = new ProcessBuilder(analysisProcessFile.getAbsolutePath(), candidateOutputFolder.getAbsolutePath());
+		Process p = sb.start();
+		int exitCode = p.waitFor();
+		System.out.println("Result code is " + exitCode);
+		return exitCode == 0;
+	}
 
 	protected void writeOutputObject(String filename, Object o) throws IOException {
 		BufferedOutputStream fw = new BufferedOutputStream(new FileOutputStream(new File(dirOfOutputs + File.separator + filename)));
@@ -60,5 +73,9 @@ public abstract class SearchStrategy implements Runnable {
 
 	protected void writeScore(double score) throws IOException {
 		FileUtils.writeStringToFile(new File(dirOfOutputs + File.separator + "score"), "" + score, Charset.defaultCharset());
+	}
+	
+	protected int getRemainingSeconds() {
+		return (int)((deadline - System.currentTimeMillis()) / 1000);
 	}
 }

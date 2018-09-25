@@ -24,22 +24,21 @@ public class PROSECOProcessEnvironment {
 	/* prototype-specific */
 	private final PrototypeConfig prototypeConfig;
 	private final String prototypeName;
+	private final File strategyDirectory;
 	private final File benchmarksDirectory;
 	private final File groundingDirectory;
-	private final File strategyDirectory;
+	private final File groundingFile;
+	private final File deploymentFile;
 	
 	/* configuration-process-specific */
 	private final String processId;
 	private final File processDirectory;
 	private final File searchDirectory;
 //	private final File configDirectory;
-	private final File paramsDirectory;
-	private final File sourceDirectory;
-	private final File libsDirectory;
 	private final File interviewDirectory; // original interview files
 	private final File interviewStateDirectory;
 	private final File interviewResourcesDirectory;
-	private final File groundingRoutine;
+	private final File analysisRoutine;
 
 	public PROSECOProcessEnvironment(final PROSECOConfig pConfig, final String pProcessId) throws FileNotFoundException, IOException {
 		prosecoConfig = pConfig;
@@ -54,17 +53,16 @@ public class PROSECOProcessEnvironment {
 		interviewDirectory = new File(prototypeDirectory + File.separator + prototypeConfig.getNameOfInterviewFolder());
 		benchmarksDirectory = new File(prototypeDirectory + File.separator + prototypeConfig.getBenchmarkPath());
 		groundingDirectory = new File(prototypeDirectory + File.separator + prototypeConfig.getNameOfGroundingFolder());
-		groundingRoutine = new File(prototypeDirectory + File.separator + prototypeConfig.getNameOfGroundingRoutine());
+		groundingFile = new File(groundingDirectory + File.separator + prototypeConfig.getGroundingCommand());
 		strategyDirectory = new File(prototypeDirectory + File.separator + prototypeConfig.getNameOfStrategyFolder());
+		analysisRoutine = new File(prototypeDirectory + File.separator + prototypeConfig.getHookForPreGrounding());
+		deploymentFile = new File(prototypeDirectory + File.separator + prototypeConfig.getDeploymentCommand());
 		
 		/* process specific folders */
 		executionDirectory = pConfig.getExecutionFolder();
 		processDirectory = new File(executionDirectory + File.separator + processId);
 //		configDirectory = new File(processDirectory + File.separator + prototype());;
 		searchDirectory = new File(processDirectory + File.separator + "search");
-		paramsDirectory = new File(processDirectory + File.separator + prototypeConfig.getPathToParams());
-		sourceDirectory = new File(processDirectory + File.separator + prototypeConfig.getPathToSource());
-		libsDirectory = new File(processDirectory + File.separator + prototypeConfig.getPathToLibs());
 		interviewStateDirectory = new File(processDirectory + File.separator + prototypeConfig.getNameOfInterviewFolder());
 		interviewResourcesDirectory = new File(interviewStateDirectory + File.separator + prototypeConfig.getNameOfInterviewResourceFolder());
 	}
@@ -97,18 +95,6 @@ public class PROSECOProcessEnvironment {
 //		return configDirectory;
 //	}
 
-	public File getParamsDirectory() {
-		return paramsDirectory;
-	}
-
-	public File getSourceDirectory() {
-		return sourceDirectory;
-	}
-
-	public File getLibsDirectory() {
-		return libsDirectory;
-	}
-
 	public File getInterviewDirectory() {
 		return interviewDirectory;
 	}
@@ -121,8 +107,8 @@ public class PROSECOProcessEnvironment {
 		return interviewResourcesDirectory;
 	}
 
-	public File getGroundingRoutine() {
-		return groundingRoutine;
+	public File getGroundingFile() {
+		return groundingFile;
 	}
 	
 	public File getProcessDirectory() {
@@ -155,5 +141,17 @@ public class PROSECOProcessEnvironment {
 	
 	public File getSearchStrategyOutputDirectory(String strategy) {
 		return new File(getSearchOutputDirectory() + File.separator + strategy);
+	}
+
+	public File getAnalysisRoutine() {
+		return analysisRoutine;
+	}
+
+	public File getDeploymentFile() {
+		return deploymentFile;
+	}
+	
+	public File getServiceHandle() {
+		return new File(getProcessDirectory() + File.separator + "service.handle");
 	}
 }

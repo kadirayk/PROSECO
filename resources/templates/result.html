@@ -2,8 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-<link rel="stylesheet" type="text/css"
-	href="../webjars/bootstrap/3.3.7/css/bootstrap.min.css" />
+<link rel="stylesheet" type="text/css" href="../webjars/bootstrap/3.3.7/css/bootstrap.min.css" />
 </head>
 <body>
 	<nav class="navbar navbar-inverse navbar-static-top">
@@ -18,10 +17,7 @@
 	<div class="container" style="min-height: 500px">
 		<div class="starter-template">
 			<h1 th:text="${interviewDTO.interviewFillout.interview.prototypeName}">title</h1>
-			<form id="form-submit" action="#"
-				th:action="@{/interview/{id}(id=${interviewDTO.processId})}"
-				th:object="${interviewDTO}" method="post"
-				enctype="multipart/form-data">
+			<form id="form-submit" action="#" th:action="@{/interview/{id}(id=${interviewDTO.processId})}" th:object="${interviewDTO}" method="post" enctype="multipart/form-data">
 				<div th:remove="tag" th:utext="${interviewDTO.interviewHTML}"></div>
 
 				<p th:if="${interviewDTO.showSubmit}">
@@ -30,30 +26,36 @@
 			</form>
 		</div>
 
-		<p th:if="${interviewDTO.showConsole}">
-		<div class="container" style="margin-top: 25px;">
-			<input type="button" id="btn-strategy-log-listener"
-				class="btn btn-default" onclick="stopListeningStrategyLogs()"
-				value="Stop Console" /> <span
-				style="margin-left: 10px; font-size: 18px"
-				class="label label-success">Result: <span
-				class="label label-success" id="strategy-result"> </span>
-			</span> <input type="button" id="btn-stop-service" class="btn btn-default"
-				onclick="StopService()" value="Stop Service" />
-			<div id="strategy-logs" class="container"></div>
-		</div>
-		</p>
 
-		<div class="container" th:remove="tag"
-			th:utext="${interviewDTO.debugHTML}"></div>
+		<!-- Control elements for configuration process -->
+		<div th:if="${interviewDTO.showConfigurationPane}">
+			<div style="margin-left: 10px; font-size: 18px; float: left;" class="label label-success">
+				Result: <span class="label label-success" id="strategy-result"> </span>
+			</div>
+			<input type="button" id="btn-stop-service" class="btn btn-default" onclick="StopService()" value="Stop Service" />
+
+			<!-- Console boxes -->
+			<div th:if="${interviewDTO.showConsole}">
+
+				<!-- General process -->
+
+				<!-- Search boxes -->
+				<div class="container" style="margin-top: 25px;">
+					<input type="button" id="btn-strategy-log-listener" class="btn btn-default" onclick="stopListeningStrategyLogs()" value="Stop Console" />
+					<div id="strategy-logs" class="container"></div>
+				</div>
+			</div>
+		</div>
+
+
+		<!-- DEBUG BOX -->
+		<div class="container" th:remove="tag" th:utext="${interviewDTO.debugHTML}"></div>
 
 	</div>
 
 
-	<script type="text/javascript"
-		src="../webjars/jquery/2.2.4/jquery.min.js"></script>
-	<script type="text/javascript"
-		src="../webjars/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+	<script type="text/javascript" src="../webjars/jquery/2.2.4/jquery.min.js"></script>
+	<script type="text/javascript" src="../webjars/bootstrap/3.3.7/js/bootstrap.min.js"></script>
 	<script type="text/javascript" src="../js/main.js"></script>
 
 </body>

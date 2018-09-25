@@ -3,12 +3,14 @@ package de.upb.crc901.proseco.view.app.controller;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.IOException;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import org.aeonbits.owner.ConfigCache;
+import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.MediaType;
@@ -80,6 +82,7 @@ public class APIController {
 	 */
 	@RequestMapping("/api/result/{id}")
 	public ResponseBodyEmitter pushResult(@PathVariable("id") String id) {
+		PROSECOProcessEnvironment env = getEnvironment(Util.getPrototypeNameForProcessId(config, id));
 		final SseEmitter emitter = new SseEmitter(3600000L);
 		if (id.equals("init")) {
 			emitter.complete();
@@ -91,9 +94,8 @@ public class APIController {
 			boolean isComplete = false;
 			int animationDots = 0;
 			int countDown = getTimeoutValue(prototypeAndProcessId);
-			while (!isComplete) {
+			while (!(isComplete = checkStatus(id))) {
 				animationDots = animationDots % 3;
-				isComplete = checkStatus(id);
 				try {
 					if (!isComplete) {
 						if (countDown > 0) {
@@ -118,7 +120,7 @@ public class APIController {
 			}
 			try {
 				if (isComplete) {
-					emitter.send("Ready ... forward to service module", MediaType.TEXT_PLAIN);
+					emitter.send("Ready. You can now <a href=\"" + FileUtils.readFileToString(env.getServiceHandle(), Charset.defaultCharset()) + "\">use your customized service</a>", MediaType.TEXT_PLAIN);
 				}
 			} catch (IOException e) {
 				emitter.completeWithError(e);
@@ -178,9 +180,11 @@ public class APIController {
 	 * @return
 	 */
 	private boolean checkStatus(String id) {
-		for (LogPair log : findLogById(Util.getPrototypeNameForProcessId(config, id))) {
-			if (log.getSystemOutLog().contains("<strategy is ready>")) {
-				return true;
+		PROSECOProcessEnvironment env = getEnvironment(Util.getPrototypeNameForProcessId(config, id));
+		return env.getServiceHandle().exists();
+//		for (LogPair log : findLogById()) {
+//			if (log.getSystemOutLog().contains("<strategy is ready>")) {
+//				return true;
 				// if (log.getPrototypeName().contains("automl")) {
 				// String portNumber = findServicePortNumber(id);
 				// if (portNumber != null) {
@@ -197,9 +201,9 @@ public class APIController {
 				// String clientPath = "/api/download/" + id;
 				// resultMessage = "<a target=\"_blank\" href=\"" + clientPath + "\" download> Download Game Client </a>";
 				// return resultMessage;
-			}
-		}
-		return false;
+//			}
+//		}
+//		return false;
 	}
 
 	/**

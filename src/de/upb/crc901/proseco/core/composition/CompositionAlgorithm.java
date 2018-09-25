@@ -5,16 +5,16 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.lang.ProcessBuilder.Redirect;
+import java.net.Socket;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
+import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
 import org.aeonbits.owner.ConfigFactory;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.FilenameUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,9 +40,10 @@ public class CompositionAlgorithm implements Runnable {
 	/**
 	 * Instantiate a new PrototypeBasedComposer for executing the prototype composition pipeline.
 	 *
-	 * @param processId consists of prototypeName-Id ie. imageClassification-E34A778BF1
-	 * @throws IOException 
-	 * @throws FileNotFoundException 
+	 * @param processId
+	 *            consists of prototypeName-Id ie. imageClassification-E34A778BF1
+	 * @throws IOException
+	 * @throws FileNotFoundException
 	 * @throws Exception
 	 */
 	public CompositionAlgorithm(final PROSECOProcessEnvironment environment, int timeoutInSeconds) {
@@ -52,12 +53,11 @@ public class CompositionAlgorithm implements Runnable {
 
 	@Override
 	public void run() {
-
 		try {
-			
+
 			/* serialize execution environment into the process folder */
 			File file = new File(executionEnvironment.getProcessDirectory() + File.separator + "proseco.conf");
-			Map<String,String> redefinedValues = new HashMap<>();
+			Map<String, String> redefinedValues = new HashMap<>();
 			PROSECOConfig config = executionEnvironment.getProsecoConfig();
 			for (String key : config.propertyNames()) {
 				String val = "";
@@ -77,27 +77,17 @@ public class CompositionAlgorithm implements Runnable {
 			PROSECOConfig rewrittenConfig = ConfigFactory.create(PROSECOConfig.class, redefinedValues);
 			rewrittenConfig.store(new FileOutputStream(file), "copy of original proseco config for this execution");
 			FileUtils.writeStringToFile(new File(executionEnvironment.getProcessDirectory() + File.separator + "process.id"), executionEnvironment.getProcessId(), Charset.defaultCharset());
-			
+
 			/* create search folder and the sub-folder for the inputs, and copy the interview resources here */
 			FileUtils.forceMkdir(executionEnvironment.getSearchDirectory());
 			FileUtils.copyDirectory(executionEnvironment.getInterviewResourcesDirectory(), executionEnvironment.getSearchInputDirectory());
-			
+
 			/* execute hooks that should run prior to configuration */
 
 			/* invoke strategies */
 			StrategyExecutor executeStrategiesCommand = new StrategyExecutor(executionEnvironment);
-			executeStrategiesCommand.execute();
-			List<Process> strategyProcessList = executeStrategiesCommand.getStrategyProcessList();
-			
-			/* sleep for the predefined timeout the strategies have time to come up with a solution. Then kill all the search processes if not already terminated. */
-//			Thread.sleep(timeoutInSeconds * 1000);
-			Thread.sleep(10 * 1000);
-			for (final Process p : strategyProcessList) {
-				if (p.isAlive()) {
-					logger.info("Process {} has not finished within the given timeout; enforcing its termination", p);
-					p.destroyForcibly();
-				}
-			}
+			executeStrategiesCommand.execute(60 * 1000);
+			System.out.println("Execution of strategies finished!");
 
 			/* execute hooks that should run after configuration */
 
@@ -108,7 +98,7 @@ public class CompositionAlgorithm implements Runnable {
 				if (!strategy.isDirectory()) {
 					continue;
 				}
-				final File fValueFile = new File(strategy.getAbsolutePath() + File.separator + executionEnvironment.getProsecoConfig().getNameOfOutputFolder() + File.separator + "score");
+				final File fValueFile = new File(executionEnvironment.getSearchOutputDirectory() + File.separator + strategy.getName() + File.separator + "score");
 				if (!fValueFile.exists()) {
 					logger.info("score file was not found in file {} for strategy {}", fValueFile.getAbsolutePath(), strategy.getName());
 					continue;
@@ -125,23 +115,55 @@ public class CompositionAlgorithm implements Runnable {
 			}
 			logger.info("Identified {} as a winning strategy with score {}", winningStrategy.get(), bestScoreSeen);
 
-			System.exit(0);
-
 			/* move all placeholder files from the selected solution to the grounding folder */
-			for (final File strategyFile : new File(winningStrategy.get() + File.separator + executionEnvironment.getProsecoConfig().getNameOfOutputFolder()).listFiles()) {
-				if (strategyFile.isFile()) {
-					final File groundingFolderFile = new File(executionEnvironment.getGroundingDirectory() + File.separator + strategyFile.getName());
-					FileUtils.copyFile(strategyFile, groundingFolderFile);
-				}
-			}
+			// for (final File strategyFile : winningStrategy.get().listFiles()) {
+			// if (strategyFile.isFile()) {
+			// final File groundingFolderFile = new File(executionEnvironment.getGroundingDirectory() + File.separator + strategyFile.getName());
+			// FileUtils.copyFile(strategyFile, groundingFolderFile);
+			// }
+			// }
 
 			/* execute grounding routine */
-			File groundingLog = new File(executionEnvironment.getGroundingDirectory() + File.separator + executionEnvironment.getProsecoConfig().getNameOfServiceLogFile());
-			final ProcessBuilder pb = new ProcessBuilder(executionEnvironment.getGroundingRoutine().getAbsolutePath()).redirectOutput(Redirect.appendTo(groundingLog))
-					.redirectError(Redirect.appendTo(groundingLog));
-			logger.info("Execute grounding process...");
+			{
+				File groundingLog = new File(executionEnvironment.getGroundingDirectory() + File.separator + executionEnvironment.getProsecoConfig().getNameOfServiceLogFile());
+				String[] groundingCommand = new String[4];
+				groundingCommand[0] = executionEnvironment.getGroundingFile().getAbsolutePath();
+				groundingCommand[1] = executionEnvironment.getProcessId();
+				groundingCommand[2] = executionEnvironment.getSearchOutputDirectory().getAbsolutePath() + File.separator + winningStrategy.get().getName();
+				groundingCommand[3] = executionEnvironment.getSearchOutputDirectory().getAbsolutePath() + File.separator + "final";
+				final ProcessBuilder pb = new ProcessBuilder(groundingCommand).directory(executionEnvironment.getGroundingDirectory());
+				// pb.redirectOutput(Redirect.appendTo(groundingLog)).redirectError(Redirect.appendTo(groundingLog));
+				pb.redirectOutput(Redirect.INHERIT).redirectError(Redirect.INHERIT);
+				logger.info("Execute grounding command {}. Working directory is set to {}", Arrays.toString(groundingCommand), executionEnvironment.getGroundingDirectory());
+				pb.start().waitFor();
+				logger.info("Grounding completed.");
+			}
+
+			/* deploy service. First determine available port. Then execute the deployment. */
+			String host = executionEnvironment.getPrototypeConfig().getDeploymentHost();
+			int port = executionEnvironment.getPrototypeConfig().getDeploymentMinPort();
+			boolean portIsAvailable = true;
+			do {
+				portIsAvailable = true;
+				try (Socket s = new Socket(host, port)) {
+					portIsAvailable = false;
+					port++;
+				} catch (IOException ex) {
+				}
+			} while (!portIsAvailable);
+			String[] deploymentCommand = new String[4];
+			deploymentCommand[0] = executionEnvironment.getDeploymentFile().getAbsolutePath();
+			deploymentCommand[1] = executionEnvironment.getProcessId();
+			deploymentCommand[2] = host;
+			deploymentCommand[3] = "" + port;
+			logger.info("Deploying service {} to {}:{}", deploymentCommand[1], deploymentCommand[2], deploymentCommand[3]);
+			final ProcessBuilder pb = new ProcessBuilder(deploymentCommand);
+			pb.redirectOutput(Redirect.INHERIT).redirectError(Redirect.INHERIT);
 			pb.start().waitFor();
-			logger.info("Grounding completed.");
+			logger.info("Deployment completed.");
+
+			/* create handle file */
+			FileUtils.writeStringToFile(executionEnvironment.getServiceHandle(), "http://" + deploymentCommand[2] + ":" + port + "/" + executionEnvironment.getPrototypeConfig().getDeploymentEntryPoint(), Charset.defaultCharset());
 
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -151,26 +173,9 @@ public class CompositionAlgorithm implements Runnable {
 			if (false && executionEnvironment.getProsecoConfig().isFinalCleanupEnabled()) {
 				logger.info("Clean up execution directory...");
 				try {
-					FileUtils.deleteDirectory(executionEnvironment.getParamsDirectory());
-					FileUtils.deleteDirectory(executionEnvironment.getLibsDirectory());
-					FileUtils.deleteDirectory(executionEnvironment.getInterviewStateDirectory());
-					final String[] filesInMainDir = { "GroundingRoutine.jar", "InitConfiguration.jar", "initconfiguration.bat", "groundingroutine.bat",
-							"src/contTrainingInstances.serialized", "src/testInstances.serialized", "src/compile.bat", "src/train.bat" };
-					for (final String filename : filesInMainDir) {
-						Files.delete(new File(executionEnvironment.getExecutionDirectory() + File.separator + filename).toPath());
-					}
+					FileUtils.deleteDirectory(executionEnvironment.getProcessDirectory());
 				} catch (final IOException e) {
 					e.printStackTrace();
-				}
-				for (final File placeholderFile : executionEnvironment.getSourceDirectory().listFiles()) {
-					if (placeholderFile.isFile() && FilenameUtils.getExtension(placeholderFile.getAbsolutePath()).equals("ph")) {
-						try {
-							Files.delete(placeholderFile.toPath());
-						} catch (final IOException e) {
-							System.out.println("Could not delete placeholder file : " + placeholderFile.getAbsolutePath());
-							e.printStackTrace();
-						}
-					}
 				}
 				logger.info("PROSECO has terminated.");
 			}

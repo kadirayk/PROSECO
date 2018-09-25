@@ -1,7 +1,7 @@
 $(document).ready(function() {
 	checkResult();
 	listenStrategyLogs();
-	SendResolution();
+	/* SendResolution(); */
 });
 
 var strategyLogSource;
@@ -15,19 +15,19 @@ function checkResult() {
 		currentUrl = window.location.href.split("/").pop();
 		resultSource = new EventSource("/api/result/" + currentUrl);
 		resultSource.onmessage = function(event) {
-			if (!timeoutAsked && event.data.includes('.')) {
-				if (!confirm("Time out reached do you want to continue?")) {
-					document.getElementById("strategy-result").innerHTML = "Canceled";
-					StopService();
-					resultSource.close();
-					strategyLogSource.close();
-				} else {
-					timeoutAsked = true;
-					document.getElementById("strategy-result").innerHTML = event.data;
-				}
-			} else {
+//			if (!timeoutAsked && event.data.includes('.')) {
+//				if (!confirm("Time out reached do you want to continue?")) {
+//					document.getElementById("strategy-result").innerHTML = "Canceled";
+//					StopService();
+//					resultSource.close();
+//					strategyLogSource.close();
+//				} else {
+//					timeoutAsked = true;
+//					document.getElementById("strategy-result").innerHTML = event.data;
+//				}
+//			} else {
 				document.getElementById("strategy-result").innerHTML = event.data;
-			}
+//			}
 		};
 	} else {
 		document.getElementById("strategy-result").innerHTML = "Your browser does not support server-sent events.";
