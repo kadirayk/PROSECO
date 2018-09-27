@@ -7,7 +7,6 @@ import java.io.IOException;
 import java.lang.ProcessBuilder.Redirect;
 import java.net.Socket;
 import java.nio.charset.Charset;
-import java.nio.file.Files;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -114,14 +113,6 @@ public class CompositionAlgorithm implements Runnable {
 				return;
 			}
 			logger.info("Identified {} as a winning strategy with score {}", winningStrategy.get(), bestScoreSeen);
-
-			/* move all placeholder files from the selected solution to the grounding folder */
-			// for (final File strategyFile : winningStrategy.get().listFiles()) {
-			// if (strategyFile.isFile()) {
-			// final File groundingFolderFile = new File(executionEnvironment.getGroundingDirectory() + File.separator + strategyFile.getName());
-			// FileUtils.copyFile(strategyFile, groundingFolderFile);
-			// }
-			// }
 
 			/* execute grounding routine */
 			{

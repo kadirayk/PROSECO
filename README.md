@@ -67,3 +67,23 @@ A web server is contained withing PROSECO to provide an interface to the user. A
  * At the end of the interview, best solution will be presented as result
  
 
+
+## Predefined Semantic of Parameters for Runnables ##
+###strategy runnables (run.bat or run.sh in the strategy folders)###
+Takes 4 arguments:
+ #1 PROSECO process id
+ #2 full path of folder with input resources
+ #3 full path of the output folder of the strategy
+ #4 timeout in seconds
+ 
+###grounding executable (grounding.bat or grounding.sh)###
+Takes 3 arguments:
+ #1 PROSECO process id
+ #2 full path of the output folder of the selected strategy
+ #3 full path of the destination folder of the grounding process
+ 
+###deployment executable (deployment.bat or deployment.sh)###
+Takes 3 arguments:
+ #1 PROSECO process id
+ #2 target host url for deployment
+ #3 port to listen on

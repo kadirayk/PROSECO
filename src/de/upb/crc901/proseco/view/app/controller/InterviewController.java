@@ -76,19 +76,19 @@ public class InterviewController {
 	public String initSubmit(@ModelAttribute InterviewDTO interviewDTO) throws NextStateNotFoundException {
 
 		/* determine prototype name */
-		String prototypeName = null;
-		if (StringUtils.containsIgnoreCase(interviewDTO.getContent(), "image classification", Locale.ENGLISH)
-				|| StringUtils.containsIgnoreCase(interviewDTO.getContent(), "ic", Locale.ENGLISH)) {
-			prototypeName = "imageclassification";
-		} else if (StringUtils.containsIgnoreCase(interviewDTO.getContent(), "play a game", Locale.ENGLISH)
-				|| StringUtils.containsIgnoreCase(interviewDTO.getContent(), "game", Locale.ENGLISH)) {
-			prototypeName = "game";
-
-		} else if (StringUtils.containsIgnoreCase(interviewDTO.getContent(), "automl", Locale.ENGLISH)) {
-			prototypeName = "automl";
-		} else {
-			return ERROR_TEMPLATE;
-		}
+		String prototypeName = interviewDTO.getContent();
+//		if (StringUtils.containsIgnoreCase(interviewDTO.getContent(), "image classification", Locale.ENGLISH)
+//				|| StringUtils.containsIgnoreCase(interviewDTO.getContent(), "ic", Locale.ENGLISH)) {
+//			prototypeName = "imageclassification";
+//		} else if (StringUtils.containsIgnoreCase(interviewDTO.getContent(), "play a game", Locale.ENGLISH)
+//				|| StringUtils.containsIgnoreCase(interviewDTO.getContent(), "game", Locale.ENGLISH)) {
+//			prototypeName = "game";
+//
+//		} else if (StringUtils.containsIgnoreCase(interviewDTO.getContent(), "automl", Locale.ENGLISH)) {
+//			prototypeName = "automl";
+//		} else {
+//			return ERROR_TEMPLATE;
+//		}
 
 		/* create a new PROSECO service construction process and retrieve the interview */
 		try {

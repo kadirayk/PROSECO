@@ -64,15 +64,24 @@ public abstract class SearchStrategy implements Runnable {
 	}
 
 	protected void writeOutputObject(String filename, Object o) throws IOException {
-		BufferedOutputStream fw = new BufferedOutputStream(new FileOutputStream(new File(dirOfOutputs + File.separator + filename)));
+		File outFile = new File(dirOfOutputs + File.separator + filename);
+		if (!outFile.getParentFile().exists())
+			FileUtils.forceMkdir(outFile.getParentFile());
+		BufferedOutputStream fw = new BufferedOutputStream(new FileOutputStream(outFile));
 		try (ObjectOutputStream os = new ObjectOutputStream(fw)) {
 			os.writeObject(o);
 		}
-
+	}
+	
+	protected void writeStringOutput(String filename, String output) throws IOException {
+		File outFile = new File(dirOfOutputs + File.separator + filename);
+		if (!outFile.getParentFile().exists())
+			FileUtils.forceMkdir(outFile.getParentFile());
+		FileUtils.writeStringToFile(outFile, output, Charset.defaultCharset());
 	}
 
 	protected void writeScore(double score) throws IOException {
-		FileUtils.writeStringToFile(new File(dirOfOutputs + File.separator + "score"), "" + score, Charset.defaultCharset());
+		writeStringOutput("score", "" + score);
 	}
 	
 	protected int getRemainingSeconds() {
