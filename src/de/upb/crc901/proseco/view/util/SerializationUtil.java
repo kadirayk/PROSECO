@@ -28,11 +28,12 @@ public class SerializationUtil {
 		ObjectMapper mapper = new ObjectMapper();
 		File file = new File(folder + File.separator + "interview_state.json");
 		try {
-			mapper.writeValue(file, interview);
+			System.out.println("Saving interview state " + interview + " to " + file.getAbsoluteFile().getAbsolutePath());
+			mapper.writeValue(file.getAbsoluteFile(), interview);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-
+		System.out.println("File exists: " + file.getAbsoluteFile().exists());
 	}
 
 	public static InterviewFillout readAsJSON(File path) {
@@ -48,6 +49,7 @@ public class SerializationUtil {
 	}
 
 	public static void write(String path, Interview interview) {
+		System.out.println("OKASD");
 		String filePath = path + "interview_state";
 		try (FileOutputStream f = new FileOutputStream(new File(filePath));
 				ObjectOutputStream o = new ObjectOutputStream(f)) {

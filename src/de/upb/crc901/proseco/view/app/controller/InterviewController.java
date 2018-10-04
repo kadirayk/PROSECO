@@ -94,10 +94,11 @@ public class InterviewController {
 		try {
 			String id = createConstructionProcess(prototypeName);
 			PROSECOProcessEnvironment env = getEnvironment(prototypeName + "-" + id);
-			System.out.println(env.getPrototypeConfig());
+			System.out.println("Creating the construction process folder for " + env.getPrototypeConfig());
+			FileUtils.forceMkdir(env.getProcessDirectory());
 			File file = new File(env.getInterviewDirectory().getAbsolutePath() + File.separator + "interview.yaml");
 			Parser parser = new Parser();
-			interviewDTO.setInterviewFillout(new InterviewFillout(parser.initializeInterviewFromConfig(file)));
+			interviewDTO.setInterviewFillout(new InterviewFillout(parser.initializeInterviewFromConfig(file.getAbsoluteFile())));
 			interviewDTO.setProcessId(id);
 		} catch (IOException e) {
 			System.err.println("Error in creating a construction process for prototype " + prototypeName + ". The exception is as follows:");
