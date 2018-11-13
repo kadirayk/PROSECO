@@ -61,11 +61,11 @@ public class CompositionAlgorithm implements Runnable {
 			for (String key : config.propertyNames()) {
 				String val = "";
 				switch (key) {
-				case PROSECOConfig.PROTOTYPES_PATH:
-					val = config.getPathToPrototypes().getAbsolutePath();
+				case PROSECOConfig.DOMAINS_PATH:
+					val = config.getDirectoryForDomains().getAbsolutePath();
 					break;
-				case PROSECOConfig.EXECUTIONS_PATH:
-					val = config.getExecutionFolder().getAbsolutePath();
+				case PROSECOConfig.PROCESS_PATH:
+					val = config.getDirectoryForProcesses().getAbsolutePath();
 					break;
 				default:
 					val = config.getProperty(key);

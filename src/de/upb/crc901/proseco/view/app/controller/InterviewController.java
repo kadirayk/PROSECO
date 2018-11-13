@@ -48,10 +48,10 @@ import de.upb.crc901.proseco.view.util.SerializationUtil;
 public class InterviewController {
 
 	private static final Logger logger = LoggerFactory.getLogger(InterviewController.class);
-	private static final PROSECOConfig config = ConfigCache.getOrCreate(PROSECOConfig.class);
 	private static final String INIT_TEMPLATE = "initiator";
 	private static final String RESULT_TEMPLATE = "result";
 	private static final String ERROR_TEMPLATE = "error";
+	private ProcessController processController = new DefaultProcessController(new File("proseco.conf"));
 
 	/**
 	 * Displays Interview initiator. Interview initiator is the step where the user inputs the required keywords for corresponding prototype to be found.
@@ -73,35 +73,21 @@ public class InterviewController {
 	 * @throws NextStateNotFoundException
 	 */
 	@PostMapping("/init")
-	public String initSubmit(@ModelAttribute InterviewDTO interviewDTO) throws NextStateNotFoundException {
+	public String initSubmit(@ModelAttribute InterviewDTO interviewDTO) throws Exception {
 
-		/* determine prototype name */
-		String prototypeName = interviewDTO.getContent();
-//		if (StringUtils.containsIgnoreCase(interviewDTO.getContent(), "image classification", Locale.ENGLISH)
-//				|| StringUtils.containsIgnoreCase(interviewDTO.getContent(), "ic", Locale.ENGLISH)) {
-//			prototypeName = "imageclassification";
-//		} else if (StringUtils.containsIgnoreCase(interviewDTO.getContent(), "play a game", Locale.ENGLISH)
-//				|| StringUtils.containsIgnoreCase(interviewDTO.getContent(), "game", Locale.ENGLISH)) {
-//			prototypeName = "game";
-//
-//		} else if (StringUtils.containsIgnoreCase(interviewDTO.getContent(), "automl", Locale.ENGLISH)) {
-//			prototypeName = "automl";
-//		} else {
-//			return ERROR_TEMPLATE;
-//		}
-
+		/* determine domain name */
+		String domainName = interviewDTO.getContent();
+		
 		/* create a new PROSECO service construction process and retrieve the interview */
 		try {
-			String id = createConstructionProcess(prototypeName);
-			PROSECOProcessEnvironment env = getEnvironment(prototypeName + "-" + id);
-			System.out.println("Creating the construction process folder for " + env.getPrototypeConfig());
-			FileUtils.forceMkdir(env.getProcessDirectory());
+			PROSECOProcessEnvironment env = processController.createConstructionProcessEnvironment(domainName);
+			System.out.println(env.getPrototypeConfig());
 			File file = new File(env.getInterviewDirectory().getAbsolutePath() + File.separator + "interview.yaml");
 			Parser parser = new Parser();
-			interviewDTO.setInterviewFillout(new InterviewFillout(parser.initializeInterviewFromConfig(file.getAbsoluteFile())));
-			interviewDTO.setProcessId(id);
+			interviewDTO.setInterviewFillout(new InterviewFillout(parser.initializeInterviewFromConfig(file)));
+			interviewDTO.setProcessId(env.getProcessId());
 		} catch (IOException e) {
-			System.err.println("Error in creating a construction process for prototype " + prototypeName + ". The exception is as follows:");
+			System.err.println("Error in creating a construction process for domain " + domainName + ". The exception is as follows:");
 			e.printStackTrace();
 		}
 		saveInterviewState(interviewDTO);
@@ -116,7 +102,7 @@ public class InterviewController {
 	 * @throws NextStateNotFoundException
 	 */
 	@GetMapping("/interview/{id}")
-	public String next(@PathVariable("id") String id, @ModelAttribute InterviewDTO interviewDTO) throws NextStateNotFoundException {
+	public String next(@PathVariable("id") String id, @ModelAttribute InterviewDTO interviewDTO) throws Exception {
 		populateInterviewDTO(interviewDTO, id);
 		return RESULT_TEMPLATE;
 	}
@@ -143,14 +129,14 @@ public class InterviewController {
 	 */
 	@PostMapping("/interview/{id}")
 	public String nextPost(@PathVariable("id") String id, @ModelAttribute InterviewDTO interviewDTO, @RequestParam(required = false, name = "response") String response,
-			@RequestParam(required = false, name = "file") MultipartFile file) throws NextStateNotFoundException {
+			@RequestParam(required = false, name = "file") MultipartFile file) throws Exception {
 		
 		/* retrieve the interview state */
 		logger.info("Receiving response {} and file {} for process id {}. Interview: {}", response, file, id, interviewDTO);
 		populateInterviewDTO(interviewDTO, id);
 		logger.info("Receiving response {} and file {} for process id {}. Interview: {}", response, file, id, interviewDTO);
 		InterviewFillout memorizedInterviewFillout = interviewDTO.getInterviewFillout();
-		PROSECOProcessEnvironment env = getEnvironment(memorizedInterviewFillout.getInterview().getPrototypeName() + "-" + id);
+		PROSECOProcessEnvironment env = processController.getConstructionProcessEnvironment(id);
 		
 		Map<String,String> updatedAnswers = new HashMap<>(memorizedInterviewFillout.getAnswers());
 
@@ -227,29 +213,18 @@ public class InterviewController {
 		return RESULT_TEMPLATE;
 	}
 
-	/**
-	 * Creates a new PROSECO service construction process for a given prototype. The prototype skeleton is copied for the new process.
-	 * 
-	 * @return id The id for the newly created process
-	 * @throws IOException
-	 */
-	private String createConstructionProcess(String prototypeName) throws IOException {
-		String id = UUID.randomUUID().toString().replace("-", "").substring(0, 10).toLowerCase();
-		PROSECOProcessEnvironment env = getEnvironment(prototypeName + "-" + id);
-		FileUtils.forceMkdir(env.getInterviewStateDirectory());
-//		FileUtils.copyDirectory(env.getPrototypeDirectory(), env.getProcessDirectory());
-		return id;
-	}
+
 
 	/**
 	 * Finds interview of the prototype with the given ID
 	 * 
 	 * @param id
 	 * @return
+	 * @throws Exception 
 	 */
-	private void populateInterviewDTO(InterviewDTO interviewDTO, String id) {
-		PROSECOProcessEnvironment env = getEnvironment(Util.getPrototypeNameForProcessId(config, id));
-		InterviewFillout interview = SerializationUtil.readAsJSON(env.getInterviewStateDirectory());
+	private void populateInterviewDTO(InterviewDTO interviewDTO, String id) throws Exception {
+		PROSECOProcessEnvironment env = processController.getConstructionProcessEnvironment(id);
+		InterviewFillout interview = SerializationUtil.readAsJSON(env.getInterviewStateFile());
 		interviewDTO.setInterviewFillout(interview);
 		interviewDTO.setProcessId(id);
 	}
@@ -258,17 +233,10 @@ public class InterviewController {
 	 * saves interview state on current prototype instance's directory
 	 * 
 	 * @param interviewDTO
+	 * @throws Exception 
 	 */
-	private void saveInterviewState(InterviewDTO interviewDTO) {
-		PROSECOProcessEnvironment env = getEnvironment(interviewDTO.getInterviewFillout().getInterview().getPrototypeName() + "-" + interviewDTO.getProcessId());
-		SerializationUtil.writeAsJSON(env.getInterviewStateDirectory(), interviewDTO.getInterviewFillout());
-	}
-
-	private PROSECOProcessEnvironment getEnvironment(String processId) {
-		try {
-			return new PROSECOProcessEnvironment(config, processId);
-		} catch (Exception e) {
-			throw new RuntimeException("Could not create an environment object for process id " + processId, e);
-		}
+	private void saveInterviewState(InterviewDTO interviewDTO) throws Exception {
+		PROSECOProcessEnvironment env = processController.getConstructionProcessEnvironment(interviewDTO.getProcessId());
+		SerializationUtil.writeAsJSON(env.getInterviewStateFile(), interviewDTO.getInterviewFillout());
 	}
 }

@@ -24,9 +24,8 @@ public class SerializationUtil {
 	private SerializationUtil() {
 	}
 
-	public static void writeAsJSON(File folder, InterviewFillout interview) {
+	public static void writeAsJSON(File file, InterviewFillout interview) {
 		ObjectMapper mapper = new ObjectMapper();
-		File file = new File(folder + File.separator + "interview_state.json");
 		try {
 			System.out.println("Saving interview state " + interview + " to " + file.getAbsoluteFile().getAbsolutePath());
 			mapper.writeValue(file.getAbsoluteFile(), interview);
@@ -36,12 +35,11 @@ public class SerializationUtil {
 		System.out.println("File exists: " + file.getAbsoluteFile().exists());
 	}
 
-	public static InterviewFillout readAsJSON(File path) {
-		String filePath = path + File.separator + "interview_state.json";
+	public static InterviewFillout readAsJSON(File file) {
 		InterviewFillout interview = null;
 		ObjectMapper mapper = new ObjectMapper();
 		try {
-			interview = mapper.readValue(new File(filePath), InterviewFillout.class);
+			interview = mapper.readValue(file, InterviewFillout.class);
 		} catch (IOException e) {
 			
 		}

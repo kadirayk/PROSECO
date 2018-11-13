@@ -38,7 +38,7 @@ public abstract class Util {
 //	}
 	
 	public static String getPrototypeNameForProcessId(PROSECOConfig config, String processId)  {
-		File root = config.getExecutionFolder();
+		File root = config.getDirectoryForProcesses();
 		for (File file : root.listFiles()) {
 			if (file.isDirectory()) {
 				if (file.getName().contains("-" + processId)) {

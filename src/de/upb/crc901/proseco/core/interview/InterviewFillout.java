@@ -208,4 +208,6 @@ public class InterviewFillout implements Serializable {
 			throw new IllegalStateException("Cannot set state to NULL!");
 		this.currentState = currentState;
 	}
+	
+	
 }

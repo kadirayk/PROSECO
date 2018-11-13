@@ -21,11 +21,11 @@ public class EnvironmentSerialiazationTester {
 		String id = "test-id";
 		File serializationFolder = new File("tmp");
 		File serializationFile = new File(serializationFolder + File.separator + "env.properties");
-		File processFolder = new File(config.getExecutionFolder() + File.separator + id);
+		File processFolder = new File(config.getDirectoryForProcesses() + File.separator + id);
 		FileUtils.forceMkdir(processFolder);
 		FileUtils.forceMkdir(serializationFolder);
 		
-		PROSECOProcessEnvironment env = new PROSECOProcessEnvironment(config, id);
+		PROSECOProcessEnvironment env = new PROSECOProcessEnvironment(processFolder);
 		ObjectMapper om = new ObjectMapper();
 		om.writeValue(serializationFile, env);
 		PROSECOProcessEnvironment env2 = om.readValue(serializationFile, PROSECOProcessEnvironment.class);

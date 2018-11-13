@@ -43,6 +43,7 @@ public class APIController {
 
 	private static final Logger logger = LoggerFactory.getLogger(APIController.class);
 	private PROSECOConfig config = ConfigCache.getOrCreate(PROSECOConfig.class);
+	private ProcessController processController = new DefaultProcessController(new File("proseco.conf"));
 
 	/**
 	 * Returns SystemOut and SystemError logs of Strategies of prototype with the given ID
@@ -59,11 +60,11 @@ public class APIController {
 		}
 		ExecutorService service = Executors.newSingleThreadExecutor();
 		service.execute(() -> {
-			LogResponseBody result = new LogResponseBody();
-			result.setLogList(findLogById(Util.getPrototypeNameForProcessId(config, id)));
 			try {
+				LogResponseBody result = new LogResponseBody();
+				result.setLogList(findLogById(Util.getPrototypeNameForProcessId(config, id)));
 				emitter.send(result, MediaType.APPLICATION_JSON);
-			} catch (IOException e) {
+			} catch (Exception e) {
 				emitter.completeWithError(e);
 				e.printStackTrace();
 			}
@@ -79,10 +80,11 @@ public class APIController {
 	 * 
 	 * @param id
 	 * @return
+	 * @throws Exception
 	 */
 	@RequestMapping("/api/result/{id}")
-	public ResponseBodyEmitter pushResult(@PathVariable("id") String id) {
-		PROSECOProcessEnvironment env = getEnvironment(Util.getPrototypeNameForProcessId(config, id));
+	public ResponseBodyEmitter pushResult(@PathVariable("id") String id) throws Exception {
+		PROSECOProcessEnvironment env = processController.getConstructionProcessEnvironment(id);
 		final SseEmitter emitter = new SseEmitter(3600000L);
 		if (id.equals("init")) {
 			emitter.complete();
@@ -91,38 +93,38 @@ public class APIController {
 		ExecutorService service = Executors.newSingleThreadExecutor();
 		String prototypeAndProcessId = Util.getPrototypeNameForProcessId(config, id);
 		service.execute(() -> {
-			boolean isComplete = false;
-			int animationDots = 0;
-			int countDown = getTimeoutValue(prototypeAndProcessId);
-			while (!(isComplete = checkStatus(id))) {
-				animationDots = animationDots % 3;
-				try {
-					if (!isComplete) {
-						if (countDown > 0) {
-							emitter.send(countDown + "s", MediaType.TEXT_PLAIN);
-							countDown--;
-						} else {
-							emitter.send(new String(new char[animationDots + 1]).replace("\0", ". "), MediaType.TEXT_PLAIN);
-							animationDots++;
-						}
-					}
-					Thread.sleep(1000);
-				} catch (IOException e) {
-					logger.info("Connection closed by client.");
-					emitter.completeWithError(e);
-					return;
-				}
-				catch (Exception e) {
-					emitter.completeWithError(e);
-					e.printStackTrace();
-					return;
-				}
-			}
 			try {
-				if (isComplete) {
-					emitter.send("Ready. You can now <a href=\"" + FileUtils.readFileToString(env.getServiceHandle(), Charset.defaultCharset()) + "\">use your customized service</a>", MediaType.TEXT_PLAIN);
+				boolean isComplete = false;
+				int animationDots = 0;
+				int countDown = getTimeoutValue(prototypeAndProcessId);
+				while (!(isComplete = checkStatus(id))) {
+					animationDots = animationDots % 3;
+					try {
+						if (!isComplete) {
+							if (countDown > 0) {
+								emitter.send(countDown + "s", MediaType.TEXT_PLAIN);
+								countDown--;
+							} else {
+								emitter.send(new String(new char[animationDots + 1]).replace("\0", ". "), MediaType.TEXT_PLAIN);
+								animationDots++;
+							}
+						}
+						Thread.sleep(1000);
+					} catch (IOException e) {
+						logger.info("Connection closed by client.");
+						emitter.completeWithError(e);
+						return;
+					} catch (Exception e) {
+						emitter.completeWithError(e);
+						e.printStackTrace();
+						return;
+					}
 				}
-			} catch (IOException e) {
+				if (isComplete) {
+					emitter.send("Ready. You can now <a href=\"" + FileUtils.readFileToString(env.getServiceHandle(), Charset.defaultCharset()) + "\">use your customized service</a>",
+							MediaType.TEXT_PLAIN);
+				}
+			} catch (Exception e) {
 				emitter.completeWithError(e);
 				e.printStackTrace();
 			}
@@ -132,8 +134,8 @@ public class APIController {
 		return emitter;
 	}
 
-	private int getTimeoutValue(String id) {
-		PROSECOProcessEnvironment env = getEnvironment(id);
+	private int getTimeoutValue(String id) throws Exception {
+		PROSECOProcessEnvironment env = processController.getConstructionProcessEnvironment(id);
 		InterviewFillout interview = SerializationUtil.readAsJSON(env.getInterviewStateDirectory());
 		Question q = interview.getInterview().getQuestionByPath("timeout.timeout");
 		String timeoutValue = interview.getAnswer(q);
@@ -178,32 +180,33 @@ public class APIController {
 	 *
 	 * @param id
 	 * @return
+	 * @throws Exception
 	 */
-	private boolean checkStatus(String id) {
-		PROSECOProcessEnvironment env = getEnvironment(Util.getPrototypeNameForProcessId(config, id));
+	private boolean checkStatus(String id) throws Exception {
+		PROSECOProcessEnvironment env = processController.getConstructionProcessEnvironment(id);
 		return env.getServiceHandle().exists();
-//		for (LogPair log : findLogById()) {
-//			if (log.getSystemOutLog().contains("<strategy is ready>")) {
-//				return true;
-				// if (log.getPrototypeName().contains("automl")) {
-				// String portNumber = findServicePortNumber(id);
-				// if (portNumber != null) {
-				// resultMessage = "<a target=\"_blank\" href=\"http://localhost:" + portNumber + "\">localhost:" + portNumber + "</a>";
-				// }
-				// } else if (log.getSystemOutLog().contains("game")) {
-				// String clientPath = "/api/download/" + id;
-				// resultMessage = "<a target=\"_blank\" href=\"" + clientPath + "\" download> Download Game Client </a>";
-				// } else {
-				// resultMessage = log.getPrototypeName() + "-" + id + File.separator + Config.GROUNDING;
-				// }
-				// return resultMessage;
-				// } else if (getServiceLog(id) != null && getServiceLog(id).contains("launch success")) {
-				// String clientPath = "/api/download/" + id;
-				// resultMessage = "<a target=\"_blank\" href=\"" + clientPath + "\" download> Download Game Client </a>";
-				// return resultMessage;
-//			}
-//		}
-//		return false;
+		// for (LogPair log : findLogById()) {
+		// if (log.getSystemOutLog().contains("<strategy is ready>")) {
+		// return true;
+		// if (log.getPrototypeName().contains("automl")) {
+		// String portNumber = findServicePortNumber(id);
+		// if (portNumber != null) {
+		// resultMessage = "<a target=\"_blank\" href=\"http://localhost:" + portNumber + "\">localhost:" + portNumber + "</a>";
+		// }
+		// } else if (log.getSystemOutLog().contains("game")) {
+		// String clientPath = "/api/download/" + id;
+		// resultMessage = "<a target=\"_blank\" href=\"" + clientPath + "\" download> Download Game Client </a>";
+		// } else {
+		// resultMessage = log.getPrototypeName() + "-" + id + File.separator + Config.GROUNDING;
+		// }
+		// return resultMessage;
+		// } else if (getServiceLog(id) != null && getServiceLog(id).contains("launch success")) {
+		// String clientPath = "/api/download/" + id;
+		// resultMessage = "<a target=\"_blank\" href=\"" + clientPath + "\" download> Download Game Client </a>";
+		// return resultMessage;
+		// }
+		// }
+		// return false;
 	}
 
 	/**
@@ -211,9 +214,10 @@ public class APIController {
 	 * 
 	 * @param id
 	 * @return
+	 * @throws Exception
 	 */
 	@GetMapping("/api/log/{id}")
-	public ResponseEntity<?> getLog(@PathVariable("id") String id) {
+	public ResponseEntity<?> getLog(@PathVariable("id") String id) throws Exception {
 		LogResponseBody result = new LogResponseBody();
 
 		result.setLogList(findLogById(Util.getPrototypeNameForProcessId(config, id)));
@@ -264,9 +268,10 @@ public class APIController {
 	 * @param id
 	 *            id of the session
 	 * @return success if task is killed, failure if exception occured
+	 * @throws Exception
 	 */
 	@GetMapping("/api/stopService/{id}")
-	public String stopService(@PathVariable("id") String id) {
+	public String stopService(@PathVariable("id") String id) throws Exception {
 		String result = "success";
 		String PID = findServicePID(id);
 		try {
@@ -312,9 +317,10 @@ public class APIController {
 	 * 
 	 * @param id
 	 * @return
+	 * @throws Exception
 	 */
-	private String getServiceLog(String id) {
-		PROSECOProcessEnvironment env = getEnvironment(id);
+	private String getServiceLog(String id) throws Exception {
+		PROSECOProcessEnvironment env = processController.getConstructionProcessEnvironment(id);
 		String serviceLogFile = env.getGroundingDirectory() + File.separator + config.getNameOfServiceLogFile();
 		String serviceLog = FileUtil.readFile(serviceLogFile);
 		return serviceLog;
@@ -325,8 +331,9 @@ public class APIController {
 	 * 
 	 * @param id
 	 * @return
+	 * @throws Exception
 	 */
-	private String findServicePID(String id) {
+	private String findServicePID(String id) throws Exception {
 		String PID = null;
 		String serviceLog = getServiceLog(id);
 
@@ -356,8 +363,9 @@ public class APIController {
 	 * 
 	 * @param id
 	 * @return port number
+	 * @throws Exception
 	 */
-	private String findServicePortNumber(String id) {
+	private String findServicePortNumber(String id) throws Exception {
 		String port = null;
 		String serviceLog = getServiceLog(id);
 		if (serviceLog == null) {
@@ -389,11 +397,12 @@ public class APIController {
 	 * 
 	 * @param id
 	 * @return
+	 * @throws Exception
 	 */
-	private List<LogPair> findLogById(String id) {
+	private List<LogPair> findLogById(String id) throws Exception {
 		List<LogPair> logList = new ArrayList<>();
 		String protoypeName = id.substring(0, id.lastIndexOf("-"));
-		PROSECOProcessEnvironment env = getEnvironment(id);
+		PROSECOProcessEnvironment env = processController.getConstructionProcessEnvironment(id);
 
 		File prototypeFolderWithID = env.getProcessDirectory();
 		if (prototypeFolderWithID == null) {
@@ -425,13 +434,5 @@ public class APIController {
 		}
 
 		return logList;
-	}
-
-	private PROSECOProcessEnvironment getEnvironment(String processId) {
-		try {
-			return new PROSECOProcessEnvironment(config, processId);
-		} catch (Exception e) {
-			throw new RuntimeException("Could not create an environment object for process id " + processId, e);
-		}
 	}
 }

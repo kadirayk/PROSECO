@@ -17,10 +17,6 @@ import org.aeonbits.owner.Mutable;
  */
 public interface PrototypeConfig extends Mutable {
 
-	/* Interview */
-	public static final String INTERVIEW = "pbc.interview_path";
-	public static final String INTERVIEW_RESOURCES = "pbc.interview_resources_path";
-
 	/* search */
 	public static final String STRATEGIES = "pbc.strategies_path";
 	public static final String STRATEGY_RUNNABLE = "pbc.strategy.runnable";
@@ -81,21 +77,13 @@ public interface PrototypeConfig extends Mutable {
 	@Key(DEPLOYMENT_ENTRYPOINT)
 	@DefaultValue("")
 	public String getDeploymentEntryPoint();
-
-	@Key(INTERVIEW)
-	@DefaultValue("interview")
-	public String getNameOfInterviewFolder();
-
-	@Key(INTERVIEW_RESOURCES)
-	@DefaultValue("res")
-	public String getNameOfInterviewResourceFolder();
-
+	
 	@Key(STRATEGY_RUNNABLE)
 	@DefaultValue("run.sh")
 	public String getSearchRunnable();
 
 	public static PrototypeConfig get(PROSECOConfig prosecoConfig, String prototypeName) {
-		return get(new File(prosecoConfig.getPathToPrototypes() + File.separator + prototypeName + File.separator + "prototype.conf"));
+		return get(new File(prosecoConfig.getDirectoryForDomains() + File.separator + prototypeName + File.separator + "prototype.conf"));
 	}
 	
 	public static PrototypeConfig get(String file) {

@@ -11,9 +11,7 @@ import java.util.Arrays;
 
 import org.apache.commons.io.FileUtils;
 
-import de.upb.crc901.proseco.core.PROSECOConfig;
 import de.upb.crc901.proseco.core.composition.PROSECOProcessEnvironment;
-import de.upb.crc901.proseco.view.util.FileUtil;
 
 public abstract class SearchStrategy implements Runnable {
 
@@ -27,9 +25,8 @@ public abstract class SearchStrategy implements Runnable {
 		if (args.length != 4) {
 			throw new IllegalArgumentException("A search strategy must be invoked with an array of exactly four arguments (folder with PROSECO conf and process id, input folder, output folder, and timeout in seconds).\nThe following arguments were given: " + Arrays.toString(args));
 		}
-		File environmentDir = new File(args[0]);
-		this.environment = new PROSECOProcessEnvironment(PROSECOConfig.get(new File(environmentDir + File.separator + "proseco.conf")),
-				FileUtil.readFile(environmentDir + File.separator + "process.id"));
+		File environmentDir = new File(args[0]); // the process folder
+		this.environment = new PROSECOProcessEnvironment(environmentDir);
 		this.dirOfInputs = new File(args[1]);
 		this.dirOfOutputs = new File(args[2]);
 		this.strategyName = this.dirOfOutputs.getName();

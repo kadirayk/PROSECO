@@ -13,8 +13,8 @@ import org.aeonbits.owner.Mutable;
 public interface PROSECOConfig extends Mutable, Accessible {
 	
 	/* phase 1: identify prototype */
-	public static final String PROTOTYPES_PATH = "proseco.prototypes_path";
-	public static final String EXECUTIONS_PATH = "proseco.executions_path";
+	public static final String DOMAINS_PATH = "proseco.domains";
+	public static final String PROCESS_PATH = "proseco.processes";
 	
 	/* behavior where to put outputs */
 	public static final String OUTPUT_DIR = "proseco.output_directory";
@@ -29,13 +29,13 @@ public interface PROSECOConfig extends Mutable, Accessible {
 	public static final String FINAL_CLEAN_UP = "proseco.final_clean_up";
 	
 	
-	@Key(PROTOTYPES_PATH)
+	@Key(DOMAINS_PATH)
 	@DefaultValue("prototypes")
-	public File getPathToPrototypes();
+	public File getDirectoryForDomains();
 	
-	@Key(EXECUTIONS_PATH)
-	@DefaultValue("execution")
-	public File getExecutionFolder();
+	@Key(PROCESS_PATH)
+	@DefaultValue("processes")
+	public File getDirectoryForProcesses();
 	
 	@Key(FINAL_CLEAN_UP)
 	@DefaultValue("true")
@@ -61,13 +61,19 @@ public interface PROSECOConfig extends Mutable, Accessible {
 	@DefaultValue("console.all")
 	public String getSystemMergedOutputFileName();
 	
-	public static PROSECOConfig get(String file) throws FileNotFoundException, IOException {
+	public static PROSECOConfig get(String file) {
 		return get(new File(file));
 	}
 	
-	public static PROSECOConfig get(File file) throws FileNotFoundException, IOException {
+	public static PROSECOConfig get(File file) {
 		Properties props = new Properties();
-		props.load(new FileInputStream(file));
+		try {
+			props.load(new FileInputStream(file));
+		} catch (FileNotFoundException e) {
+			System.err.println("Could not find config file " + file + ". Assuming default configuration");
+		} catch (IOException e) {
+			System.err.println("Encountered problem with config file " + file + ". Assuming default configuration. Problem:" + e.getMessage());
+		}
 		return ConfigFactory.create(PROSECOConfig.class, props);
 	}
 }
