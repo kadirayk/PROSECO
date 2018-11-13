@@ -93,4 +93,8 @@ public class State implements Serializable {
 		return true;
 	}
 
+	@Override
+	public String toString() {
+		return "State [name=" + name + ", transition=" + transition + ", questions=" + questions + "]";
+	}
 }

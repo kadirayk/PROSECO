@@ -8,6 +8,8 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
+import org.apache.commons.io.FileUtils;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import de.upb.crc901.proseco.core.interview.Interview;
@@ -28,6 +30,9 @@ public class SerializationUtil {
 		ObjectMapper mapper = new ObjectMapper();
 		try {
 			System.out.println("Saving interview state " + interview + " to " + file.getAbsoluteFile().getAbsolutePath());
+			if (!file.getParentFile().exists()) {
+				FileUtils.forceMkdir(file.getParentFile());
+			}
 			mapper.writeValue(file.getAbsoluteFile(), interview);
 		} catch (IOException e) {
 			e.printStackTrace();

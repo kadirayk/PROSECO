@@ -30,7 +30,7 @@ public interface PROSECOConfig extends Mutable, Accessible {
 	
 	
 	@Key(DOMAINS_PATH)
-	@DefaultValue("prototypes")
+	@DefaultValue("domains")
 	public File getDirectoryForDomains();
 	
 	@Key(PROCESS_PATH)

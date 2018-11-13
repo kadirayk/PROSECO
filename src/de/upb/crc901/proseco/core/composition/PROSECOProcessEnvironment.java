@@ -66,12 +66,16 @@ public class PROSECOProcessEnvironment {
 			throw new FileNotFoundException("Cannot create a PROSECOProcess environment for a folder without process.json");
 		}
 		ProcessConfig processConfig = new ObjectMapper().readValue(processConfigFile, ProcessConfig.class);
+		if (processConfig.getProcessId() == null)
+			throw new IllegalArgumentException("The process.json MUST define a process id");
+		if (processConfig.getDomain() == null)
+			throw new IllegalArgumentException("The process.json MUST define a domain");
 		
 		/* read PROSECO configuration and configure process */
 		prosecoConfig = PROSECOConfig.get(processConfig.getProsecoConfigFile());
 		processId = processConfig.getProcessId();
 		processDirectory = new File(prosecoConfig.getDirectoryForProcesses() + File.separator + processId);
-		domainDirectory = prosecoConfig.getDirectoryForDomains();
+		domainDirectory = new File(prosecoConfig.getDirectoryForDomains() + File.separator + processConfig.getDomain());
 		domainConfig = DomainConfig.get(domainDirectory + File.separator + processConfig.getDomain() + File.separator + "domain.conf");
 
 		/* domain specific folders */
@@ -84,9 +88,9 @@ public class PROSECOProcessEnvironment {
 		interviewFillout = interviewStateFile.exists() ? SerializationUtil.readAsJSON(interviewStateFile) : null;
 
 		/* prototype specific folders if prototype has been set in the interview */
-		if (interviewStateFile != null && interviewFillout.getAnswer("prototype") != null) {
+		if (interviewFillout != null && interviewFillout.getAnswer("prototype") != null) {
 			prototypeName = interviewFillout.getAnswer("prototype");
-			prototypeDirectory = new File(domainConfig.getPrototypeFolder() + File.separator + prototypeName);
+			prototypeDirectory = new File(domainDirectory + File.separator + domainConfig.getPrototypeFolder() + File.separator + prototypeName);
 			prototypeConfig = PrototypeConfig.get(prototypeDirectory + File.separator + "prototype.conf");
 			benchmarksDirectory = new File(prototypeDirectory + File.separator + prototypeConfig.getBenchmarkPath());
 			groundingDirectory = new File(prototypeDirectory + File.separator + prototypeConfig.getNameOfGroundingFolder());

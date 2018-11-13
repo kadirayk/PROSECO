@@ -20,7 +20,6 @@ public class Interview implements Serializable {
 	 */
 	private static final long serialVersionUID = -9198421035407778684L;
 
-	private String prototypeName;
 	private String questionRepo;
 	private List<State> states;
 	private Map<String, State> stateMap;
@@ -42,14 +41,6 @@ public class Interview implements Serializable {
 
 		return q;
 
-	}
-
-	public String getPrototypeName() {
-		return prototypeName;
-	}
-
-	public void setPrototypeName(String prototypeName) {
-		this.prototypeName = prototypeName;
 	}
 
 	public String getQuestionRepo() {

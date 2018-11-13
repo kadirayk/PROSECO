@@ -80,14 +80,15 @@ public class InterviewController {
 		
 		/* create a new PROSECO service construction process and retrieve the interview */
 		try {
+			logger.info("Initializing new process folder for domain {}.", domainName);
 			PROSECOProcessEnvironment env = processController.createConstructionProcessEnvironment(domainName);
-			System.out.println(env.getPrototypeConfig());
-			File file = new File(env.getInterviewDirectory().getAbsolutePath() + File.separator + "interview.yaml");
+			File interviewFile = new File(env.getInterviewDirectory().getAbsolutePath() + File.separator + "interview.yaml");
+			logger.info("Reading interview file {}", interviewFile);
 			Parser parser = new Parser();
-			interviewDTO.setInterviewFillout(new InterviewFillout(parser.initializeInterviewFromConfig(file)));
+			interviewDTO.setInterviewFillout(new InterviewFillout(parser.initializeInterviewFromConfig(interviewFile)));
 			interviewDTO.setProcessId(env.getProcessId());
-		} catch (IOException e) {
-			System.err.println("Error in creating a construction process for domain " + domainName + ". The exception is as follows:");
+		} catch (Exception e) {
+			logger.error("Error in creating a construction process for domain " + domainName + ". The exception is as follows:");
 			e.printStackTrace();
 		}
 		saveInterviewState(interviewDTO);
@@ -186,16 +187,18 @@ public class InterviewController {
 				int i = 0;
 				for (Question q : questions) {
 					String answerToThisQuestion = answers.get(i);
-					if (!StringUtils.isEmpty(answerToThisQuestion)) {
-						logger.warn("Question \"{}\"has already been answered.", q);
-						continue;
-					}
+					logger.info("Processing answer {} to question {}", answerToThisQuestion, q);
+//					if (!StringUtils.isEmpty(answerToThisQuestion)) {
+//						logger.warn("Question \"{}\"has already been answered.", q);
+//						continue;
+//					}
 					if ("file".equals(q.getUiElement().getAttributes().get("type"))) {
 						logger.warn("Cannot process file fields in standard process");
 						continue;
 					}
 					if (i < answers.size()) {
 						updatedAnswers.put(q.getId(), answerToThisQuestion);
+						logger.info("Updating answer of question {} to: {}", q.getId(), answerToThisQuestion);
 						i++;
 					}
 				}
@@ -210,6 +213,7 @@ public class InterviewController {
 //				.map(q -> "\n\t" + q.getContent() + "(" + q + "): " + q.getAnswer()).collect(Collectors.joining()));
 //		interviewDTO.getInterviewFillout().getStates().forEach(
 //				s -> logger.info("Saving interview state {} with questions:{}", s, s.getQuestions().stream().map(q -> "\n\t" + q.getContent() + "(" + q + "): " + q.getAnswer()).collect(Collectors.joining())));
+		logger.info("Interview is now in state {}", interviewDTO.getInterviewFillout().getCurrentState());
 		return RESULT_TEMPLATE;
 	}
 

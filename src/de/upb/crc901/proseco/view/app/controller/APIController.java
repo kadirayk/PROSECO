@@ -62,7 +62,7 @@ public class APIController {
 		service.execute(() -> {
 			try {
 				LogResponseBody result = new LogResponseBody();
-				result.setLogList(findLogById(Util.getPrototypeNameForProcessId(config, id)));
+				result.setLogList(findLogById(id));
 				emitter.send(result, MediaType.APPLICATION_JSON);
 			} catch (Exception e) {
 				emitter.completeWithError(e);
@@ -91,12 +91,11 @@ public class APIController {
 			return emitter;
 		}
 		ExecutorService service = Executors.newSingleThreadExecutor();
-		String prototypeAndProcessId = Util.getPrototypeNameForProcessId(config, id);
 		service.execute(() -> {
 			try {
 				boolean isComplete = false;
 				int animationDots = 0;
-				int countDown = getTimeoutValue(prototypeAndProcessId);
+				int countDown = getTimeoutValue(id);
 				while (!(isComplete = checkStatus(id))) {
 					animationDots = animationDots % 3;
 					try {
@@ -137,6 +136,8 @@ public class APIController {
 	private int getTimeoutValue(String id) throws Exception {
 		PROSECOProcessEnvironment env = processController.getConstructionProcessEnvironment(id);
 		InterviewFillout interview = SerializationUtil.readAsJSON(env.getInterviewStateDirectory());
+		if (interview == null || interview.getInterview() == null)
+			return -1;
 		Question q = interview.getInterview().getQuestionByPath("timeout.timeout");
 		String timeoutValue = interview.getAnswer(q);
 		if (timeoutValue == null) {
@@ -220,7 +221,7 @@ public class APIController {
 	public ResponseEntity<?> getLog(@PathVariable("id") String id) throws Exception {
 		LogResponseBody result = new LogResponseBody();
 
-		result.setLogList(findLogById(Util.getPrototypeNameForProcessId(config, id)));
+		result.setLogList(findLogById(id));
 
 		return ResponseEntity.ok(result);
 
@@ -401,11 +402,10 @@ public class APIController {
 	 */
 	private List<LogPair> findLogById(String id) throws Exception {
 		List<LogPair> logList = new ArrayList<>();
-		String protoypeName = id.substring(0, id.lastIndexOf("-"));
 		PROSECOProcessEnvironment env = processController.getConstructionProcessEnvironment(id);
 
-		File prototypeFolderWithID = env.getProcessDirectory();
-		if (prototypeFolderWithID == null) {
+		File processFolder = env.getProcessDirectory();
+		if (processFolder == null || env.getPrototypeName() == null || !env.getSearchOutputDirectory().exists()) {
 			return logList;
 		}
 		File strategyDirectory = env.getStrategyDirectory();
@@ -428,7 +428,7 @@ public class APIController {
 			String allLog = FileUtil.readFile(systemAll);
 
 			if (outLog != null && errLog != null) {
-				LogPair logPair = new LogPair(protoypeName, strategyFolder.getName(), outLog, errLog, allLog);
+				LogPair logPair = new LogPair(env.getPrototypeName(), strategyFolder.getName(), outLog, errLog, allLog);
 				logList.add(logPair);
 			}
 		}

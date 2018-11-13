@@ -97,6 +97,7 @@ public class InterviewDTO {
 
 	public void setInterviewFillout(InterviewFillout interviewFillout) {
 		this.interviewFillout = interviewFillout;
+		System.out.println("Appending HTML for current state: " + interviewFillout.getCurrentState());
 		this.interviewHTML = interviewFillout.getHTMLOfOpenQuestionsInCurrentState();
 		setShowSubmitValue();
 		setDebugHtml(interviewFillout);

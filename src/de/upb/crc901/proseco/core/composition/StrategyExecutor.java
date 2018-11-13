@@ -46,6 +46,13 @@ public class StrategyExecutor {
 				return file.isDirectory();
 			}
 		});
+		if (strategySubFolders == null) {
+			System.err.println("Could not find any search strategy!! Canceling request.");
+			return;
+		}
+		System.out.println("Found " + strategySubFolders.length + " strategies:");
+		for (File f : strategySubFolders)
+			System.out.println("\t" + f);
 		System.out.println(" go ...");
 		
 		ExecutorService pool = Executors.newFixedThreadPool(strategySubFolders.length); // allow all to work in parallel
