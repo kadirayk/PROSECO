@@ -51,7 +51,7 @@ public class InterviewController {
 	private static final String INIT_TEMPLATE = "initiator";
 	private static final String RESULT_TEMPLATE = "result";
 	private static final String ERROR_TEMPLATE = "error";
-	private ProcessController processController = new DefaultProcessController(new File("proseco.conf"));
+	private ProcessController processController = new DefaultProcessController(new File("conf/proseco.conf"));
 
 	/**
 	 * Displays Interview initiator. Interview initiator is the step where the user inputs the required keywords for corresponding prototype to be found.

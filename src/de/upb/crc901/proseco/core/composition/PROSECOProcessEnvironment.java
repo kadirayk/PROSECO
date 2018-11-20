@@ -76,7 +76,7 @@ public class PROSECOProcessEnvironment {
 		processId = processConfig.getProcessId();
 		processDirectory = new File(prosecoConfig.getDirectoryForProcesses() + File.separator + processId);
 		domainDirectory = new File(prosecoConfig.getDirectoryForDomains() + File.separator + processConfig.getDomain());
-		domainConfig = DomainConfig.get(domainDirectory + File.separator + processConfig.getDomain() + File.separator + "domain.conf");
+		domainConfig = DomainConfig.get(domainDirectory + File.separator + "domain.conf");
 
 		/* domain specific folders */
 		interviewDirectory = new File(domainDirectory + File.separator + domainConfig.getNameOfInterviewFolder());

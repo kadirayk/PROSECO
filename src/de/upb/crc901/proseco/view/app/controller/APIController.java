@@ -43,7 +43,7 @@ public class APIController {
 
 	private static final Logger logger = LoggerFactory.getLogger(APIController.class);
 	private PROSECOConfig config = ConfigCache.getOrCreate(PROSECOConfig.class);
-	private ProcessController processController = new DefaultProcessController(new File("proseco.conf"));
+	private ProcessController processController = new DefaultProcessController(new File("conf/proseco.conf"));
 
 	/**
 	 * Returns SystemOut and SystemError logs of Strategies of prototype with the given ID
