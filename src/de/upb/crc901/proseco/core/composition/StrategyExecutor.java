@@ -69,6 +69,7 @@ public class StrategyExecutor {
 			String outputPath = executionEnvironment.getSearchOutputDirectory().getAbsolutePath() + File.separator + strategyName;
 			commandArguments[3] = outputPath;
 			commandArguments[4] = "" + timeoutInSeconds;
+			new File(commandArguments[0]).setExecutable(true);
 			final ProcessBuilder pb = new ProcessBuilder(commandArguments).redirectOutput(Redirect.PIPE).redirectError(Redirect.PIPE);
 			System.out.print("Starting process for strategy " + strategyFolder + ": " + Arrays.toString(commandArguments));
 
