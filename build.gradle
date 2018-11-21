@@ -1,3 +1,7 @@
+	// Spring boot plugin
+	plugins {
+		id "org.springframework.boot" version "2.0.5.RELEASE"
+	}
 
 	//IDE
 	apply plugin: "java"
@@ -49,7 +53,9 @@ dependencies {
 	compile 'junit:junit:4.12'
 	
 	// Spring Boot
-	compile group: 'org.springframework.boot', name: 'spring-boot-starter-thymeleaf', version: '1.5.16.RELEASE'
+	compile group: 'org.springframework.boot', name: 'spring-boot-starter-thymeleaf', version: '2.0.5.RELEASE'
+	compile group: 'org.springframework.boot', name: 'spring-boot-starter-web', version: '2.0.5.RELEASE'
+
 	
 	// Jackson for YAML
 	compile 'com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.8.10'
@@ -77,4 +83,12 @@ repositories {
 	maven {
         url "http://clojars.org/repo/"
     }
+}
+
+
+
+bootJar {
+	destinationDir = file("$rootDir")
+	baseName = 'PROSECOServer'
+	version = "0.0.1"
 }
