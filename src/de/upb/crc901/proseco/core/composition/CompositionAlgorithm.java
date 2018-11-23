@@ -79,7 +79,9 @@ public class CompositionAlgorithm implements Runnable {
 
 			/* create search folder and the sub-folder for the inputs, and copy the interview resources here */
 			FileUtils.forceMkdir(executionEnvironment.getSearchDirectory());
-			FileUtils.copyDirectory(executionEnvironment.getInterviewResourcesDirectory(), executionEnvironment.getSearchInputDirectory());
+			if(executionEnvironment.getInterviewResourcesDirectory().exists()) {
+				FileUtils.copyDirectory(executionEnvironment.getInterviewResourcesDirectory(), executionEnvironment.getSearchInputDirectory());
+			}
 
 			/* execute hooks that should run prior to configuration */
 
