@@ -79,7 +79,9 @@ public class CompositionAlgorithm implements Runnable {
 
 			/* create search folder and the sub-folder for the inputs, and copy the interview resources here */
 			FileUtils.forceMkdir(executionEnvironment.getSearchDirectory());
-			FileUtils.copyDirectory(executionEnvironment.getInterviewResourcesDirectory(), executionEnvironment.getSearchInputDirectory());
+			if(executionEnvironment.getInterviewResourcesDirectory().exists()) {
+				FileUtils.copyDirectory(executionEnvironment.getInterviewResourcesDirectory(), executionEnvironment.getSearchInputDirectory());
+			}
 
 			/* execute hooks that should run prior to configuration */
 
@@ -122,6 +124,7 @@ public class CompositionAlgorithm implements Runnable {
 				groundingCommand[1] = executionEnvironment.getProcessId();
 				groundingCommand[2] = executionEnvironment.getSearchOutputDirectory().getAbsolutePath() + File.separator + winningStrategy.get().getName();
 				groundingCommand[3] = executionEnvironment.getSearchOutputDirectory().getAbsolutePath() + File.separator + "final";
+				new File(groundingCommand[0]).setExecutable(true);
 				final ProcessBuilder pb = new ProcessBuilder(groundingCommand).directory(executionEnvironment.getGroundingDirectory());
 				// pb.redirectOutput(Redirect.appendTo(groundingLog)).redirectError(Redirect.appendTo(groundingLog));
 				pb.redirectOutput(Redirect.INHERIT).redirectError(Redirect.INHERIT);
@@ -147,6 +150,7 @@ public class CompositionAlgorithm implements Runnable {
 			deploymentCommand[1] = executionEnvironment.getProcessId();
 			deploymentCommand[2] = host;
 			deploymentCommand[3] = "" + port;
+			new File(deploymentCommand[0]).setExecutable(true);
 			logger.info("Deploying service {} to {}:{}", deploymentCommand[1], deploymentCommand[2], deploymentCommand[3]);
 			final ProcessBuilder pb = new ProcessBuilder(deploymentCommand);
 			pb.redirectOutput(Redirect.INHERIT).redirectError(Redirect.INHERIT);
