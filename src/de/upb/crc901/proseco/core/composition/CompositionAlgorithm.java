@@ -85,7 +85,7 @@ public class CompositionAlgorithm implements Runnable {
 
 			/* invoke strategies */
 			StrategyExecutor executeStrategiesCommand = new StrategyExecutor(executionEnvironment);
-			executeStrategiesCommand.execute(60 * 1000);
+			executeStrategiesCommand.execute(Math.max(1, timeoutInSeconds - 10) * 1000);
 			System.out.println("Execution of strategies finished!");
 
 			/* execute hooks that should run after configuration */

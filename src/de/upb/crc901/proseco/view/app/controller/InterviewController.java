@@ -145,7 +145,11 @@ public class InterviewController {
 		if (memorizedInterviewFillout.getCurrentState().getTransition() == null || memorizedInterviewFillout.getCurrentState().getTransition().isEmpty()) {
 			Runnable task = () -> {
 				try {
-					CompositionAlgorithm pc = new CompositionAlgorithm(env, 100);
+					if (memorizedInterviewFillout.getAnswer("timeout") == null) {
+						System.err.println("No question with id 'timeout' has been answered, which is mandatory in PROSECO. The timeout must be an integer and will be interpreted in seconds!");
+						return;
+					}
+					CompositionAlgorithm pc = new CompositionAlgorithm(env, Integer.parseInt(memorizedInterviewFillout.getAnswer("timeout")));
 					pc.run();
 				} catch (Exception e) {
 					e.printStackTrace();
