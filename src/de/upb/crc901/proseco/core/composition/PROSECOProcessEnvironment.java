@@ -3,6 +3,12 @@ package de.upb.crc901.proseco.core.composition;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Map.Entry;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -15,13 +21,24 @@ import de.upb.crc901.proseco.view.util.SerializationUtil;
 
 /**
  * ExecutionEnvironment, is the directory where an instance of the selected prototype is created.
- * 
+ *
  * @author fmohr
  *
  */
 public class PROSECOProcessEnvironment {
 
+	/* logging */
+	private static final Logger L = LoggerFactory.getLogger(PROSECOProcessEnvironment.class);
+	private static final String NON_WINDOWS_SCRIPT_EXT = ".sh";
+	private static final String WINDOWS_SCRIPT_EXT = ".bat";
+
+	/* meta data: PROSECO and its runtime environment */
+	private enum OperatingSystem {
+		WINDOWS, NON_WINDOWS;
+	}
+
 	private final PROSECOConfig prosecoConfig;
+	private final OperatingSystem os;
 
 	/* process-specific */
 	private final String processId;
@@ -50,7 +67,7 @@ public class PROSECOProcessEnvironment {
 	/* configuration-process-specific (specific to prototype) */
 	private final File searchDirectory;
 	// private final File configDirectory;
-	private final File analysisRoutine;
+	private final File analysisRoutineExecutable;
 	private final InterviewFillout interviewFillout;
 
 	/**
@@ -59,147 +76,250 @@ public class PROSECOProcessEnvironment {
 	 * @throws IOException
 	 */
 	public PROSECOProcessEnvironment(final File processFolder) throws FileNotFoundException, IOException {
-
+		L.debug("Initializing PROSECO process environment.");
 		/* read the process.json */
 		File processConfigFile = new File(processFolder + File.separator + "process.json");
 		if (!processConfigFile.exists()) {
 			throw new FileNotFoundException("Cannot create a PROSECOProcess environment for a folder without process.json");
 		}
 		ProcessConfig processConfig = new ObjectMapper().readValue(processConfigFile, ProcessConfig.class);
-		if (processConfig.getProcessId() == null)
+		if (processConfig.getProcessId() == null) {
 			throw new IllegalArgumentException("The process.json MUST define a process id");
-		if (processConfig.getDomain() == null)
+		}
+		if (processConfig.getDomain() == null) {
 			throw new IllegalArgumentException("The process.json MUST define a domain");
-		
+		}
+
+		/* Figure out what operating system PROSECO is running in. */
+		this.os = System.getenv().get("OS").toLowerCase().contains("win") ? OperatingSystem.WINDOWS : OperatingSystem.NON_WINDOWS;
+		L.debug("Detected {} operating system.", this.os.name());
+
 		/* read PROSECO configuration and configure process */
-		prosecoConfig = PROSECOConfig.get(processConfig.getProsecoConfigFile());
-		processId = processConfig.getProcessId();
-		processDirectory = new File(prosecoConfig.getDirectoryForProcesses() + File.separator + processId);
-		domainDirectory = new File(prosecoConfig.getDirectoryForDomains() + File.separator + processConfig.getDomain());
-		domainConfig = DomainConfig.get(domainDirectory + File.separator + "domain.conf");
+		L.debug("Load PROSECO config...");
+		this.prosecoConfig = PROSECOConfig.get(processConfig.getProsecoConfigFile());
+
+		/* current process specific data. */
+		this.processId = processConfig.getProcessId();
+		this.processDirectory = new File(this.prosecoConfig.getDirectoryForProcesses() + File.separator + this.processId).getCanonicalFile();
+		L.debug("Current process with process id {} is located in {}", this.processId, this.processDirectory);
+
+		/* General domain directories and config */
+		this.domainDirectory = new File(this.prosecoConfig.getDirectoryForDomains() + File.separator + processConfig.getDomain()).getCanonicalFile();
+		this.domainConfig = DomainConfig.get(this.domainDirectory + File.separator + "domain.conf");
+		L.debug("Domain directory is set to {} and domain config is loaded from file {}", this.domainDirectory, new File(this.domainDirectory + File.separator + "domain.conf"));
 
 		/* domain specific folders */
-		interviewDirectory = new File(domainDirectory + File.separator + domainConfig.getNameOfInterviewFolder());
-		interviewStateDirectory = new File(processDirectory + File.separator + domainConfig.getNameOfInterviewFolder());
-		interviewStateFile = new File(interviewStateDirectory + File.separator + domainConfig.getNameOfInterviewStateFile());
-		interviewResourcesDirectory = new File(interviewStateDirectory + File.separator + domainConfig.getNameOfInterviewResourceFolder());
+		this.interviewDirectory = new File(this.domainDirectory + File.separator + this.domainConfig.getNameOfInterviewFolder());
+		this.interviewStateDirectory = new File(this.processDirectory + File.separator + this.domainConfig.getNameOfInterviewFolder());
+		this.interviewStateFile = new File(this.interviewStateDirectory + File.separator + this.domainConfig.getNameOfInterviewStateFile());
+		this.interviewResourcesDirectory = new File(this.interviewStateDirectory + File.separator + this.domainConfig.getNameOfInterviewResourceFolder());
 
 		/* extract prototype from interview */
-		interviewFillout = interviewStateFile.exists() ? SerializationUtil.readAsJSON(interviewStateFile) : null;
+		this.interviewFillout = this.interviewStateFile.exists() ? SerializationUtil.readAsJSON(this.interviewStateFile) : null;
 
 		/* prototype specific folders if prototype has been set in the interview */
-		if (interviewFillout != null && interviewFillout.getAnswer("prototype") != null) {
-			prototypeName = interviewFillout.getAnswer("prototype");
-			prototypeDirectory = new File(domainDirectory + File.separator + domainConfig.getPrototypeFolder() + File.separator + prototypeName);
-			prototypeConfig = PrototypeConfig.get(prototypeDirectory + File.separator + "prototype.conf");
-			benchmarksDirectory = new File(prototypeDirectory + File.separator + prototypeConfig.getBenchmarkPath());
-			groundingDirectory = new File(prototypeDirectory + File.separator + prototypeConfig.getNameOfGroundingFolder());
-			groundingFile = new File(groundingDirectory + File.separator + prototypeConfig.getGroundingCommand());
-			strategyDirectory = new File(prototypeDirectory + File.separator + prototypeConfig.getNameOfStrategyFolder());
-			analysisRoutine = new File(prototypeDirectory + File.separator + prototypeConfig.getHookForPreGrounding());
-			deploymentFile = new File(prototypeDirectory + File.separator + prototypeConfig.getDeploymentCommand());
-		}
-		else {
-			prototypeName = null;
-			prototypeDirectory = null;
-			prototypeConfig = null;
-			benchmarksDirectory = null;
-			groundingDirectory = null;
-			groundingFile = null;
-			strategyDirectory = null;
-			analysisRoutine = null;
-			deploymentFile = null;
+		if (this.interviewFillout != null && this.interviewFillout.getAnswer("prototype") != null) {
+			this.prototypeName = this.interviewFillout.getAnswer("prototype");
+			this.prototypeDirectory = new File(this.domainDirectory + File.separator + this.domainConfig.getPrototypeFolder() + File.separator + this.prototypeName);
+			this.prototypeConfig = PrototypeConfig.get(this.prototypeDirectory + File.separator + "prototype.conf");
+			this.benchmarksDirectory = new File(this.prototypeDirectory + File.separator + this.prototypeConfig.getBenchmarkPath());
+			this.groundingDirectory = new File(this.prototypeDirectory + File.separator + this.prototypeConfig.getNameOfGroundingFolder());
+			this.groundingFile = this.appendExecutableScriptExtension(new File(this.groundingDirectory + File.separator + this.prototypeConfig.getGroundingCommand())).getCanonicalFile();
+			this.strategyDirectory = new File(this.prototypeDirectory + File.separator + this.prototypeConfig.getNameOfStrategyFolder());
+			this.analysisRoutineExecutable = new File(this.prototypeDirectory + File.separator + this.prototypeConfig.getHookForPreGrounding());
+			this.deploymentFile = new File(this.prototypeDirectory + File.separator + this.prototypeConfig.getDeploymentCommand());
+		} else {
+			this.prototypeName = null;
+			this.prototypeDirectory = null;
+			this.prototypeConfig = null;
+			this.benchmarksDirectory = null;
+			this.groundingDirectory = null;
+			this.groundingFile = null;
+			this.strategyDirectory = null;
+			this.analysisRoutineExecutable = null;
+			this.deploymentFile = null;
 		}
 
 		// configDirectory = new File(processDirectory + File.separator + prototype());;
-		searchDirectory = new File(processDirectory + File.separator + "search");
-	}
-
-	public String getProcessId() {
-		return processId;
+		this.searchDirectory = new File(this.processDirectory + File.separator + "search");
 	}
 
 	public File getPrototypeDirectory() {
-		return prototypeDirectory;
+		return this.prototypeDirectory;
 	}
 
 	public File getBenchmarksDirectory() {
-		return benchmarksDirectory;
+		return this.benchmarksDirectory;
 	}
 
 	public File getGroundingDirectory() {
-		return groundingDirectory;
+		return this.groundingDirectory;
 	}
 
 	public File getStrategyDirectory() {
-		return strategyDirectory;
+		return this.strategyDirectory;
 	}
 
-	// public File getConfigDirectory() {
-	// return configDirectory;
-	// }
-
 	public File getInterviewDirectory() {
-		return interviewDirectory;
+		return this.interviewDirectory;
 	}
 
 	public File getInterviewStateDirectory() {
-		return interviewStateDirectory;
+		return this.interviewStateDirectory;
 	}
-	
+
 	public File getInterviewStateFile() {
-		return interviewStateFile;
+		return this.interviewStateFile;
 	}
 
 	public File getInterviewResourcesDirectory() {
-		return interviewResourcesDirectory;
-	}
-
-	public File getGroundingFile() {
-		return groundingFile;
-	}
-
-	public File getProcessDirectory() {
-		return processDirectory;
+		return this.interviewResourcesDirectory;
 	}
 
 	public PROSECOConfig getProsecoConfig() {
-		return prosecoConfig;
+		return this.prosecoConfig;
 	}
 
 	public PrototypeConfig getPrototypeConfig() {
-		return prototypeConfig;
+		return this.prototypeConfig;
 	}
 
 	public String getPrototypeName() {
-		return prototypeName;
+		return this.prototypeName;
 	}
 
 	public File getSearchDirectory() {
-		return searchDirectory;
-	}
-
-	public File getSearchInputDirectory() {
-		return new File(searchDirectory + File.separator + "inputs");
-	}
-
-	public File getSearchOutputDirectory() {
-		return new File(searchDirectory + File.separator + "outputs");
-	}
-
-	public File getSearchStrategyOutputDirectory(String strategy) {
-		return new File(getSearchOutputDirectory() + File.separator + strategy);
-	}
-
-	public File getAnalysisRoutine() {
-		return analysisRoutine;
-	}
-
-	public File getDeploymentFile() {
-		return deploymentFile;
+		return this.searchDirectory;
 	}
 
 	public File getServiceHandle() {
-		return new File(getProcessDirectory() + File.separator + "service.handle");
+		return new File(this.getProcessDirectory() + File.separator + "service.handle");
+	}
+
+	/*##################################################
+	 * Block: Dynamic Prototype Specific Configs
+	 *##################################################*/
+	/**
+	 * @return The ID of the current process.
+	 */
+	public String getProcessId() {
+		return this.processId;
+	}
+
+	/**
+	 * @return The directory of the current process.
+	 */
+	public File getProcessDirectory() {
+		return this.processDirectory;
+	}
+
+	/**
+	 * @return The input directory for the search.
+	 */
+	public File getSearchInputDirectory() {
+		return new File(this.searchDirectory + File.separator + "inputs");
+	}
+
+	/**
+	 * @return The output directory of the search.
+	 */
+	public File getSearchOutputDirectory() {
+		return new File(this.searchDirectory + File.separator + "outputs");
+	}
+
+	/**
+	 * Returns a strategy's output directory for a given strategy.
+	 *
+	 * @param strategy The name of the strategy for which the output directory shall be provided.
+	 * @return The output directory of the given strategy.
+	 */
+	public File getSearchStrategyOutputDirectory(final String strategy) {
+		return new File(this.getSearchOutputDirectory() + File.separator + strategy);
+	}
+
+	/*##################################################
+	 * Block: Static Prototype Specific Configs
+	 *##################################################*/
+
+	/*##################################################
+	 * Block: Prototype Executable Scripts
+	 *##################################################*/
+
+	/**
+	 * @return Returns the executable script for the verification of candidate solutions.
+	 */
+	public File verificationExecutable() {
+		return this.analysisRoutineExecutable;
+	}
+
+	/**
+	 * @return Returns the executable for the deployment of the solution.
+	 */
+	public File deploymentExecutable() {
+		return this.deploymentFile;
+	}
+
+	/**
+	 * @return Returns the executable for the grounding of a candidate.
+	 */
+	public File groundingExecutable() {
+		return this.groundingFile;
+	}
+
+	/*##################################################
+	 * Block: Utils and Other
+	 *##################################################*/
+
+	/**
+	 * Appends the OS specific script file extension for executable scripts, i.e. either .bat or .sh.
+	 *
+	 * @param file The file to which the file extension is to be appended.
+	 * @return The prepared file with OS specific file extension.
+	 */
+	public File appendExecutableScriptExtension(final File file) {
+		if (file.getName().contains(".")) {
+			throw new IllegalArgumentException("The file already has a file extension.");
+		}
+
+		String extension;
+		if (this.os == OperatingSystem.WINDOWS) {
+			extension = WINDOWS_SCRIPT_EXT;
+		} else {
+			extension = NON_WINDOWS_SCRIPT_EXT;
+		}
+		return new File(file.getAbsolutePath() + extension);
+	}
+
+	@Override
+	public String toString() {
+		StringBuilder sb = new StringBuilder();
+		sb.append("##############################\n");
+		sb.append("# Environment				#\n");
+		sb.append("##############################\n");
+
+		sb.append("Proseco Config: " + this.prosecoConfig + "\n");
+		sb.append("Process ID: " + this.getProcessId() + "\n");
+		sb.append("Domain Config: " + this.domainConfig + "\n");
+		sb.append("Prototype Config: " + this.prototypeConfig + "\n");
+		sb.append("Prototype Name: " + this.prototypeName + "\n");
+		sb.append("Interview Fillout: " + this.interviewFillout + "\n\n");
+
+		Map<String, File> fileMap = new HashMap<>();
+		fileMap.put("Process Directory", this.processDirectory);
+		fileMap.put("Interview Directory: ", this.interviewDirectory);
+		fileMap.put("Domain Directory: ", this.domainDirectory);
+		fileMap.put("Prototype Directory: ", this.prototypeDirectory);
+		fileMap.put("Strategy Directory: ", this.strategyDirectory);
+		fileMap.put("Benchmark Directory: ", this.benchmarksDirectory);
+		fileMap.put("Grounding Directory: ", this.groundingDirectory);
+		fileMap.put("Grounding File: ", this.groundingFile);
+		fileMap.put("Search Directory: ", this.searchDirectory);
+		fileMap.put("Analysis Routine: ", this.analysisRoutineExecutable);
+
+		for (Entry<String, File> file : fileMap.entrySet()) {
+			sb.append(file.getKey() + ": " + ((file.getValue() == null) ? "null" : file.getValue().getAbsolutePath()) + "\n");
+		}
+
+		return sb.toString();
 	}
 }

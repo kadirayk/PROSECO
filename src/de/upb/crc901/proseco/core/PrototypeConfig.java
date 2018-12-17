@@ -11,7 +11,7 @@ import org.aeonbits.owner.Mutable;
 
 /**
  * Unified class for configuration values
- * 
+ *
  * @author kadirayk, fmohr
  *
  */
@@ -20,26 +20,26 @@ public interface PrototypeConfig extends Mutable {
 	/* search */
 	public static final String STRATEGIES = "pbc.strategies_path";
 	public static final String STRATEGY_RUNNABLE = "pbc.strategy.runnable";
-	
+
 	/* pre-grounding filter */
 	public static final String PRE_GROUNDING_HOOK = "pbc.hook.preground";
-	
+
 	/* grounding */
 	public static final String GROUNDING_FOLDER = "proseco.grounding.folder";
 	public static final String GROUNDING_EXEC = "proseco.grounding.executable";
-	
+
 	/* deployment */
 	public static final String DEPLOYMENT_EXEC = "proseco.deployment.executable";
 	public static final String DEPLOYMENT_HOST = "proseco.deployment.host";
 	public static final String DEPLOYMENT_PORT_MIN = "proseco.deployment.minport";
 	public static final String DEPLOYMENT_PORT_MAX = "proseco.deployment.maxport";
 	public static final String DEPLOYMENT_ENTRYPOINT = "proseco.deployment.entrypoint";
-	
+
 	/* benchmarking */
 	public static final String BENCHMARK_SERVICE = "benchmarkService.bat";
 	public static final String BENCHMARK_PATH = "pbc.benchmarks_path";
 	public static final String INTERNAL_BENCHMARK_FOLDER = "benchmarks/";
-	
+
 	public static final String EXEC_FINAL_TEST = "src/test.bat";
 
 	@Key(BENCHMARK_PATH)
@@ -55,42 +55,42 @@ public interface PrototypeConfig extends Mutable {
 	public String getNameOfGroundingFolder();
 
 	@Key(GROUNDING_EXEC)
-	@DefaultValue("grounding.sh")
+	@DefaultValue("grounding")
 	public String getGroundingCommand();
-	
+
 	@Key(DEPLOYMENT_EXEC)
-	@DefaultValue("deployment.sh")
+	@DefaultValue("deployment")
 	public String getDeploymentCommand();
-	
+
 	@Key(DEPLOYMENT_HOST)
 	@DefaultValue("localhost")
 	public String getDeploymentHost();
-	
+
 	@Key(DEPLOYMENT_PORT_MIN)
 	@DefaultValue("8100")
 	public int getDeploymentMinPort();
-	
+
 	@Key(DEPLOYMENT_PORT_MAX)
 	@DefaultValue("8200")
 	public int getDeploymentMaxPort();
-	
+
 	@Key(DEPLOYMENT_ENTRYPOINT)
 	@DefaultValue("")
 	public String getDeploymentEntryPoint();
-	
+
 	@Key(STRATEGY_RUNNABLE)
 	@DefaultValue("run.sh")
 	public String getSearchRunnable();
 
-	public static PrototypeConfig get(PROSECOConfig prosecoConfig, String prototypeName) {
+	public static PrototypeConfig get(final PROSECOConfig prosecoConfig, final String prototypeName) {
 		return get(new File(prosecoConfig.getDirectoryForDomains() + File.separator + prototypeName + File.separator + "prototype.conf"));
 	}
-	
-	public static PrototypeConfig get(String file) {
+
+	public static PrototypeConfig get(final String file) {
 		return get(new File(file));
 	}
 
-	public static PrototypeConfig get(File file) {
+	public static PrototypeConfig get(final File file) {
 		Properties props = new Properties();
 		try {
 			props.load(new FileInputStream(file));
@@ -102,8 +102,8 @@ public interface PrototypeConfig extends Mutable {
 
 		return ConfigFactory.create(PrototypeConfig.class, props);
 	}
-	
+
 	@Key(PRE_GROUNDING_HOOK)
-	@DefaultValue("analysis.sh")
+	@DefaultValue("analysis")
 	public File getHookForPreGrounding();
 }
