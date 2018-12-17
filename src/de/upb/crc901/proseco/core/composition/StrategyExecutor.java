@@ -71,6 +71,7 @@ public class StrategyExecutor {
 			commandArguments[2] = this.executionEnvironment.getSearchInputDirectory().getAbsolutePath();
 			commandArguments[3] = outputPath.getAbsolutePath();
 			commandArguments[4] = "" + timeoutInSeconds;
+			new File(commandArguments[0]).setExecutable(true);
 
 			ProcessBuilder pb = new ProcessBuilder(commandArguments);
 			if (DEBUG) {

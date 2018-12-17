@@ -82,14 +82,16 @@ public class CompositionAlgorithm implements Runnable {
 
 			/* create search folder and the sub-folder for the inputs, and copy the interview resources here */
 			FileUtils.forceMkdir(this.executionEnvironment.getSearchDirectory());
-			FileUtils.copyDirectory(this.executionEnvironment.getInterviewResourcesDirectory(), this.executionEnvironment.getSearchInputDirectory());
+			if (this.executionEnvironment.getInterviewResourcesDirectory().exists()) {
+				FileUtils.copyDirectory(this.executionEnvironment.getInterviewResourcesDirectory(), this.executionEnvironment.getSearchInputDirectory());
+			}
 
 			/* execute hooks that should run prior to configuration */
 
 			/* invoke strategies */
 			logger.debug("Create command for executing strategies and execute it...");
 			StrategyExecutor executeStrategiesCommand = new StrategyExecutor(this.executionEnvironment);
-			executeStrategiesCommand.execute(15 * 1000);
+			executeStrategiesCommand.execute(Math.max(1, this.timeoutInSeconds - 10) * 1000);
 			logger.debug("Execution of strategies finished!");
 
 			/* execute hooks that should run after configuration */
@@ -126,6 +128,7 @@ public class CompositionAlgorithm implements Runnable {
 				groundingCommand[1] = this.executionEnvironment.getProcessId();
 				groundingCommand[2] = this.executionEnvironment.getSearchOutputDirectory().getAbsolutePath() + File.separator + winningStrategy.get().getName();
 				groundingCommand[3] = this.executionEnvironment.getSearchOutputDirectory().getAbsolutePath() + File.separator + "final";
+				new File(groundingCommand[0]).setExecutable(true);
 				final ProcessBuilder pb = new ProcessBuilder(groundingCommand).directory(this.executionEnvironment.getGroundingDirectory());
 				// pb.redirectOutput(Redirect.appendTo(groundingLog)).redirectError(Redirect.appendTo(groundingLog));
 				pb.redirectOutput(Redirect.INHERIT).redirectError(Redirect.INHERIT);
@@ -151,6 +154,7 @@ public class CompositionAlgorithm implements Runnable {
 			deploymentCommand[1] = this.executionEnvironment.getProcessId();
 			deploymentCommand[2] = host;
 			deploymentCommand[3] = "" + port;
+			new File(deploymentCommand[0]).setExecutable(true);
 			logger.info("Deploying service {} to {}:{}", deploymentCommand[1], deploymentCommand[2], deploymentCommand[3]);
 			final ProcessBuilder pb = new ProcessBuilder(deploymentCommand);
 			pb.redirectOutput(Redirect.INHERIT).redirectError(Redirect.INHERIT);
