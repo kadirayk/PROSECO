@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.apache.commons.lang3.SystemUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -91,7 +92,7 @@ public class PROSECOProcessEnvironment {
 		}
 
 		/* Figure out what operating system PROSECO is running in. */
-		this.os = System.getenv().get("OS").toLowerCase().contains("win") ? OperatingSystem.WINDOWS : OperatingSystem.NON_WINDOWS;
+		this.os = (SystemUtils.IS_OS_WINDOWS ? OperatingSystem.WINDOWS : OperatingSystem.NON_WINDOWS);
 		L.debug("Detected {} operating system.", this.os.name());
 
 		/* read PROSECO configuration and configure process */
