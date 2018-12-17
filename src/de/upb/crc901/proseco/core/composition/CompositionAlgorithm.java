@@ -87,6 +87,7 @@ public class CompositionAlgorithm implements Runnable {
 			}
 
 			/* execute hooks that should run prior to configuration */
+			this.beforeConfiguration();
 
 			/* invoke strategies */
 			logger.debug("Create command for executing strategies and execute it...");
@@ -179,6 +180,16 @@ public class CompositionAlgorithm implements Runnable {
 				logger.info("PROSECO has terminated.");
 			}
 		}
+
+	}
+
+	protected void beforeConfiguration() throws Exception {
+		// FIXME: this should actually be done by the PoC already. This is only a workaround for testing purposes.
+		File srcDiscovery = new File("discovery.properties");
+		File tgtDiscovery = new File(this.executionEnvironment.getProcessDirectory() + File.separator + "discovery.properties");
+		tgtDiscovery.getParentFile().mkdirs();
+		System.out.println("Copy from " + srcDiscovery + " to " + tgtDiscovery);
+		FileUtils.copyFile(srcDiscovery, tgtDiscovery);
 
 	}
 
