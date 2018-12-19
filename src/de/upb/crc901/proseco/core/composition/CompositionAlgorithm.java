@@ -33,6 +33,7 @@ public class CompositionAlgorithm implements Runnable {
 
 	/* logging */
 	private static final Logger logger = LoggerFactory.getLogger(CompositionAlgorithm.class);
+	private static final boolean LOCAL_TEST = false;
 
 	/** Base folder for matching the availability of prototypes */
 	private final PROSECOProcessEnvironment executionEnvironment;
@@ -183,14 +184,19 @@ public class CompositionAlgorithm implements Runnable {
 
 	}
 
-	protected void beforeConfiguration() throws Exception {
-		// FIXME: this should actually be done by the PoC already. This is only a workaround for testing purposes.
-		File srcDiscovery = new File("discovery.properties");
-		File tgtDiscovery = new File(this.executionEnvironment.getProcessDirectory() + File.separator + "discovery.properties");
-		tgtDiscovery.getParentFile().mkdirs();
-		System.out.println("Copy from " + srcDiscovery + " to " + tgtDiscovery);
-		FileUtils.copyFile(srcDiscovery, tgtDiscovery);
-
+	protected void beforeConfiguration() {
+		if (LOCAL_TEST) {
+			// FIXME: this should actually be done by the PoC already. This is only a workaround for testing purposes.
+			File srcDiscovery = new File("discovery.properties");
+			File tgtDiscovery = new File(this.executionEnvironment.getProcessDirectory() + File.separator + "discovery.properties");
+			tgtDiscovery.getParentFile().mkdirs();
+			logger.debug("Copy from {} to {}", srcDiscovery, tgtDiscovery);
+			try {
+				FileUtils.copyFile(srcDiscovery, tgtDiscovery);
+			} catch (IOException e) {
+				logger.error("Could no copy discovery.properties file to the process directory.\n{}", e.toString());
+			}
+		}
 	}
 
 	/**
