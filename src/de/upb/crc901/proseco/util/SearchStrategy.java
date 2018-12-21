@@ -33,7 +33,6 @@ public abstract class SearchStrategy implements Runnable {
 		this.dirOfOutputs = new File(args[2]);
 		this.strategyName = this.dirOfOutputs.getName();
 		this.deadline = System.currentTimeMillis() + Integer.valueOf(args[3]) * 1000;
-		System.out.println("Retrieving interview data from " + this.environment.getInterviewStateDirectory());
 	}
 
 	public PROSECOProcessEnvironment getEnvironment() {
