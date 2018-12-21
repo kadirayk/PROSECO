@@ -33,26 +33,28 @@ import de.upb.crc901.proseco.view.util.SerializationUtil;
 
 /**
  * API End Point for web service calls
- * 
- * 
+ *
+ *
  * @author kadirayk
  *
  */
 @RestController
 public class APIController {
 
+	private static final File PROSECO_CONFIG_FILE = new File("res/proseco.conf");
+
 	private static final Logger logger = LoggerFactory.getLogger(APIController.class);
-	private PROSECOConfig config = ConfigCache.getOrCreate(PROSECOConfig.class);
-	private ProcessController processController = new DefaultProcessController(new File("conf/proseco.conf"));
+	private final PROSECOConfig config = ConfigCache.getOrCreate(PROSECOConfig.class);
+	private final ProcessController processController = new DefaultProcessController(PROSECO_CONFIG_FILE);
 
 	/**
 	 * Returns SystemOut and SystemError logs of Strategies of prototype with the given ID
-	 * 
+	 *
 	 * @param id
 	 * @return
 	 */
 	@RequestMapping("/api/strategyLogs/{id}")
-	public ResponseBodyEmitter pushStrategyLogs(@PathVariable("id") String id) {
+	public ResponseBodyEmitter pushStrategyLogs(@PathVariable("id") final String id) {
 		final SseEmitter emitter = new SseEmitter(3600000L);
 		if (id.equals("init")) {
 			emitter.complete();
@@ -62,7 +64,7 @@ public class APIController {
 		service.execute(() -> {
 			try {
 				LogResponseBody result = new LogResponseBody();
-				result.setLogList(findLogById(id));
+				result.setLogList(this.findLogById(id));
 				emitter.send(result, MediaType.APPLICATION_JSON);
 			} catch (Exception e) {
 				emitter.completeWithError(e);
@@ -77,14 +79,14 @@ public class APIController {
 
 	/**
 	 * Server-Sent Event Emitter for search process result Provides feedback to the caller while search process continues returns location of the solution at the end of the process
-	 * 
+	 *
 	 * @param id
 	 * @return
 	 * @throws Exception
 	 */
 	@RequestMapping("/api/result/{id}")
-	public ResponseBodyEmitter pushResult(@PathVariable("id") String id) throws Exception {
-		PROSECOProcessEnvironment env = processController.getConstructionProcessEnvironment(id);
+	public ResponseBodyEmitter pushResult(@PathVariable("id") final String id) throws Exception {
+		PROSECOProcessEnvironment env = this.processController.getConstructionProcessEnvironment(id);
 		final SseEmitter emitter = new SseEmitter(3600000L);
 		if (id.equals("init")) {
 			emitter.complete();
@@ -95,8 +97,8 @@ public class APIController {
 			try {
 				boolean isComplete = false;
 				int animationDots = 0;
-				int countDown = getTimeoutValue(id);
-				while (!(isComplete = checkStatus(id))) {
+				int countDown = this.getTimeoutValue(id);
+				while (!(isComplete = this.checkStatus(id))) {
 					animationDots = animationDots % 3;
 					try {
 						if (!isComplete) {
@@ -120,8 +122,7 @@ public class APIController {
 					}
 				}
 				if (isComplete) {
-					emitter.send("Ready. You can now <a href=\"" + FileUtils.readFileToString(env.getServiceHandle(), Charset.defaultCharset()) + "\">use your customized service</a>",
-							MediaType.TEXT_PLAIN);
+					emitter.send("Ready. You can now <a href=\"" + FileUtils.readFileToString(env.getServiceHandle(), Charset.defaultCharset()) + "\">use your customized service</a>", MediaType.TEXT_PLAIN);
 				}
 			} catch (Exception e) {
 				emitter.completeWithError(e);
@@ -133,11 +134,12 @@ public class APIController {
 		return emitter;
 	}
 
-	private int getTimeoutValue(String id) throws Exception {
-		PROSECOProcessEnvironment env = processController.getConstructionProcessEnvironment(id);
+	private int getTimeoutValue(final String id) throws Exception {
+		PROSECOProcessEnvironment env = this.processController.getConstructionProcessEnvironment(id);
 		InterviewFillout interview = SerializationUtil.readAsJSON(env.getInterviewStateDirectory());
-		if (interview == null || interview.getInterview() == null)
+		if (interview == null || interview.getInterview() == null) {
 			return -1;
+		}
 		Question q = interview.getInterview().getQuestionByPath("timeout.timeout");
 		String timeoutValue = interview.getAnswer(q);
 		if (timeoutValue == null) {
@@ -146,36 +148,6 @@ public class APIController {
 		return Integer.parseInt(timeoutValue);
 	}
 
-	//
-	// /**
-	// * getGameClient, returns the game client application to be downloaded by
-	// * the user.
-	// *
-	// * @param id
-	// * id of the session
-	// * @param response
-	// * executable client application
-	// * @return
-	// * @throws IOException
-	// */
-	// @RequestMapping(value = "/api/download/{id}", method = RequestMethod.GET)
-	// public StreamingResponseBody getGameClient(@PathVariable("id") String id, HttpServletResponse response)
-	// throws IOException {
-	// String clientPath = getGameClient(id);
-	// response.setContentType("text/html;charset=UTF-8");
-	// response.setHeader("Content-Disposition", "attachment; filename=\"client.zip\"");
-	// InputStream inputStream = new FileInputStream(new File(clientPath));
-	//
-	// return outputStream -> {
-	// int nRead;
-	// byte[] data = new byte[1024];
-	// while ((nRead = inputStream.read(data, 0, data.length)) != -1) {
-	// outputStream.write(data, 0, nRead);
-	// }
-	// inputStream.close();
-	// };
-	// }
-
 	/**
 	 * Checks if the search strategy completed
 	 *
@@ -183,98 +155,40 @@ public class APIController {
 	 * @return
 	 * @throws Exception
 	 */
-	private boolean checkStatus(String id) throws Exception {
-		PROSECOProcessEnvironment env = processController.getConstructionProcessEnvironment(id);
+	private boolean checkStatus(final String id) throws Exception {
+		PROSECOProcessEnvironment env = this.processController.getConstructionProcessEnvironment(id);
 		return env.getServiceHandle().exists();
-		// for (LogPair log : findLogById()) {
-		// if (log.getSystemOutLog().contains("<strategy is ready>")) {
-		// return true;
-		// if (log.getPrototypeName().contains("automl")) {
-		// String portNumber = findServicePortNumber(id);
-		// if (portNumber != null) {
-		// resultMessage = "<a target=\"_blank\" href=\"http://localhost:" + portNumber + "\">localhost:" + portNumber + "</a>";
-		// }
-		// } else if (log.getSystemOutLog().contains("game")) {
-		// String clientPath = "/api/download/" + id;
-		// resultMessage = "<a target=\"_blank\" href=\"" + clientPath + "\" download> Download Game Client </a>";
-		// } else {
-		// resultMessage = log.getPrototypeName() + "-" + id + File.separator + Config.GROUNDING;
-		// }
-		// return resultMessage;
-		// } else if (getServiceLog(id) != null && getServiceLog(id).contains("launch success")) {
-		// String clientPath = "/api/download/" + id;
-		// resultMessage = "<a target=\"_blank\" href=\"" + clientPath + "\" download> Download Game Client </a>";
-		// return resultMessage;
-		// }
-		// }
-		// return false;
 	}
 
 	/**
 	 * Returns SystemOut and SystemError logs of Strategies of prototype with the given ID
-	 * 
+	 *
 	 * @param id
 	 * @return
 	 * @throws Exception
 	 */
 	@GetMapping("/api/log/{id}")
-	public ResponseEntity<?> getLog(@PathVariable("id") String id) throws Exception {
+	public ResponseEntity<?> getLog(@PathVariable("id") final String id) throws Exception {
 		LogResponseBody result = new LogResponseBody();
 
-		result.setLogList(findLogById(id));
+		result.setLogList(this.findLogById(id));
 
 		return ResponseEntity.ok(result);
 
 	}
 
-	// @GetMapping(value = "/api/sendResolution/{id}")
-	// public ResponseEntity<?> sendResolution(@PathVariable("id") String id, @RequestParam(name = "height") String height,
-	// @RequestParam(name = "width") String width) {
-	//
-	// Resolution res = new Resolution(height, width);
-	//
-	// Interview interview = findInterview(id);
-	// if (interview == null) {
-	// return ResponseEntity.ok("failure");
-	// }
-	// interview.setResolution(res);
-	//
-	// saveInterviewState(interview, id);
-	//
-	// return ResponseEntity.ok("success");
-	// }
-
-	// private void saveInterviewState(Interview interview, String id) {
-	// SerializationUtil.writeAsJSON(Config.EXECUTIONS_PATH + interview.getPrototypeName() + "-" + id + File.separator
-	// + Config.INTERVIEW_PATH, interview);
-	// }
-
-	// private Interview findInterview(String id) {
-	// String folder = null;
-	// File root = Config.EXECUTIONS;
-	// for (File file : root.listFiles()) {
-	// if (file.isDirectory()) {
-	// if (file.getName().contains(id)) {
-	// folder = file.getAbsolutePath();
-	// }
-	// }
-	// }
-	//
-	// return folder == null ? null : SerializationUtil.readAsJSON(folder + File.separator + Config.INTERVIEW_PATH);
-	// }
-
 	/**
 	 * Finds the deployed web application for with the given session id and kills the process.
-	 * 
+	 *
 	 * @param id
 	 *            id of the session
 	 * @return success if task is killed, failure if exception occured
 	 * @throws Exception
 	 */
 	@GetMapping("/api/stopService/{id}")
-	public String stopService(@PathVariable("id") String id) throws Exception {
+	public String stopService(@PathVariable("id") final String id) throws Exception {
 		String result = "success";
-		String PID = findServicePID(id);
+		String PID = this.findServicePID(id);
 		try {
 			String cmd = "tskill " + PID;
 			Runtime.getRuntime().exec(cmd);
@@ -284,59 +198,31 @@ public class APIController {
 
 		return result;
 	}
-	//
-	// /**
-	// * Returns the path of game client executable as zip with the given session
-	// * id
-	// *
-	// * @param id
-	// * id of the session
-	// * @return path of game client executable as zip
-	// */
-	// private String getGameClient(String id) {
-	// String clientPath = null;
-	// File root = Config.EXECUTIONS;
-	// String prototypeFolderWithID = null;
-	// for (File file : root.listFiles()) {
-	// if (file.isDirectory()) {
-	// if (file.getName().contains(id)) {
-	// prototypeFolderWithID = file.getAbsolutePath();
-	// break;
-	// }
-	// }
-	// }
-	//
-	// clientPath = prototypeFolderWithID + File.separator + "client";
-	//
-	// ZipUtil.pack(new File(clientPath), new File(clientPath + ".zip"));
-	//
-	// return clientPath + ".zip";
-	// }
 
 	/**
 	 * Returns the service log file content as string with the given id.
-	 * 
+	 *
 	 * @param id
 	 * @return
 	 * @throws Exception
 	 */
-	private String getServiceLog(String id) throws Exception {
-		PROSECOProcessEnvironment env = processController.getConstructionProcessEnvironment(id);
-		String serviceLogFile = env.getGroundingDirectory() + File.separator + config.getNameOfServiceLogFile();
+	private String getServiceLog(final String id) throws Exception {
+		PROSECOProcessEnvironment env = this.processController.getConstructionProcessEnvironment(id);
+		String serviceLogFile = env.getGroundingDirectory() + File.separator + this.config.getNameOfServiceLogFile();
 		String serviceLog = FileUtil.readFile(serviceLogFile);
 		return serviceLog;
 	}
 
 	/**
 	 * Finds service's process ID on OS.
-	 * 
+	 *
 	 * @param id
 	 * @return
 	 * @throws Exception
 	 */
-	private String findServicePID(String id) throws Exception {
+	private String findServicePID(final String id) throws Exception {
 		String PID = null;
-		String serviceLog = getServiceLog(id);
+		String serviceLog = this.getServiceLog(id);
 
 		if (serviceLog != null) {
 			String searchStartString = "with PID ";
@@ -361,14 +247,14 @@ public class APIController {
 
 	/**
 	 * Returns the port number occupied by the deployed application for the given session id
-	 * 
+	 *
 	 * @param id
 	 * @return port number
 	 * @throws Exception
 	 */
-	private String findServicePortNumber(String id) throws Exception {
+	private String findServicePortNumber(final String id) throws Exception {
 		String port = null;
-		String serviceLog = getServiceLog(id);
+		String serviceLog = this.getServiceLog(id);
 		if (serviceLog == null) {
 			return port;
 		}
@@ -395,14 +281,14 @@ public class APIController {
 
 	/**
 	 * returns list of log pairs(SystemOut, SystemErr) of strategies of prototype with the given id
-	 * 
+	 *
 	 * @param id
 	 * @return
 	 * @throws Exception
 	 */
-	private List<LogPair> findLogById(String id) throws Exception {
+	private List<LogPair> findLogById(final String id) throws Exception {
 		List<LogPair> logList = new ArrayList<>();
-		PROSECOProcessEnvironment env = processController.getConstructionProcessEnvironment(id);
+		PROSECOProcessEnvironment env = this.processController.getConstructionProcessEnvironment(id);
 
 		File processFolder = env.getProcessDirectory();
 		if (processFolder == null || env.getPrototypeName() == null || !env.getSearchOutputDirectory().exists()) {
@@ -420,9 +306,9 @@ public class APIController {
 		String outputPath = env.getSearchOutputDirectory().getAbsolutePath();
 		for (final File strategyFolder : strategySubFolders) {
 			String outputPathOfThisStrategy = outputPath + File.separator + strategyFolder.getName();
-			String systemOut = outputPathOfThisStrategy + File.separator + config.getSystemOutFileName();
-			String systemErr = outputPathOfThisStrategy + File.separator + config.getSystemErrFileName();
-			String systemAll = outputPathOfThisStrategy + File.separator + config.getSystemMergedOutputFileName();
+			String systemOut = outputPathOfThisStrategy + File.separator + this.config.getSystemOutFileName();
+			String systemErr = outputPathOfThisStrategy + File.separator + this.config.getSystemErrFileName();
+			String systemAll = outputPathOfThisStrategy + File.separator + this.config.getSystemMergedOutputFileName();
 			String outLog = FileUtil.readFile(systemOut);
 			String errLog = FileUtil.readFile(systemErr);
 			String allLog = FileUtil.readFile(systemAll);

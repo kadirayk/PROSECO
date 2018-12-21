@@ -22,7 +22,7 @@ sourceSets {
             srcDir 'src'
         }
         resources {
-        	srcDir 'resources'
+        	srcDir 'res'
     	}
     }
     test {
@@ -66,7 +66,7 @@ dependencies {
 
 // since we use spring boot, we now work with logback. So in case that anybody else wants to work with log4j in slf4j, we deactivate that module. Log4j support is enabled automatically via slf4j-over-log4j
 configurations.all {
-  exclude module: 'slf4j-log4j12'
+    exclude module: 'slf4j-log4j12'
 }
 
 repositories {

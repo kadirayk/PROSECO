@@ -33,7 +33,7 @@ public class CompositionAlgorithm implements Runnable {
 
 	/* logging */
 	private static final Logger logger = LoggerFactory.getLogger(CompositionAlgorithm.class);
-	private static final boolean LOCAL_TEST = false;
+	private static final boolean LOCAL_TEST = true;
 
 	/** Base folder for matching the availability of prototypes */
 	private final PROSECOProcessEnvironment executionEnvironment;
