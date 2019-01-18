@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyEmitter;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
+import de.upb.crc901.proseco.GlobalConfig;
 import de.upb.crc901.proseco.core.PROSECOConfig;
 import de.upb.crc901.proseco.core.composition.PROSECOProcessEnvironment;
 import de.upb.crc901.proseco.core.interview.InterviewFillout;
@@ -41,11 +42,15 @@ import de.upb.crc901.proseco.view.util.SerializationUtil;
 @RestController
 public class APIController {
 
-	private static final File PROSECO_CONFIG_FILE = new File("res/proseco.conf");
+	/* logging. */
+	private static final Logger L = LoggerFactory.getLogger(APIController.class);
 
-	private static final Logger logger = LoggerFactory.getLogger(APIController.class);
+	/* Config for basic properties of proseco's environment, e.g., paths to common properties files. */
+	private static final GlobalConfig PROSECO_ENV_CONFIG = ConfigCache.getOrCreate(GlobalConfig.class);
+
 	private final PROSECOConfig config = ConfigCache.getOrCreate(PROSECOConfig.class);
-	private final ProcessController processController = new DefaultProcessController(PROSECO_CONFIG_FILE);
+
+	private final ProcessController processController = new DefaultProcessController(PROSECO_ENV_CONFIG.prosecoConfigFile());
 
 	/**
 	 * Returns SystemOut and SystemError logs of Strategies of prototype with the given ID
@@ -112,7 +117,7 @@ public class APIController {
 						}
 						Thread.sleep(1000);
 					} catch (IOException e) {
-						logger.info("Connection closed by client.");
+						L.info("Connection closed by client.");
 						emitter.completeWithError(e);
 						return;
 					} catch (Exception e) {

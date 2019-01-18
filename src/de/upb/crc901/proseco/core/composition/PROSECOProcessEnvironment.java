@@ -7,12 +7,16 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.aeonbits.owner.ConfigCache;
 import org.apache.commons.lang3.SystemUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import de.upb.crc901.proseco.GlobalConfig;
 import de.upb.crc901.proseco.core.DomainConfig;
 import de.upb.crc901.proseco.core.PROSECOConfig;
 import de.upb.crc901.proseco.core.ProcessConfig;
@@ -30,8 +34,9 @@ public class PROSECOProcessEnvironment {
 
 	/* logging */
 	private static final Logger L = LoggerFactory.getLogger(PROSECOProcessEnvironment.class);
-	private static final String NON_WINDOWS_SCRIPT_EXT = ".sh";
-	private static final String WINDOWS_SCRIPT_EXT = ".bat";
+
+	/* Global config for system-wide constants */
+	private static final GlobalConfig GLOBAL_CONFIG = ConfigCache.getOrCreate(GlobalConfig.class);
 
 	/* meta data: PROSECO and its runtime environment */
 	private enum OperatingSystem {
@@ -78,18 +83,8 @@ public class PROSECOProcessEnvironment {
 	 */
 	public PROSECOProcessEnvironment(final File processFolder) throws FileNotFoundException, IOException {
 		L.debug("Initializing PROSECO process environment.");
-		/* read the process.json */
-		File processConfigFile = new File(processFolder + File.separator + "process.json");
-		if (!processConfigFile.exists()) {
-			throw new FileNotFoundException("Cannot create a PROSECOProcess environment for a folder without process.json");
-		}
-		ProcessConfig processConfig = new ObjectMapper().readValue(processConfigFile, ProcessConfig.class);
-		if (processConfig.getProcessId() == null) {
-			throw new IllegalArgumentException("The process.json MUST define a process id");
-		}
-		if (processConfig.getDomain() == null) {
-			throw new IllegalArgumentException("The process.json MUST define a domain");
-		}
+
+		ProcessConfig processConfig = this.loadAndValidateProcessConfig(processFolder);
 
 		/* Figure out what operating system PROSECO is running in. */
 		this.os = (SystemUtils.IS_OS_WINDOWS ? OperatingSystem.WINDOWS : OperatingSystem.NON_WINDOWS);
@@ -114,6 +109,8 @@ public class PROSECOProcessEnvironment {
 		this.interviewStateDirectory = new File(this.processDirectory + File.separator + this.domainConfig.getNameOfInterviewFolder());
 		this.interviewStateFile = new File(this.interviewStateDirectory + File.separator + this.domainConfig.getNameOfInterviewStateFile());
 		this.interviewResourcesDirectory = new File(this.interviewStateDirectory + File.separator + this.domainConfig.getNameOfInterviewResourceFolder());
+
+		this.searchDirectory = new File(this.processDirectory, "search");
 
 		/* extract prototype from interview */
 		this.interviewFillout = this.interviewStateFile.exists() ? SerializationUtil.readAsJSON(this.interviewStateFile) : null;
@@ -141,8 +138,23 @@ public class PROSECOProcessEnvironment {
 			this.deploymentFile = null;
 		}
 
-		// configDirectory = new File(processDirectory + File.separator + prototype());;
-		this.searchDirectory = new File(this.processDirectory + File.separator + "search");
+	}
+
+	private ProcessConfig loadAndValidateProcessConfig(final File processFolder) throws JsonParseException, JsonMappingException, IOException {
+		/* read the process.json */
+		String processConfigFilename = GLOBAL_CONFIG.processConfigFilename();
+		File processConfigFile = new File(processFolder, processConfigFilename);
+		if (!processConfigFile.exists()) {
+			throw new FileNotFoundException("Cannot create a PROSECOProcess environment for a folder without " + processConfigFilename);
+		}
+		ProcessConfig processConfig = new ObjectMapper().readValue(processConfigFile, ProcessConfig.class);
+		if (processConfig.getProcessId() == null) {
+			throw new IllegalArgumentException("The " + processConfigFilename + " MUST define a process id");
+		}
+		if (processConfig.getDomain() == null) {
+			throw new IllegalArgumentException("The " + processConfigFilename + " MUST define a domain");
+		}
+		return processConfig;
 	}
 
 	public File getPrototypeDirectory() {
@@ -284,9 +296,9 @@ public class PROSECOProcessEnvironment {
 
 		String extension;
 		if (this.os == OperatingSystem.WINDOWS) {
-			extension = WINDOWS_SCRIPT_EXT;
+			extension = GLOBAL_CONFIG.scriptExtensionWindows();
 		} else {
-			extension = NON_WINDOWS_SCRIPT_EXT;
+			extension = GLOBAL_CONFIG.scriptExtensionNonWindows();
 		}
 		return new File(file.getAbsolutePath() + extension);
 	}

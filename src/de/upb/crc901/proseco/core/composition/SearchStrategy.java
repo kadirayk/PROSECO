@@ -1,8 +1,7 @@
-package de.upb.crc901.proseco.util;
+package de.upb.crc901.proseco.core.composition;
 
 import java.io.BufferedOutputStream;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
@@ -10,10 +9,12 @@ import java.nio.charset.Charset;
 import java.util.Arrays;
 
 import org.apache.commons.io.FileUtils;
-
-import de.upb.crc901.proseco.core.composition.PROSECOProcessEnvironment;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public abstract class SearchStrategy implements Runnable {
+
+	private static final Logger L = LoggerFactory.getLogger(SearchStrategy.class);
 
 	private final String strategyName;
 	private final File dirOfInputs;
@@ -21,7 +22,7 @@ public abstract class SearchStrategy implements Runnable {
 	private final PROSECOProcessEnvironment environment;
 	private final long deadline;
 
-	public SearchStrategy(final String[] args) throws FileNotFoundException, IOException {
+	public SearchStrategy(final String[] args) throws IOException {
 		if (args.length != 4) {
 			throw new IllegalArgumentException(
 					"A search strategy must be invoked with an array of exactly four arguments (folder with PROSECO conf and process id, input folder, output folder, and timeout in seconds).\nThe following arguments were given: "
@@ -53,11 +54,15 @@ public abstract class SearchStrategy implements Runnable {
 
 	protected boolean checkCandidate(final File candidateOutputFolder) throws InterruptedException, IOException {
 		File analysisProcessFile = this.environment.verificationExecutable();
-		System.out.println("Running analysis " + analysisProcessFile.getAbsolutePath() + " on " + candidateOutputFolder.getAbsolutePath());
+		if (L.isDebugEnabled()) {
+			L.debug("Running analysis {} on {}", analysisProcessFile.getAbsolutePath(), candidateOutputFolder.getAbsolutePath());
+		}
 		ProcessBuilder sb = new ProcessBuilder(analysisProcessFile.getAbsolutePath(), candidateOutputFolder.getAbsolutePath());
 		Process p = sb.start();
 		int exitCode = p.waitFor();
-		System.out.println("Result code is " + exitCode);
+		if (L.isDebugEnabled()) {
+			L.debug("Result code is {}.", exitCode);
+		}
 		return exitCode == 0;
 	}
 
