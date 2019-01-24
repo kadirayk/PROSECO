@@ -125,7 +125,7 @@ public class PROSECOProcessEnvironment {
 			this.groundingFile = this.appendExecutableScriptExtension(new File(this.groundingDirectory + File.separator + this.prototypeConfig.getGroundingCommand())).getCanonicalFile();
 			this.strategyDirectory = new File(this.prototypeDirectory + File.separator + this.prototypeConfig.getNameOfStrategyFolder());
 			this.analysisRoutineExecutable = new File(this.prototypeDirectory + File.separator + this.prototypeConfig.getHookForPreGrounding());
-			this.deploymentFile = new File(this.prototypeDirectory + File.separator + this.prototypeConfig.getDeploymentCommand());
+			this.deploymentFile = this.appendExecutableScriptExtension(new File(this.prototypeDirectory + File.separator + this.prototypeConfig.getDeploymentCommand()));
 		} else {
 			this.prototypeName = null;
 			this.prototypeDirectory = null;

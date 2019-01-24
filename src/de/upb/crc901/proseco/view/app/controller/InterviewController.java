@@ -59,7 +59,7 @@ public class InterviewController {
 	 * @param model
 	 * @return
 	 */
-	@GetMapping("/init")
+	@GetMapping("/")
 	public String init(Model model) {
 		model.addAttribute("interviewDTO", new InterviewDTO());
 		return INIT_TEMPLATE;
@@ -72,7 +72,7 @@ public class InterviewController {
 	 * @return
 	 * @throws NextStateNotFoundException
 	 */
-	@PostMapping("/init")
+	@PostMapping("/")
 	public String initSubmit(@ModelAttribute InterviewDTO interviewDTO) throws Exception {
 
 		/* determine domain name */

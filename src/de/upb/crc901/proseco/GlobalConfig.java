@@ -25,7 +25,7 @@ public interface GlobalConfig extends Config {
 	 * @return A flag stating whether PROSECO is executed in DEBUG mode.
 	 */
 	@Key(K_DEBUG_MODE)
-	@DefaultValue("true")
+	@DefaultValue("false")
 	public boolean debugMode();
 
 	@Key(K_REDIRECT_PROCESS_OUTPUTS)

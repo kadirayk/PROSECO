@@ -110,9 +110,9 @@ public class InterviewDTO {
 	 */
 	private void setDebugHtml(InterviewFillout interviewFillout) {
 			StringBuilder htmlElement = new StringBuilder();
-			htmlElement.append("<div>");
+			htmlElement.append("<div id=\"debugBox\">");
 			htmlElement.append(HTMLConstants.LINE_BREAK).append("Debug: ");
-			htmlElement.append("<table style=\"width:30%\" border=\"1\"><tr><th>").append("State").append("</th><th>")
+			htmlElement.append("<table style=\"width: 100%\" border=\"1\"><tr><th>").append("State").append("</th><th>")
 					.append("qId").append("</th><th>").append("Question").append("</th><th>").append("answer").append("</th></tr>");
 			for (State state : interviewFillout.getInterview().getStates()) {
 				if (state.getName().equals("timeout")) {
@@ -120,7 +120,7 @@ public class InterviewDTO {
 				}
 				htmlElement.append("<tr");
 				if (state.getName().equals(interviewFillout.getCurrentState().getName())) {
-					htmlElement.append(" bgcolor=\"#b4ff99\" ");
+					htmlElement.append(" class=\"currentState\" ");
 				}
 				htmlElement.append("><td rowspan=\"").append(state.getQuestions().size()).append("\">")
 						.append(state.getName()).append("</td>");
@@ -130,7 +130,7 @@ public class InterviewDTO {
 					if (isFirstLoop) {
 						htmlElement.append("<tr");
 						if (state.getName().equals(interviewFillout.getCurrentState().getName())) {
-							htmlElement.append(" bgcolor=\"#b4ff99\" ");
+							htmlElement.append(" class=\"currentState\" ");
 						}
 						htmlElement.append(">");
 					}
