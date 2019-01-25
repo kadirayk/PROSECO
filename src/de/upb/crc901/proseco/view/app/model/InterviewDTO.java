@@ -27,6 +27,8 @@ public class InterviewDTO {
 
 	private String debugHTML;
 
+	private boolean showInterview;
+	
 	private boolean showSubmit;
 
 	private boolean showConfigurationPane;
@@ -153,6 +155,14 @@ public class InterviewDTO {
 		return showConfigurationPane;
 	}
 
+	public boolean isShowInterview() {
+		return showInterview;
+	}
+
+	public void setShowInterview(boolean showInterview) {
+		this.showInterview = showInterview;
+	}
+
 	public void setShowConfigurationPane(boolean showConfigurationPane) {
 		this.showConfigurationPane = showConfigurationPane;
 	}
@@ -175,7 +185,9 @@ public class InterviewDTO {
 
 	@Override
 	public String toString() {
-		return "InterviewDTO [processId=" + processId + ", content=" + content + ", interviewFillout=" + interviewFillout + ", interviewHTML=" + interviewHTML + ", debugHTML="
-				+ debugHTML + ", showSubmit=" + showSubmit + ", showConsole=" + showConsole + ", upload=" + upload + "]";
+		return "InterviewDTO [processId=" + processId + ", content=" + content + ", interviewFillout="
+				+ interviewFillout + ", interviewHTML=" + interviewHTML + ", debugHTML=" + debugHTML
+				+ ", showInterview=" + showInterview + ", showSubmit=" + showSubmit + ", showConfigurationPane="
+				+ showConfigurationPane + ", showConsole=" + showConsole + ", upload=" + upload + "]";
 	}
 }

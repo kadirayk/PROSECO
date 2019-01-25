@@ -12,6 +12,9 @@ import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import de.upb.crc901.proseco.core.interview.InterviewFillout;
+import de.upb.crc901.proseco.view.util.SerializationUtil;
+
 public abstract class SearchStrategy implements Runnable {
 
 	private static final Logger L = LoggerFactory.getLogger(SearchStrategy.class);
@@ -33,6 +36,7 @@ public abstract class SearchStrategy implements Runnable {
 		this.dirOfInputs = new File(args[1]);
 		this.dirOfOutputs = new File(args[2]);
 		this.strategyName = this.dirOfOutputs.getName();
+		L.debug("Recognized strategy {} by output dir name. Using {} as input folder.", strategyName, dirOfInputs.getAbsolutePath());
 		this.deadline = System.currentTimeMillis() + Integer.valueOf(args[3]) * 1000;
 	}
 
@@ -50,6 +54,10 @@ public abstract class SearchStrategy implements Runnable {
 
 	public String getStrategyName() {
 		return this.strategyName;
+	}
+	
+	public InterviewFillout getInterview() {
+		return SerializationUtil.readAsJSON(getEnvironment().getInterviewStateFile());
 	}
 
 	protected boolean checkCandidate(final File candidateOutputFolder) throws InterruptedException, IOException {

@@ -70,7 +70,7 @@ public interface PROSECOConfig extends Mutable, Accessible {
 		try {
 			props.load(new FileInputStream(file));
 		} catch (FileNotFoundException e) {
-			System.err.println("Could not find config file " + file + ". Assuming default configuration");
+			System.err.println("Could not find config file " + file.getAbsolutePath() + ". Assuming default configuration");
 		} catch (IOException e) {
 			System.err.println("Encountered problem with config file " + file + ". Assuming default configuration. Problem:" + e.getMessage());
 		}

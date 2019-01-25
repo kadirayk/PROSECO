@@ -108,7 +108,7 @@ public class APIController {
 					try {
 						if (!isComplete) {
 							if (countDown > 0) {
-								emitter.send(countDown + "s", MediaType.TEXT_PLAIN);
+								emitter.send("Your service is being configured. It will be accessible in at most " + countDown + "s.", MediaType.TEXT_PLAIN);
 								countDown--;
 							} else {
 								emitter.send(new String(new char[animationDots + 1]).replace("\0", ". "), MediaType.TEXT_PLAIN);
@@ -127,7 +127,7 @@ public class APIController {
 					}
 				}
 				if (isComplete) {
-					emitter.send("Ready. You can now <a href=\"" + FileUtils.readFileToString(env.getServiceHandle(), Charset.defaultCharset()) + "\">use your customized service</a>", MediaType.TEXT_PLAIN);
+					emitter.send("Ready. You can now <a href=\"" + FileUtils.readFileToString(env.getServiceHandle(), Charset.defaultCharset()) + "\">use your customized service</a>.", MediaType.TEXT_PLAIN);
 				}
 			} catch (Exception e) {
 				emitter.completeWithError(e);
@@ -140,17 +140,14 @@ public class APIController {
 	}
 
 	private int getTimeoutValue(final String id) throws Exception {
+		InterviewFillout interview = getInterviewFillout(id);
+		String timeoutValue = interview.getAnswer("timeout");
+		return timeoutValue != null ? Integer.parseInt(timeoutValue) : - 1;
+	}
+	
+	private InterviewFillout getInterviewFillout(final String id) throws Exception {
 		PROSECOProcessEnvironment env = this.processController.getConstructionProcessEnvironment(id);
-		InterviewFillout interview = SerializationUtil.readAsJSON(env.getInterviewStateDirectory());
-		if (interview == null || interview.getInterview() == null) {
-			return -1;
-		}
-		Question q = interview.getInterview().getQuestionByPath("timeout.timeout");
-		String timeoutValue = interview.getAnswer(q);
-		if (timeoutValue == null) {
-			timeoutValue = "120";
-		}
-		return Integer.parseInt(timeoutValue);
+		return SerializationUtil.readAsJSON(env.getInterviewStateFile());
 	}
 
 	/**

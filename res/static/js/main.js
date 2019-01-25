@@ -26,6 +26,10 @@ function checkResult() {
 //					document.getElementById("strategy-result").innerHTML = event.data;
 //				}
 //			} else {
+			console.log(event.data);
+			if (false) {
+				$("#btn-stop-service").css("display", "");
+			}
 				document.getElementById("strategy-result").innerHTML = event.data;
 //			}
 		};
@@ -39,71 +43,72 @@ function listenStrategyLogs() {
 		currentUrl = window.location.href.split("/").pop();
 		strategyLogSource = new EventSource("/api/strategyLogs/" + currentUrl);
 		strategyLogSource.onmessage = function(event) {
-			var field = "<div class=\"container\" style=\"margin-top: 30px\">";
+			
+			/* when new log information arrives, reset respective DIV */
+			var htmlContent = "";
 			const data = JSON.parse(event.data);
+			
+			/* now create the HTML for the console boxes */
 			for ( var logPair in data['logList']) {
+				var strategyName = data['logList'][logPair]['strategyName'];
+				
+				/* memorize checked log-boxes */
+				var checkedBox;
+				$("#strategy-log-" + strategyName + " input:checked").each(function() {
+					checkedBox = $(this).attr("id");
+				});
+				
+				/* derive the (formatted) string for the joint log and the error log respectively */
 				var allLog = data['logList'][logPair]['systemAllLog'];
-				allLog = allLog
-						.replace(/\$\_\(/g, '<span style=\"color:red\">');
+				allLog = allLog.replace(/\$\_\(/g, '<span style=\"color:red\">');
 				allLog = allLog.replace(/\)\_\$/g, '</span>');
 				var errLog = data['logList'][logPair]['systemErrorLog'];
-				errLog = errLog
-						.replace(/\$\_\(/g, '<span style=\"color:red\">');
+				errLog = errLog.replace(/\$\_\(/g, '<span style=\"color:red\">');
 				errLog = errLog.replace(/\)\_\$/g, '</span>');
-				field = field
-						+ "<div class=\"col-xs-6\">"
-						+ "<ul class=\"nav nav-tabs\" id=\"myTab\" style=\"max-width: 564px\">"
-						+ "<li role=\"tab\" class=\"active\"><a href=\"#merged-"
-						+ data['logList'][logPair]['strategyName']
-						+ "\" data-toggle=\"tab\">Merged</a></li>"
-						+ "<li role=\"tab\"><a href=\"#separated-"
-						+ data['logList'][logPair]['strategyName']
-						+ "\" data-toggle=\"tab\">Separated</a></li>"
-						+ "</ul>"
-						+ "<div class=\"tab-content\">"
-						+ "<div id=\"merged-"
-						+ data['logList'][logPair]['strategyName']
-						+ "\" class=\"tab-pane active\">"
-						+ "<div class=\"col-xs-12\">"
-						+ data['logList'][logPair]['strategyName']
-						+ " System Out &amp; Err"
-						+ "<div class=\"pre-scrollable,console-all\">"
-						+ "<pre>"
-						+ allLog
-						+ "</pre>"
-						+ "</div>"
-						+ "</div>"
-						+ "</div>"
-						+ "<div id=\"separated-"
-						+ data['logList'][logPair]['strategyName']
-						+ "\" class=\"tab-pane\">"
-						+ "<div class=\"row\">"
-						+ "<div class=\"col-xs-6\">"
-						+ data['logList'][logPair]['strategyName']
-						+ " System Out"
-						+ "<div class=\"pre-scrollable,console-out\">"
-						+ "<pre>"
-						+ data['logList'][logPair]['systemOutLog']
-						+ "</pre>"
-						+ "</div>"
-						+ "</div>"
-						+ "<div class=\"row\">"
-						+ "<div class=\"col-xs-6\">"
-						+ data['logList'][logPair]['strategyName']
-						+ "System Error"
-						+ "<div class=\"pre-scrollable,console-err\">"
-						+ "<pre>" + errLog + "</pre>"
-						+ "</div></div></div></div></div></div></div>";
-
+				
+				/* define HTML for the console box */
+				var thisBox = $(
+					"<div><div id=\"strategy-log-" + strategyName + "\" class=\"container strategy-log\">" +
+					"  <h2>" + strategyName + "</h2>" + 
+					"  <div class=\"tabs\">" +
+					"    <input name=\"tabs-" + strategyName + "-strategy\" type=\"radio\" id=\"tab-" + strategyName + "-strategy-merged\" class=\"input\" />" + 
+					"    <label for=\"tab-" + strategyName + "-strategy-merged\" class=\"label\">Merged</label>" + 
+					"    <div class=\"panel console-box\">" +
+					allLog +
+					"    </div>" +
+					"    <input name=\"tabs-" + strategyName + "-strategy\" type=\"radio\" id=\"tab-" + strategyName + "-strategy-out\" class=\"input\" />" +
+					"    <label for=\"tab-" + strategyName + "-strategy-out\" class=\"label\">System.out</label>" +
+					"    <div class=\"panel console-box\">" +
+					data['logList'][logPair]['systemOutLog'] +
+					"    </div>" +
+					"    <input name=\"tabs-" + strategyName + "-strategy\" type=\"radio\" id=\"tab-" + strategyName + "-strategy-error\" class=\"input\" />" +
+					"    <label for=\"tab-" + strategyName + "-strategy-error\" class=\"label\">System.err</label>" +
+					"    <div class=\"panel console-box\">" +
+					errLog +
+					"    </div>" +
+					"  </div>" +
+					"  <br style=\"clear: left;\" />" +
+					"</div></div>");
+				
+				/* automatically check the currently active box */
+				if (checkedBox == undefined)
+					$("input:first", thisBox).attr("checked", "checked");
+				else
+					$("#" + checkedBox, thisBox).attr("checked", "checked");
+				
+				/* append html */
+				htmlContent += thisBox.html();
 			}
-
-			$('#strategy-logs').html(field);
-			for (var i = 0, len = tabArray.length; i < len; i++) {
+			
+			/* inject the HTML into the corresponding div-tag */
+			$('#strategy-logs').html(htmlContent);
+			/*for (var i = 0, len = tabArray.length; i < len; i++) {
 				$('.nav-tabs a[href="' + tabArray[i] + '"]').tab('show');
 			}
+			*/
 
-			// set scroll bar to the bottom
-			$('.pre-scrollable').scrollTop(1E10);
+			// this only scrolls the active ones!
+			$('.console-box').scrollTop(1E10);
 		};
 	} else {
 		document.getElementById("strategy-result").innerHTML = "Your browser does not support server-sent events.";

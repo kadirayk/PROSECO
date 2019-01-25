@@ -17,7 +17,7 @@ import org.springframework.web.multipart.commons.CommonsMultipartResolver;
 @SpringBootApplication
 public class PROSECOServer {
 	
-	int MAX_MB_UPLOAD = 10;
+	int MAX_MB_UPLOAD = 150;
 	
     @Bean
     @Order(0)

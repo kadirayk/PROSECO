@@ -78,14 +78,14 @@ public class StrategyExecutor {
 			commandArguments[3] = outputPath.getAbsolutePath();
 			commandArguments[4] = "" + timeoutInSeconds;
 			new File(commandArguments[0]).setExecutable(true);
-
+			
+			/* organize log outputs */
 			ProcessBuilder pb = new ProcessBuilder(commandArguments);
 			if (GLOBAL_CONFIG.debugMode() && GLOBAL_CONFIG.redirectProcessOutputs()) {
 				pb = pb.redirectOutput(Redirect.INHERIT).redirectError(Redirect.INHERIT);
 			} else {
 				pb = pb.redirectOutput(Redirect.PIPE).redirectError(Redirect.PIPE);
 			}
-
 			FileUtils.forceMkdir(outputPath);
 			File systemOut = new File(outputPath + File.separator + this.executionEnvironment.getProsecoConfig().getSystemOutFileName());
 			File systemErr = new File(outputPath + File.separator + this.executionEnvironment.getProsecoConfig().getSystemErrFileName());
@@ -161,7 +161,7 @@ public class StrategyExecutor {
 						byte[] outBytes = new byte[1024 * 10];
 						while (!Thread.currentThread().isInterrupted() && (outRead = stdOutput.read(outBytes)) != -1) {
 							errOutputStream.write(this.maskErrorStreamBytes(outRead, outBytes), 0, outRead + 8);
-							allOutputStream.write(outBytes, 0, outRead);
+							allOutputStream.write(this.maskErrorStreamBytes(outRead, outBytes), 0, outRead + 8);
 						}
 					} catch (IOException e) {
 						e.printStackTrace();

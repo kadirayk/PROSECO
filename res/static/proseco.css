@@ -1,5 +1,5 @@
 body {
-	background: #ffc;
+	background: #0f0;
 }
 
 #main {
@@ -19,16 +19,99 @@ body {
 	border: 1px #000 solid;
 }
 
-.console-all {
+.error {
+	color: red;
+}
+
+.strategy-log {
+	margin: 10px;
 	
 }
 
-.console-err {
-	
+/**
+ *
+ */
+.console-box {
+	white-space: pre;
+	font-family: courier;
+	height: 400px;
+	overflow: scroll;
+	font-size: 8pt;
 }
 
-.console-out {
-	min-height: 200px;
-	max-height: 200px;
-	max-width: 600px;
+.console-logs {
+  padding: 10px;
+}
+
+.tabs pre {
+  margin: 0;
+  padding: 0;
+}
+
+.console-error {
+  color: red;
+}
+
+/**
+ * tabbed panes
+ **/
+
+/* hide radio buttons (don't use display: none, because this breaks their functionality) */
+
+.input {
+  position: absolute;
+  opacity: 0;
+}
+
+.label {
+  float: left;
+  height: 50px;
+  padding: 0px 10px;
+  background: #e5e5e5;
+  cursor: pointer;
+  font-weight: bold;
+  font-size: 18px;
+  color: #7f7f7f;
+  transition: background 0.1s, color 0.1s;
+}
+
+.label:hover {
+  background: #d8d8d8;
+}
+
+.label:active {
+  background: #ccc;
+}
+
+.input:focus + .label {
+  box-shadow: inset 0px 0px 0px 3px #2aa1c0;
+  z-index: 1;
+}
+
+.tabs {
+  display: flex;
+  position: relative;
+  flex-wrap: wrap;
+  width: 100%;
+  background: #efefef;
+  box-shadow: 0 48px 80px -32px rgba(0,0,0,0.3);
+}
+
+.panel {
+  position: absolute;
+  top: 50px;
+  left: 0px;
+  display: none;
+  width: 100%;
+  background: #fff;
+}
+
+/* this activates exactly the panel of the checked radio button */
+.input:checked + .label {
+  background: #fff;
+  color: #000;
+}
+
+.input:checked + .label + .panel {
+  display: block;
 }

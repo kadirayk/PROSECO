@@ -8,14 +8,14 @@
 	<nav class="navbar navbar-inverse navbar-static-top">
 		<div class="container">
 			<div class="navbar-header">
-				<a class="navbar-brand" href="/init">PROSECO</a>
+				<a class="navbar-brand" href="/">PROSECO</a>
 			</div>
 		</div>
 	</nav>
 
 
 	<div id="main" class="container" style="min-height: 500px">
-		<div class="starter-template">
+		<div class="starter-template" th:if="${interviewDTO.showInterview}">
 			<h1>Query Completion</h1>
 			<form id="form-submit" action="#" th:action="@{/interview/{id}(id=${interviewDTO.processId})}" th:object="${interviewDTO}" method="post" enctype="multipart/form-data">
 				<div th:remove="tag" th:utext="${interviewDTO.interviewHTML}"></div>
@@ -26,13 +26,13 @@
 			</form>
 		</div>
 
-
 		<!-- Control elements for configuration process -->
 		<div th:if="${interviewDTO.showConfigurationPane}">
-			<div style="margin-left: 10px; font-size: 18px; float: left;" class="label label-success">
-				Result: <span class="label label-success" id="strategy-result"> </span>
+			<h1>Composition Process</h1>
+			<div style="margin-left: 10px; font-size: 18px;">
+				Result: <span id="strategy-result"> </span>
+			   <input type="button" id="btn-stop-service" class="btn btn-default" style="display: none;" onclick="StopService()" value="Stop Service" />
 			</div>
-			<input type="button" id="btn-stop-service" class="btn btn-default" onclick="StopService()" value="Stop Service" />
 
 			<!-- Console boxes -->
 			<div th:if="${interviewDTO.showConsole}">

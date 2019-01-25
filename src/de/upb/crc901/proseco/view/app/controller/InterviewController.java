@@ -86,6 +86,7 @@ public class InterviewController {
 			logger.info("Reading interview file {}", interviewFile);
 			Parser parser = new Parser();
 			interviewDTO.setInterviewFillout(new InterviewFillout(parser.initializeInterviewFromConfig(interviewFile)));
+			interviewDTO.setShowInterview(true);
 			interviewDTO.setProcessId(env.getProcessId());
 		} catch (Exception e) {
 			logger.error("Error in creating a construction process for domain " + domainName + ". The exception is as follows:");
@@ -235,6 +236,7 @@ public class InterviewController {
 		InterviewFillout interview = SerializationUtil.readAsJSON(env.getInterviewStateFile());
 		interviewDTO.setInterviewFillout(interview);
 		interviewDTO.setProcessId(id);
+		interviewDTO.setShowInterview(interview.getCurrentState().getTransition() != null);
 	}
 
 	/**

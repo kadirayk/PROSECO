@@ -82,7 +82,7 @@ public class PROSECOProcessEnvironment {
 	 * @throws IOException
 	 */
 	public PROSECOProcessEnvironment(final File processFolder) throws FileNotFoundException, IOException {
-		L.debug("Initializing PROSECO process environment.");
+		L.debug("Initializing PROSECO process environment for process folder {}.", processFolder.getAbsolutePath());
 
 		ProcessConfig processConfig = this.loadAndValidateProcessConfig(processFolder);
 
@@ -91,9 +91,10 @@ public class PROSECOProcessEnvironment {
 		L.debug("Detected {} operating system.", this.os.name());
 
 		/* read PROSECO configuration and configure process */
-		L.debug("Load PROSECO config...");
-		this.prosecoConfig = PROSECOConfig.get(processConfig.getProsecoConfigFile());
-
+		File prosecoConfigFile = processConfig.getProsecoConfigFile().isAbsolute() ? processConfig.getProsecoConfigFile() : new File(processFolder + File.separator + processConfig.getProsecoConfigFile());
+		L.debug("Load PROSECO config from {}", prosecoConfigFile);
+		this.prosecoConfig = PROSECOConfig.get(prosecoConfigFile);
+		
 		/* current process specific data. */
 		this.processId = processConfig.getProcessId();
 		this.processDirectory = new File(this.prosecoConfig.getDirectoryForProcesses() + File.separator + this.processId).getCanonicalFile();
@@ -113,7 +114,9 @@ public class PROSECOProcessEnvironment {
 		this.searchDirectory = new File(this.processDirectory, "search");
 
 		/* extract prototype from interview */
+		L.debug("Trying to read interview from file {}. Existent: {}", this.interviewStateFile.getAbsolutePath(), this.interviewStateFile.exists());
 		this.interviewFillout = this.interviewStateFile.exists() ? SerializationUtil.readAsJSON(this.interviewStateFile) : null;
+		L.debug("Interview fillout is {}", interviewFillout);
 
 		/* prototype specific folders if prototype has been set in the interview */
 		if (this.interviewFillout != null && this.interviewFillout.getAnswer("prototype") != null) {
@@ -127,6 +130,7 @@ public class PROSECOProcessEnvironment {
 			this.analysisRoutineExecutable = new File(this.prototypeDirectory + File.separator + this.prototypeConfig.getHookForPreGrounding());
 			this.deploymentFile = this.appendExecutableScriptExtension(new File(this.prototypeDirectory + File.separator + this.prototypeConfig.getDeploymentCommand()));
 		} else {
+			L.debug("Either the interview is not filled out or the prototype has not been set. So setting all prototype specific configs to null");
 			this.prototypeName = null;
 			this.prototypeDirectory = null;
 			this.prototypeConfig = null;
@@ -141,6 +145,7 @@ public class PROSECOProcessEnvironment {
 	}
 
 	private ProcessConfig loadAndValidateProcessConfig(final File processFolder) throws JsonParseException, JsonMappingException, IOException {
+		
 		/* read the process.json */
 		String processConfigFilename = GLOBAL_CONFIG.processConfigFilename();
 		File processConfigFile = new File(processFolder, processConfigFilename);
