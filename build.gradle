@@ -48,6 +48,7 @@ dependencies {
 	
 	// Spring Boot
 	compile group: 'org.springframework.boot', name: 'spring-boot-starter-thymeleaf', version: '1.5.16.RELEASE'
+	compile 'org.springframework.boot:spring-boot-devtools:1.5.16.RELEASE'
 	
 	// Jackson for YAML
 	compile 'com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.8.10'
@@ -65,8 +66,10 @@ dependencies {
 
 
 // since we use spring boot, we now work with logback. So in case that anybody else wants to work with log4j in slf4j, we deactivate that module. Log4j support is enabled automatically via slf4j-over-log4j
-configurations.all {
-    exclude module: 'slf4j-log4j12'
+configurations {
+    all {
+        exclude module: 'slf4j-log4j12'
+    }  
 }
 
 repositories {
