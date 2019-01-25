@@ -132,8 +132,8 @@ public class CompositionAlgorithm implements Runnable {
 				groundingCommand[3] = this.executionEnvironment.getSearchOutputDirectory().getAbsolutePath() + File.separator + "final";
 				new File(groundingCommand[0]).setExecutable(true);
 				final ProcessBuilder pb = new ProcessBuilder(groundingCommand).directory(this.executionEnvironment.getGroundingDirectory());
-				// pb.redirectOutput(Redirect.appendTo(groundingLog)).redirectError(Redirect.appendTo(groundingLog));
-				pb.redirectOutput(Redirect.INHERIT).redirectError(Redirect.INHERIT);
+				pb.redirectOutput(Redirect.appendTo(groundingLog)).redirectError(Redirect.appendTo(groundingLog));
+//				pb.redirectOutput(Redirect.INHERIT).redirectError(Redirect.INHERIT);
 				logger.info("Execute grounding command {}. Working directory is set to {}", Arrays.toString(groundingCommand), this.executionEnvironment.getGroundingDirectory());
 				pb.start().waitFor();
 				logger.info("Grounding completed.");

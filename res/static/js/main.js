@@ -67,7 +67,7 @@ function listenStrategyLogs() {
 						+ "<div class=\"col-xs-12\">"
 						+ data['logList'][logPair]['strategyName']
 						+ " System Out &amp; Err"
-						+ "<div class=\"pre-scrollable\" style=\"min-height: 200px; max-height: 200px; max-width: 600px;\">"
+						+ "<div class=\"pre-scrollable,console-all\">"
 						+ "<pre>"
 						+ allLog
 						+ "</pre>"
@@ -81,7 +81,7 @@ function listenStrategyLogs() {
 						+ "<div class=\"col-xs-6\">"
 						+ data['logList'][logPair]['strategyName']
 						+ " System Out"
-						+ "<div class=\"pre-scrollable\" style=\"min-height: 200px; max-height: 200px; max-width: 300px;\">"
+						+ "<div class=\"pre-scrollable,console-out\">"
 						+ "<pre>"
 						+ data['logList'][logPair]['systemOutLog']
 						+ "</pre>"
@@ -91,7 +91,7 @@ function listenStrategyLogs() {
 						+ "<div class=\"col-xs-6\">"
 						+ data['logList'][logPair]['strategyName']
 						+ "System Error"
-						+ "<div class=\"pre-scrollable\" style=\"min-height: 200px; max-height: 200px; max-width: 300px;\">"
+						+ "<div class=\"pre-scrollable,console-err\">"
 						+ "<pre>" + errLog + "</pre>"
 						+ "</div></div></div></div></div></div></div>";
 

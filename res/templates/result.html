@@ -2,7 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-<link rel="stylesheet" type="text/css" href="../webjars/bootstrap/3.3.7/css/bootstrap.min.css" />
+<link rel="stylesheet" type="text/css" href="/proseco.css" />
 </head>
 <body>
 	<nav class="navbar navbar-inverse navbar-static-top">
@@ -14,7 +14,7 @@
 	</nav>
 
 
-	<div class="container" style="min-height: 500px">
+	<div id="main" class="container" style="min-height: 500px">
 		<div class="starter-template">
 			<h1>Query Completion</h1>
 			<form id="form-submit" action="#" th:action="@{/interview/{id}(id=${interviewDTO.processId})}" th:object="${interviewDTO}" method="post" enctype="multipart/form-data">

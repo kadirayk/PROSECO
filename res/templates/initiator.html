@@ -2,8 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-<link rel="stylesheet" type="text/css"
-	href="../webjars/bootstrap/3.3.7/css/bootstrap.min.css" />
+<link rel="stylesheet" type="text/css" href="/proseco.css" />
 </head>
 <body>
 	<nav class="navbar navbar-inverse navbar-static-top">
@@ -14,7 +13,7 @@
 		</div>
 	</nav>
 	<div class="container" style="min-height: 500px; margin-left: 100px">
-		<form action="#" th:action="@{/init}" th:object="${interviewDTO}"
+		<form action="#" th:action="@{/}" th:object="${interviewDTO}"
 			method="post">
 			<p>Input:</p>
 			<textarea rows="4" cols="50" th:field="*{content}"></textarea>

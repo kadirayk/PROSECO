@@ -1,0 +1,34 @@
+body {
+	background: #ffc;
+}
+
+#main {
+	background: #cfc;
+}
+
+#debugBox {
+	width: 80%;
+}
+
+.currentState td {
+	background: #b4ff99;
+}
+
+.tab-content {
+	background: #fff;
+	border: 1px #000 solid;
+}
+
+.console-all {
+	
+}
+
+.console-err {
+	
+}
+
+.console-out {
+	min-height: 200px;
+	max-height: 200px;
+	max-width: 600px;
+}
