@@ -63,6 +63,10 @@
         <level value="warn" />
     </logger>
     
+    <logger name="de.upb.crc901">
+    	<level value="warn" />
+    </logger>
+    
     <logger name="jaicore.search.algorithms.standard">
         <level value="warn" />
     </logger>
