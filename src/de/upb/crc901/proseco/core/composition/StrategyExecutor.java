@@ -61,7 +61,7 @@ public class StrategyExecutor {
 		/* Setup a thread pool for observing the strategies. */
 		ExecutorService pool = Executors.newFixedThreadPool(strategyDirectories.length); // allow all to work in parallel
 
-		final int timeoutInSeconds = timeoutInMS / 1000 - 20;
+		final int timeoutInSeconds = timeoutInMS / 1000;
 
 		/* time stamp directly before scheduling the processes for the strategies */
 		long preSchedule = System.currentTimeMillis();

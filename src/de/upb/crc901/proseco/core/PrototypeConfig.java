@@ -27,6 +27,7 @@ public interface PrototypeConfig extends Mutable {
 	/* grounding */
 	public static final String GROUNDING_FOLDER = "proseco.grounding.folder";
 	public static final String GROUNDING_EXEC = "proseco.grounding.executable";
+	public static final String GROUNDING_RESERVEDSECONDS = "proseco.grounding.reservedseconds";
 
 	/* deployment */
 	public static final String DEPLOYMENT_EXEC = "proseco.deployment.executable";
@@ -34,6 +35,7 @@ public interface PrototypeConfig extends Mutable {
 	public static final String DEPLOYMENT_PORT_MIN = "proseco.deployment.minport";
 	public static final String DEPLOYMENT_PORT_MAX = "proseco.deployment.maxport";
 	public static final String DEPLOYMENT_ENTRYPOINT = "proseco.deployment.entrypoint";
+	public static final String DEPLOYMENT_RESERVEDSECONDS = "proseco.deployment.reservedseconds";
 
 	/* benchmarking */
 	public static final String BENCHMARK_SERVICE = "benchmarkService.bat";
@@ -57,6 +59,10 @@ public interface PrototypeConfig extends Mutable {
 	@Key(GROUNDING_EXEC)
 	@DefaultValue("grounding")
 	public String getGroundingCommand();
+	
+	@Key(GROUNDING_RESERVEDSECONDS)
+	@DefaultValue("5")
+	public int getSecondsReservedForGrounding();
 
 	@Key(DEPLOYMENT_EXEC)
 	@DefaultValue("deployment")
@@ -77,6 +83,10 @@ public interface PrototypeConfig extends Mutable {
 	@Key(DEPLOYMENT_ENTRYPOINT)
 	@DefaultValue("")
 	public String getDeploymentEntryPoint();
+	
+	@Key(DEPLOYMENT_RESERVEDSECONDS)
+	@DefaultValue("5")
+	public int getSecondsReservedForDeployment();
 
 	@Key(STRATEGY_RUNNABLE)
 	@DefaultValue("run.sh")

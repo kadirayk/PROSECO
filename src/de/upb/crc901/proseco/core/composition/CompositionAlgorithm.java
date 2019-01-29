@@ -91,9 +91,12 @@ public class CompositionAlgorithm implements Runnable {
 			this.beforeConfiguration();
 
 			/* invoke strategies */
-			logger.debug("Create command for executing strategies and execute it...");
+			int secondsReservedForGrounding = executionEnvironment.getPrototypeConfig().getSecondsReservedForGrounding();
+			int secondsReservedForDeployment = executionEnvironment.getPrototypeConfig().getSecondsReservedForDeployment();
+			int timeout = Math.max(1, this.timeoutInSeconds - (secondsReservedForGrounding + secondsReservedForDeployment));
+			logger.debug("Create command for executing strategies and execute them with a timeout of {} = max(1, specifiedTimeout - (secondsForGrounding + secondsForDeployment)) = max(1, {} - ({} + {})) ...", timeout, timeoutInSeconds, secondsReservedForGrounding, secondsReservedForDeployment);
 			StrategyExecutor executeStrategiesCommand = new StrategyExecutor(this.executionEnvironment);
-			executeStrategiesCommand.execute(Math.max(1, this.timeoutInSeconds - 10) * 1000);
+			executeStrategiesCommand.execute(timeout * 1000);
 			logger.info("Execution of strategies finished!");
 
 			/* execute hooks that should run after configuration */
