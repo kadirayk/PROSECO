@@ -29,6 +29,25 @@
 			"parameter": [],
 			"dependencies": []
 		},
+        {
+            "name": "MLPipeline",
+            "requiredInterface": [
+                {
+                    "id": "pp_0",
+                    "name": "AbstractPreprocessor"
+                },
+                {
+                    "id": "classifier",
+                    "name": "AbstractClassifier"
+                }
+            ],
+            "providedInterface": [
+            ],
+            "parameter": [
+            ],
+            "dependencies": [
+            ]
+        },
 		{
 			"name": "Catalano.Imaging.Filters.GrayScale",
 			"requiredInterface": [],

@@ -1,59 +1,91 @@
 <!DOCTYPE HTML>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-<link rel="stylesheet" type="text/css" href="/proseco.css" />
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+   
+    <title>PROSECO - PROtotype-based SErvice COmposition</title>
+       
+    <link rel="stylesheet" type="text/css" href="/css/bootstrap.min.css" />
+    <link rel="stylesheet" type="text/css" href="/css/bootstrap-theme.min.css" />
+    <link rel="stylesheet" type="text/css" href="/proseco.css" />
+    <link rel="stylesheet" type="text/css" href="/cover.css" />
 </head>
 <body>
-	<nav class="navbar navbar-inverse navbar-static-top">
-		<div class="container">
-			<div class="navbar-header">
-				<a class="navbar-brand" href="/">PROSECO</a>
-			</div>
-		</div>
-	</nav>
+    <div class="site-wrapper">
 
+      <div class="site-wrapper-inner">
 
-	<div id="main" class="container" style="min-height: 500px">
-		<div class="starter-template" th:if="${interviewDTO.showInterview}">
-			<h1>Query Completion</h1>
-			<form id="form-submit" action="#" th:action="@{/interview/{id}(id=${interviewDTO.processId})}" th:object="${interviewDTO}" method="post" enctype="multipart/form-data">
-				<div th:remove="tag" th:utext="${interviewDTO.interviewHTML}"></div>
+        <div class="cover-container" style="width: 1500px;">
 
-				<p th:if="${interviewDTO.showSubmit}">
-					<input type="submit" value="Submit" class="btn btn-primary" />
-				</p>
-			</form>
-		</div>
+          <div class="masthead clearfix">
+            <div class="inner">
+              <h3 class="masthead-brand"><a href="/"><img src="/img/proseco-logo.png" height="50" /></a></h3>
+              
+              <nav>
+                <ul class="nav masthead-nav">
+                  <li class="active"><a href="#">Home</a></li>
+                  <li><a href="#">Features</a></li>
+                  <li><a href="#">Contact</a></li>
+                </ul>
+              </nav>
+              
+            </div>
+          </div>
 
-		<!-- Control elements for configuration process -->
-		<div th:if="${interviewDTO.showConfigurationPane}">
-			<h1>Composition Process</h1>
-			<div style="margin-left: 10px; font-size: 18px;">
-				Result: <span id="strategy-result"> </span>
-			   <input type="button" id="btn-stop-service" class="btn btn-default" style="display: none;" onclick="StopService()" value="Stop Service" />
-			</div>
+          <div class="inner cover">
+            
+            <div th:if="${interviewDTO.showInterview}">
+                <h1>Query Completion</h1>
+                <form id="form-submit" action="#" th:action="@{/interview/{id}(id=${interviewDTO.processId})}" th:object="${interviewDTO}" method="post" enctype="multipart/form-data">
+                <div style="font-size: 24px;">
+                    <div th:remove="tag" th:utext="${interviewDTO.interviewHTML}"></div>
+                    </div>
+                    <p th:if="${interviewDTO.showSubmit}">
+                        <input type="submit" value="Submit" class="btn btn-lg btn-default" />
+                    </p>
+                </form>
+            </div>
+            
+            <!-- Control elements for configuration process -->
+            <div th:if="${interviewDTO.showConfigurationPane}">
+                <h1>Composition Process</h1>
+                <div style="margin-left: 10px; font-size: 18px;">
+                    Result: <span id="strategy-result"> </span>
+                   <input type="button" id="btn-stop-service" class="btn btn-default" style="display: none;" onclick="StopService()" value="Stop Service" />
+                </div>
+    
+                <!-- Console boxes -->
+                <div th:if="${interviewDTO.showConsole}">
+    
+                    <!-- General process -->
+    
+                    <!-- Search boxes -->
+                    <div class="container" style="margin-top: 25px;">
+                        <input type="button" id="btn-strategy-log-listener" class="btn btn-default" onclick="stopListeningStrategyLogs()" value="Stop Console" />
+                        <div id="strategy-logs" class="container"></div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- DEBUG BOX -->
+            <div class="container" th:remove="tag" th:utext="${interviewDTO.debugHTML}"></div>
+            
+              <div class="mastfoot">
+                <div class="inner">
+                  <p><a href="https://github.com/fmohr/PROSECO">Fork me on GitHub</a></p>
+                </div>
+              </div>
+    
+            </div>
+            
+          </div>
 
-			<!-- Console boxes -->
-			<div th:if="${interviewDTO.showConsole}">
+      </div>
 
-				<!-- General process -->
-
-				<!-- Search boxes -->
-				<div class="container" style="margin-top: 25px;">
-					<input type="button" id="btn-strategy-log-listener" class="btn btn-default" onclick="stopListeningStrategyLogs()" value="Stop Console" />
-					<div id="strategy-logs" class="container"></div>
-				</div>
-			</div>
-		</div>
-
-
-		<!-- DEBUG BOX -->
-		<div class="container" th:remove="tag" th:utext="${interviewDTO.debugHTML}"></div>
-
-	</div>
-
-
+    </div>
+    
 	<script type="text/javascript" src="../webjars/jquery/2.2.4/jquery.min.js"></script>
 	<script type="text/javascript" src="../webjars/bootstrap/3.3.7/js/bootstrap.min.js"></script>
 	<script type="text/javascript" src="../js/main.js"></script>
