@@ -1,46 +1,20 @@
 <!DOCTYPE HTML>
 <html xmlns:th="http://www.thymeleaf.org">
-<head>
-    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-   
-    <title>PROSECO - PROtotype-based SErvice COmposition</title>
-       
-    <link rel="stylesheet" type="text/css" href="/css/bootstrap.min.css" />
-    <link rel="stylesheet" type="text/css" href="/css/bootstrap-theme.min.css" />
-    <link rel="stylesheet" type="text/css" href="/proseco.css" />
-    <link rel="stylesheet" type="text/css" href="/cover.css" />
-</head>
+<head th:replace="fragments/htmlhead :: htmlhead"></head>
 <body>
     <div class="site-wrapper">
 
       <div class="site-wrapper-inner">
 
-        <div class="cover-container" style="width: 1500px;">
 
-          <div class="masthead clearfix">
-            <div class="inner">
-              <h3 class="masthead-brand"><a href="/"><img src="/img/proseco-logo.png" height="50" /></a></h3>
-              
-              <nav>
-                <ul class="nav masthead-nav">
-                  <li class="active"><a href="#">Home</a></li>
-                  <li><a href="#">Features</a></li>
-                  <li><a href="#">Contact</a></li>
-                </ul>
-              </nav>
-              
-            </div>
-          </div>
+          <div th:replace="fragments/header :: header"></div>
 
           <div class="inner cover">
             
             <div th:if="${interviewDTO.showInterview}">
-                <h1>Query Completion</h1>
                 <form id="form-submit" action="#" th:action="@{/interview/{id}(id=${interviewDTO.processId})}" th:object="${interviewDTO}" method="post" enctype="multipart/form-data">
-                <div style="font-size: 24px;">
-                    <div th:remove="tag" th:utext="${interviewDTO.interviewHTML}"></div>
+                    <div style="font-size: 24px;">
+                        <div th:remove="tag" th:utext="${interviewDTO.interviewHTML}"></div>
                     </div>
                     <p th:if="${interviewDTO.showSubmit}">
                         <input type="submit" value="Submit" class="btn btn-lg btn-default" />
@@ -82,7 +56,6 @@
             
           </div>
 
-      </div>
 
     </div>
     

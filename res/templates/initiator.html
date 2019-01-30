@@ -1,40 +1,12 @@
 <!DOCTYPE HTML>
 <html xmlns:th="http://www.thymeleaf.org">
-<head>
-    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-   
-    <title>PROSECO - PROtotype-based SErvice COmposition</title>
-       
-    <link rel="stylesheet" type="text/css" href="/css/bootstrap.min.css" />
-    <link rel="stylesheet" type="text/css" href="/css/bootstrap-theme.min.css" />
-    <link rel="stylesheet" type="text/css" href="/proseco.css" />
-    <link rel="stylesheet" type="text/css" href="/cover.css" />
-</head>
-
+<head th:replace="fragments/htmlhead :: htmlhead"></head>
 <body>
 
     <div class="site-wrapper">
-
       <div class="site-wrapper-inner">
 
-        <div class="cover-container" style="width: 1800px;">
-
-          <div class="masthead clearfix">
-            <div class="inner">
-              <h3 class="masthead-brand"><img src="/img/proseco-logo.png" height="50" /></h3>
-              
-              <nav>
-                <ul class="nav masthead-nav">
-                  <li class="active"><a href="#">Home</a></li>
-                  <li><a href="#">Features</a></li>
-                  <li><a href="#">Contact</a></li>
-                </ul>
-              </nav>
-              
-            </div>
-          </div>
+          <div th:replace="fragments/header :: header"></div>
 
           <div class="inner cover">
             
@@ -48,40 +20,13 @@
             </form>
           </div>
 
-          <div class="mastfoot">
-            <div class="inner">
-              <p><a href="https://github.com/fmohr/PROSECO">Fork me on GitHub</a></p>
-            </div>
-          </div>
-
-        </div>
+          <div th:replace="fragments/footer :: footer"></div>
 
       </div>
-
     </div>
 
-<!--
-    <div class="row">
-        <div class="col-md-2">
-            <a class="navbar-brand" href="/"><img src="/img/proseco-logo.png" alt="PROSECO Logo" title="PROSECO" width="100%" /></a>
-        </div>
-        <div class="col-md-10">
-            <nav class="navbar navbar-invert">a</nav>
-        </div>
-    </div>
 
-	<nav class="navbar navbar-static-top">
-			<div class="navbar-header">
-			</div>
-	</nav>
-	
-	<div class="container" style="min-height: 500px;">
-	</div>
--->
-	
-	
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
-    <script src="/js/bootstrap.min.js"></script>
+    <div th:replace="fragments/footscripts :: footscripts"></div>
 </body>
 
 </html>
