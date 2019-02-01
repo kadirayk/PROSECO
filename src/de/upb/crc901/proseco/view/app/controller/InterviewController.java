@@ -8,11 +8,8 @@ import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
-import java.util.UUID;
 
-import org.aeonbits.owner.ConfigCache;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,7 +23,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 import org.thymeleaf.util.StringUtils;
 
-import de.upb.crc901.proseco.core.PROSECOConfig;
 import de.upb.crc901.proseco.core.composition.CompositionAlgorithm;
 import de.upb.crc901.proseco.core.composition.PROSECOProcessEnvironment;
 import de.upb.crc901.proseco.core.interview.InterviewFillout;
@@ -34,6 +30,7 @@ import de.upb.crc901.proseco.core.interview.Question;
 import de.upb.crc901.proseco.view.app.model.InterviewDTO;
 import de.upb.crc901.proseco.view.core.NextStateNotFoundException;
 import de.upb.crc901.proseco.view.core.Parser;
+import de.upb.crc901.proseco.view.html.Script;
 import de.upb.crc901.proseco.view.util.ListUtil;
 import de.upb.crc901.proseco.view.util.SerializationUtil;
 
@@ -191,6 +188,10 @@ public class InterviewController {
 			if (ListUtil.isNotEmpty(questions)) {
 				int i = 0;
 				for (Question q : questions) {
+					if(q.getUiElement() instanceof Script) {
+                        updatedAnswers.put(q.getId(), "script");
+                        continue;
+                    }
 					String answerToThisQuestion = answers.get(i);
 					logger.info("Processing answer {} to question {}", answerToThisQuestion, q);
 //					if (!StringUtils.isEmpty(answerToThisQuestion)) {
