@@ -17,16 +17,17 @@ public class InterviewFillout implements Serializable {
 	private Map<String, String> answers; // this is a map from question IDs to answers. Using String instead of Question is ON PURPOSE to ease serialization with Jackson!
 	private State currentState;
 
-	public InterviewFillout() { }
-	
-	public InterviewFillout(Interview interview) {
+	public InterviewFillout() {
+	}
+
+	public InterviewFillout(final Interview interview) {
 		super();
 		this.interview = interview;
 		this.answers = new HashMap<>();
 		this.currentState = interview.getStates().get(0);
 	}
-	
-	public InterviewFillout(Interview interview, Map<String, String> answers, State currentState) {
+
+	public InterviewFillout(final Interview interview, final Map<String, String> answers, final State currentState) {
 		super();
 		this.interview = interview;
 		this.answers = answers;
@@ -35,11 +36,11 @@ public class InterviewFillout implements Serializable {
 
 	/**
 	 * This constructor automatically activates the first state with an unanswered question
-	 * 
+	 *
 	 * @param interview
 	 * @param answers
 	 */
-	public InterviewFillout(Interview interview, Map<String, String> answers) {
+	public InterviewFillout(final Interview interview, final Map<String, String> answers) {
 		super();
 		this.interview = interview;
 		this.answers = answers;
@@ -48,46 +49,46 @@ public class InterviewFillout implements Serializable {
 			if (ListUtil.isNotEmpty(questions)) {
 				for (Question q : questions) {
 					if (!answers.containsKey(q.getId())) {
-						currentState = s;
+						this.currentState = s;
 						return;
 					}
 				}
 			}
 		}
-		currentState = interview.getStates().get(0);
+		this.currentState = interview.getStates().get(0);
 	}
 
 	public Interview getInterview() {
-		return interview;
+		return this.interview;
 	}
 
 	public Map<String, String> getAnswers() {
-		return answers;
+		return this.answers;
 	}
-	
-	public String getAnswer(Question q) {
-		return answers.get(q.getId());
+
+	public String getAnswer(final Question q) {
+		return this.answers.get(q.getId());
 	}
-	
-	public String getAnswer(String questionId) {
-		return answers.get(questionId);
+
+	public String getAnswer(final String questionId) {
+		return this.answers.get(questionId);
 	}
 
 	/**
 	 * return currentState
-	 * 
+	 *
 	 * @return
 	 */
 	public State getCurrentState() {
-		return currentState;
+		return this.currentState;
 	}
 
 	public boolean allQuestionsInCurrentStateAnswered() {
 		// if current state has unanswered questions return current state
-		List<Question> questions = currentState.getQuestions();
+		List<Question> questions = this.currentState.getQuestions();
 		if (ListUtil.isNotEmpty(questions)) {
 			for (Question q : questions) {
-				if (!answers.containsKey(q.getId())) {
+				if (!this.answers.containsKey(q.getId())) {
 					return false;
 				}
 			}
@@ -112,17 +113,17 @@ public class InterviewFillout implements Serializable {
 
 	/**
 	 * Generates concrete HTML element from the UI Elements of the questions to make up the form
-	 * 
+	 *
 	 * @return
 	 */
-	public String getHTMLOfOpenQuestionsInState(State s) {
+	public String getHTMLOfOpenQuestionsInState(final State s) {
 		StringBuilder htmlElement = new StringBuilder();
 
 		for (Question q : s.getQuestions()) {
-			if (!answers.containsKey(q.getId())) {
+			if (!this.answers.containsKey(q.getId())) {
 				String formQuestion = q.getContent();
 				if (formQuestion != null) {
-					htmlElement.append(HTMLConstants.LINE_BREAK).append(formQuestion).append(HTMLConstants.LINE_BREAK);
+					htmlElement.append(HTMLConstants.LINE_BREAK).append("<h1>" + formQuestion + "</h1>").append(HTMLConstants.LINE_BREAK);
 				}
 				UIElement formUiElement = q.getUiElement();
 				if (formUiElement != null) {
@@ -133,17 +134,17 @@ public class InterviewFillout implements Serializable {
 
 		return htmlElement.toString();
 	}
-	
+
 	@JsonIgnore
 	public String getHTMLOfOpenQuestionsInCurrentState() {
-		return getHTMLOfOpenQuestionsInState(currentState);
+		return this.getHTMLOfOpenQuestionsInState(this.currentState);
 	}
 
 	@JsonIgnore
 	public String getHTMLOfAllOpenQuestions() {
 		StringBuilder html = new StringBuilder();
-		for (State s : interview.getStates()) {
-			html.append(getHTMLOfOpenQuestionsInState(s)).append("\n");
+		for (State s : this.interview.getStates()) {
+			html.append(this.getHTMLOfOpenQuestionsInState(s)).append("\n");
 		}
 		return html.toString();
 	}
@@ -152,62 +153,76 @@ public class InterviewFillout implements Serializable {
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + ((answers == null) ? 0 : answers.hashCode());
-		result = prime * result + ((currentState == null) ? 0 : currentState.hashCode());
-		result = prime * result + ((interview == null) ? 0 : interview.hashCode());
+		result = prime * result + ((this.answers == null) ? 0 : this.answers.hashCode());
+		result = prime * result + ((this.currentState == null) ? 0 : this.currentState.hashCode());
+		result = prime * result + ((this.interview == null) ? 0 : this.interview.hashCode());
 		return result;
 	}
 
 	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
+	public boolean equals(final Object obj) {
+		if (this == obj) {
 			return true;
-		if (obj == null)
+		}
+		if (obj == null) {
 			return false;
-		if (getClass() != obj.getClass())
+		}
+		if (this.getClass() != obj.getClass()) {
 			return false;
+		}
 		InterviewFillout other = (InterviewFillout) obj;
-		if (answers == null) {
-			if (other.answers != null)
+		if (this.answers == null) {
+			if (other.answers != null) {
 				return false;
-		} else if (!answers.equals(other.answers))
+			}
+		} else if (!this.answers.equals(other.answers)) {
 			return false;
-		if (currentState == null) {
-			if (other.currentState != null)
+		}
+		if (this.currentState == null) {
+			if (other.currentState != null) {
 				return false;
-		} else if (!currentState.equals(other.currentState))
+			}
+		} else if (!this.currentState.equals(other.currentState)) {
 			return false;
-		if (interview == null) {
-			if (other.interview != null)
+		}
+		if (this.interview == null) {
+			if (other.interview != null) {
 				return false;
-		} else if (!interview.equals(other.interview))
+			}
+		} else if (!this.interview.equals(other.interview)) {
 			return false;
+		}
 		return true;
 	}
 
-	public void setInterview(Interview interview) {
-		if (this.interview != null)
+	public void setInterview(final Interview interview) {
+		if (this.interview != null) {
 			throw new IllegalStateException("Cannot modify interview if it is already set!");
-		if (interview == null)
+		}
+		if (interview == null) {
 			throw new IllegalStateException("Cannot set interview to NULL!");
+		}
 		this.interview = interview;
 	}
 
-	public void setAnswers(Map<String, String> answers) {
-		if (this.answers != null)
+	public void setAnswers(final Map<String, String> answers) {
+		if (this.answers != null) {
 			throw new IllegalStateException("Cannot modify answers if they are already set!");
-		if (answers == null)
+		}
+		if (answers == null) {
 			throw new IllegalStateException("Cannot set answer to NULL!");
+		}
 		this.answers = answers;
 	}
 
-	public void setCurrentState(State currentState) {
-		if (this.currentState != null)
+	public void setCurrentState(final State currentState) {
+		if (this.currentState != null) {
 			throw new IllegalStateException("Cannot modify state if it is already set!");
-		if (currentState == null)
+		}
+		if (currentState == null) {
 			throw new IllegalStateException("Cannot set state to NULL!");
+		}
 		this.currentState = currentState;
 	}
-	
-	
+
 }

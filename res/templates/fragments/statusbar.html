@@ -1,22 +1,27 @@
 <div th:fragment="statusbar" class="statusbar">
 
-    <div class="statusbar-step statusbar-step-done">Requirements<br />Elicitation</div>
+    <div class="statusbar-step" ng-class="pac.statusClassFor('domain')">Domain Definition</div>
     
-    <div class="statusbar-step-next" style="border-bottom-color: #000;"></div>
+    <div class="statusbar-step-next" ng-class="pac.statusClassForArrow('interview')"></div>
+
+    <div class="statusbar-step" ng-class="pac.statusClassFor('interview')">Interview</div>
     
-    <div class="statusbar-step statusbar-step-active">Run Search-Strategies</div>
+    <div class="statusbar-step-next" ng-class="pac.statusClassForArrow('search')"></div>
     
-    <div class="statusbar-step-next"></div>
+    <div class="statusbar-step" ng-class="pac.statusClassFor('search')">Search-Strategies</div>
     
-    <div class="statusbar-step statusbar-step-todo">Grounding</div>
+    <div class="statusbar-step-next" ng-class="pac.statusClassForArrow('grounding')"></div>
     
-    <div class="statusbar-step-next"></div>
+    <div class="statusbar-step" ng-class="pac.statusClassFor('grounding')">Grounding</div>
     
-    <div class="statusbar-step statusbar-step-todo">Deployment</div>
+    <div class="statusbar-step-next" ng-class="pac.statusClassForArrow('deployment')"></div>
     
-    <div class="statusbar-step-next"></div>
+    <div class="statusbar-step" ng-class="pac.statusClassFor('deployment')">Deployment</div>
     
-    <div class="statusbar-step statusbar-step-todo">Done</div>
+    <div class="statusbar-step-next" ng-class="pac.statusClassForArrow('done')"></div>
+    
+    <div class="statusbar-step" ng-class="pac.statusClassFor('done')">Done</div>
     
     <div class="clear-left"></div>
+    
 </div>

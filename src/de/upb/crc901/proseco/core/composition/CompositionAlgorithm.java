@@ -18,6 +18,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import de.upb.crc901.proseco.core.PROSECOConfig;
+import de.upb.crc901.proseco.view.app.model.processstatus.EProcessState;
+import de.upb.crc901.proseco.view.app.model.processstatus.ProcessStateProvider;
 
 /**
  *
@@ -91,10 +93,11 @@ public class CompositionAlgorithm implements Runnable {
 			this.beforeConfiguration();
 
 			/* invoke strategies */
-			int secondsReservedForGrounding = executionEnvironment.getPrototypeConfig().getSecondsReservedForGrounding();
-			int secondsReservedForDeployment = executionEnvironment.getPrototypeConfig().getSecondsReservedForDeployment();
+			int secondsReservedForGrounding = this.executionEnvironment.getPrototypeConfig().getSecondsReservedForGrounding();
+			int secondsReservedForDeployment = this.executionEnvironment.getPrototypeConfig().getSecondsReservedForDeployment();
 			int timeout = Math.max(1, this.timeoutInSeconds - (secondsReservedForGrounding + secondsReservedForDeployment));
-			logger.debug("Create command for executing strategies and execute them with a timeout of {} = max(1, specifiedTimeout - (secondsForGrounding + secondsForDeployment)) = max(1, {} - ({} + {})) ...", timeout, timeoutInSeconds, secondsReservedForGrounding, secondsReservedForDeployment);
+			logger.debug("Create command for executing strategies and execute them with a timeout of {} = max(1, specifiedTimeout - (secondsForGrounding + secondsForDeployment)) = max(1, {} - ({} + {})) ...", timeout, this.timeoutInSeconds,
+					secondsReservedForGrounding, secondsReservedForDeployment);
 			StrategyExecutor executeStrategiesCommand = new StrategyExecutor(this.executionEnvironment);
 			executeStrategiesCommand.execute(timeout * 1000);
 			logger.info("Execution of strategies finished!");
@@ -127,6 +130,7 @@ public class CompositionAlgorithm implements Runnable {
 			logger.info("Identified {} as a winning strategy with score {}", winningStrategy.get(), bestScoreSeen);
 
 			/* execute grounding routine */
+			ProcessStateProvider.setProcessStatus(this.executionEnvironment.getProcessId(), EProcessState.GROUNDING);
 			{
 				File groundingLog = new File(this.executionEnvironment.getGroundingDirectory() + File.separator + this.executionEnvironment.getProsecoConfig().getNameOfServiceLogFile());
 				String[] groundingCommand = new String[4];
@@ -136,7 +140,7 @@ public class CompositionAlgorithm implements Runnable {
 				groundingCommand[3] = this.executionEnvironment.getSearchOutputDirectory().getAbsolutePath() + File.separator + "final";
 				new File(groundingCommand[0]).setExecutable(true);
 				final ProcessBuilder pb = new ProcessBuilder(groundingCommand).directory(this.executionEnvironment.getGroundingDirectory());
-//				pb.redirectOutput(Redirect.appendTo(groundingLog)).redirectError(Redirect.appendTo(groundingLog));
+				// pb.redirectOutput(Redirect.appendTo(groundingLog)).redirectError(Redirect.appendTo(groundingLog));
 				pb.redirectOutput(Redirect.INHERIT).redirectError(Redirect.INHERIT);
 				logger.info("Execute grounding command {}. Working directory is set to {}", Arrays.toString(groundingCommand), this.executionEnvironment.getGroundingDirectory());
 				pb.start().waitFor();
@@ -144,6 +148,7 @@ public class CompositionAlgorithm implements Runnable {
 			}
 
 			/* deploy service. First determine available port. Then execute the deployment. */
+			ProcessStateProvider.setProcessStatus(this.executionEnvironment.getProcessId(), EProcessState.DEPLOYMENT);
 			String host = this.executionEnvironment.getPrototypeConfig().getDeploymentHost();
 			int port = this.executionEnvironment.getPrototypeConfig().getDeploymentMinPort();
 			boolean portIsAvailable = true;
@@ -169,6 +174,7 @@ public class CompositionAlgorithm implements Runnable {
 
 			/* create handle file */
 			FileUtils.writeStringToFile(this.executionEnvironment.getServiceHandle(), "http://" + deploymentCommand[2] + ":" + port + "/" + this.executionEnvironment.getPrototypeConfig().getDeploymentEntryPoint(), Charset.defaultCharset());
+			ProcessStateProvider.setProcessStatus(this.executionEnvironment.getProcessId(), EProcessState.DONE);
 
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -190,15 +196,12 @@ public class CompositionAlgorithm implements Runnable {
 
 	protected void beforeConfiguration() {
 		if (LOCAL_TEST) {
-			// FIXME: this should actually be done by the PoC already. This is only a workaround for testing purposes.
-			File srcDiscovery = new File("discovery.properties");
-			File tgtDiscovery = new File(this.executionEnvironment.getProcessDirectory() + File.separator + "discovery.properties");
-			tgtDiscovery.getParentFile().mkdirs();
-			logger.debug("Copy from {} to {}", srcDiscovery, tgtDiscovery);
+			File localRepoDirectory = new File("testrsc/discovery/");
+			File targetRepoDirectory = new File(this.executionEnvironment.getProcessDirectory(), "discovery");
 			try {
-				FileUtils.copyFile(srcDiscovery, tgtDiscovery);
+				FileUtils.copyDirectory(localRepoDirectory, targetRepoDirectory);
 			} catch (IOException e) {
-				logger.error("Could no copy discovery.properties file to the process directory.\n{}", e.toString());
+				e.printStackTrace();
 			}
 		}
 	}

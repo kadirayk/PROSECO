@@ -10,15 +10,15 @@ import de.upb.crc901.proseco.view.util.ListUtil;
 
 /**
  * Interview Data Transfer Object class
- * 
- * 
+ *
+ *
  * @author kadirayk
  *
  */
 public class InterviewDTO {
 
 	private String processId; // the PROSECO service construction process id to which this interview belongs
-	
+
 	private String content;
 
 	private InterviewFillout interviewFillout;
@@ -28,57 +28,57 @@ public class InterviewDTO {
 	private String debugHTML;
 
 	private boolean showInterview;
-	
+
 	private boolean showSubmit;
 
 	private boolean showConfigurationPane;
-	
+
 	private boolean showConsole;
 
 	private boolean upload;
 
 	public boolean isUpload() {
-		return upload;
+		return this.upload;
 	}
 
-	public void setUpload(boolean upload) {
+	public void setUpload(final boolean upload) {
 		this.upload = upload;
 	}
 
 	public boolean isShowConsole() {
-		return showConsole;
+		return this.showConsole;
 	}
 
-	public void setShowConsole(boolean showConsole) {
+	public void setShowConsole(final boolean showConsole) {
 		this.showConsole = showConsole;
 	}
 
 	public boolean isShowSubmit() {
-		return showSubmit;
+		return this.showSubmit;
 	}
 
-	public void setShowSubmit(boolean showSubmit) {
+	public void setShowSubmit(final boolean showSubmit) {
 		this.showSubmit = showSubmit;
 	}
 
 	public String getProcessId() {
-		return processId;
+		return this.processId;
 	}
 
-	public void setProcessId(String id) {
+	public void setProcessId(final String id) {
 		this.processId = id;
 	}
 
 	public String getContent() {
-		return content;
+		return this.content;
 	}
 
-	public void setContent(String content) {
+	public void setContent(final String content) {
 		this.content = content;
 	}
 
 	public InterviewFillout getInterviewFillout() {
-		return interviewFillout;
+		return this.interviewFillout;
 	}
 
 	/**
@@ -86,108 +86,104 @@ public class InterviewDTO {
 	 * that do not require input)
 	 */
 	private void setShowSubmitValue() {
-		List<Question> questions = interviewFillout.getCurrentState().getQuestions();
+		List<Question> questions = this.interviewFillout.getCurrentState().getQuestions();
 		if (ListUtil.isNotEmpty(questions)) {
 			for (Question q : questions) {
 				if (q.getUiElement() != null) {
-					showSubmit = true;
+					this.showSubmit = true;
 				}
 			}
 		}
 
 	}
 
-	public void setInterviewFillout(InterviewFillout interviewFillout) {
+	public void setInterviewFillout(final InterviewFillout interviewFillout) {
 		this.interviewFillout = interviewFillout;
 		System.out.println("Appending HTML for current state: " + interviewFillout.getCurrentState());
 		this.interviewHTML = interviewFillout.getHTMLOfOpenQuestionsInCurrentState();
-		setShowSubmitValue();
-		setDebugHtml(interviewFillout);
+		this.setShowSubmitValue();
+		this.setDebugHtml(interviewFillout);
 	}
 
 	/**
 	 * Creates debug HTML table for interview
-	 * 
+	 *
 	 * @param interview
 	 */
-	private void setDebugHtml(InterviewFillout interviewFillout) {
-			StringBuilder htmlElement = new StringBuilder();
-			htmlElement.append("<div id=\"debugBox\">");
-			htmlElement.append(HTMLConstants.LINE_BREAK).append("Debug: ");
-			htmlElement.append("<table style=\"width: 100%\" border=\"1\"><tr><th>").append("State").append("</th><th>")
-					.append("qId").append("</th><th>").append("Question").append("</th><th>").append("answer").append("</th></tr>");
-			for (State state : interviewFillout.getInterview().getStates()) {
-				if (state.getName().equals("timeout")) {
-					continue;
-				}
-				htmlElement.append("<tr");
-				if (state.getName().equals(interviewFillout.getCurrentState().getName())) {
-					htmlElement.append(" class=\"currentState\" ");
-				}
-				htmlElement.append("><td rowspan=\"").append(state.getQuestions().size()).append("\">")
-						.append(state.getName()).append("</td>");
-
-				boolean isFirstLoop = false;
-				for (Question question : state.getQuestions()) {
-					if (isFirstLoop) {
-						htmlElement.append("<tr");
-						if (state.getName().equals(interviewFillout.getCurrentState().getName())) {
-							htmlElement.append(" class=\"currentState\" ");
-						}
-						htmlElement.append(">");
-					}
-					htmlElement.append("<td>").append(question.getId()).append("</td>");
-					htmlElement.append("<td>").append(question.getContent()).append("</td>");
-					htmlElement.append("<td>");
-					if (interviewFillout.getAnswers().containsKey(question.getId())) {
-						htmlElement.append(interviewFillout.getAnswers().get(question.getId()));
-					}
-					htmlElement.append("</td></tr>");
-					isFirstLoop = true;
-				}
-
+	private void setDebugHtml(final InterviewFillout interviewFillout) {
+		StringBuilder htmlElement = new StringBuilder();
+		htmlElement.append("<div id=\"debugBox\" ng-show=\"pac.showDebugTable();\">");
+		htmlElement.append(HTMLConstants.LINE_BREAK).append("Debug: ");
+		htmlElement.append("<table style=\"width: 100%\" border=\"1\"><tr><th>").append("State").append("</th><th>").append("qId").append("</th><th>").append("Question").append("</th><th>").append("answer").append("</th></tr>");
+		for (State state : interviewFillout.getInterview().getStates()) {
+			if (state.getName().equals("timeout")) {
+				continue;
 			}
-			htmlElement.append("</table>").append("</div>");
-			this.debugHTML = htmlElement.toString();
+			htmlElement.append("<tr");
+			if (state.getName().equals(interviewFillout.getCurrentState().getName())) {
+				htmlElement.append(" class=\"currentState\" ");
+			}
+			htmlElement.append("><td rowspan=\"").append(state.getQuestions().size()).append("\">").append(state.getName()).append("</td>");
+
+			boolean isFirstLoop = false;
+			for (Question question : state.getQuestions()) {
+				if (isFirstLoop) {
+					htmlElement.append("<tr");
+					if (state.getName().equals(interviewFillout.getCurrentState().getName())) {
+						htmlElement.append(" class=\"currentState\" ");
+					}
+					htmlElement.append(">");
+				}
+				htmlElement.append("<td>").append(question.getId()).append("</td>");
+				htmlElement.append("<td>").append(question.getContent()).append("</td>");
+				htmlElement.append("<td>");
+				if (interviewFillout.getAnswers().containsKey(question.getId())) {
+					htmlElement.append(interviewFillout.getAnswers().get(question.getId()));
+				}
+				htmlElement.append("</td></tr>");
+				isFirstLoop = true;
+			}
+
+		}
+		htmlElement.append("</table>").append("</div>");
+		this.debugHTML = htmlElement.toString();
 	}
 
 	public boolean isShowConfigurationPane() {
-		return showConfigurationPane;
+		return this.showConfigurationPane;
 	}
 
 	public boolean isShowInterview() {
-		return showInterview;
+		return this.showInterview;
 	}
 
-	public void setShowInterview(boolean showInterview) {
+	public void setShowInterview(final boolean showInterview) {
 		this.showInterview = showInterview;
 	}
 
-	public void setShowConfigurationPane(boolean showConfigurationPane) {
+	public void setShowConfigurationPane(final boolean showConfigurationPane) {
 		this.showConfigurationPane = showConfigurationPane;
 	}
 
 	public String getInterviewHTML() {
-		return interviewHTML;
+		return this.interviewHTML;
 	}
 
-	public void setInterviewHTML(String interviewHTML) {
+	public void setInterviewHTML(final String interviewHTML) {
 		this.interviewHTML = interviewHTML;
 	}
 
 	public String getDebugHTML() {
-		return debugHTML;
+		return this.debugHTML;
 	}
 
-	public void setDebugHTML(String debugHTML) {
+	public void setDebugHTML(final String debugHTML) {
 		this.debugHTML = debugHTML;
 	}
 
 	@Override
 	public String toString() {
-		return "InterviewDTO [processId=" + processId + ", content=" + content + ", interviewFillout="
-				+ interviewFillout + ", interviewHTML=" + interviewHTML + ", debugHTML=" + debugHTML
-				+ ", showInterview=" + showInterview + ", showSubmit=" + showSubmit + ", showConfigurationPane="
-				+ showConfigurationPane + ", showConsole=" + showConsole + ", upload=" + upload + "]";
+		return "InterviewDTO [processId=" + this.processId + ", content=" + this.content + ", interviewFillout=" + this.interviewFillout + ", interviewHTML=" + this.interviewHTML + ", debugHTML=" + this.debugHTML + ", showInterview="
+				+ this.showInterview + ", showSubmit=" + this.showSubmit + ", showConfigurationPane=" + this.showConfigurationPane + ", showConsole=" + this.showConsole + ", upload=" + this.upload + "]";
 	}
 }

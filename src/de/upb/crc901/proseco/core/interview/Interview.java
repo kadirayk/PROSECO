@@ -9,14 +9,14 @@ import de.upb.crc901.proseco.view.util.ListUtil;
 
 /**
  * Interview is defined by states and their conditional transitions each state of the interview can have multiple form inputs
- * 
+ *
  * @author kadirayk
  *
  */
 public class Interview implements Serializable {
 
 	/**
-	 * 
+	 *
 	 */
 	private static final long serialVersionUID = -9198421035407778684L;
 
@@ -26,16 +26,16 @@ public class Interview implements Serializable {
 
 	/**
 	 * Returns question with the given path i.e. "step1.q1"
-	 * 
+	 *
 	 * @param path
 	 * @return
 	 */
-	public Question getQuestionByPath(String path) {
+	public Question getQuestionByPath(final String path) {
 		Question q = null;
 		if (path.contains(".")) {
 			String state = path.split("\\.")[0];
 			String question = path.split("\\.")[1];
-			State s = stateMap.get(state);
+			State s = this.stateMap.get(state);
 			q = s.getQuestionById(question);
 		}
 
@@ -44,38 +44,29 @@ public class Interview implements Serializable {
 	}
 
 	public String getQuestionRepo() {
-		return questionRepo;
+		return this.questionRepo;
 	}
 
-	public void setQuestionRepo(String questionRepo) {
+	public void setQuestionRepo(final String questionRepo) {
 		this.questionRepo = questionRepo;
 	}
 
 	public List<State> getStates() {
-		return states;
+		return this.states;
 	}
 
-	public void setStates(List<State> states) {
+	public void setStates(final List<State> states) {
 		if (ListUtil.isNotEmpty(states)) {
 			this.states = states;
-			stateMap = new HashMap<>();
+			this.stateMap = new HashMap<>();
 			for (State s : states) {
-				stateMap.put(s.getName(), s);
+				this.stateMap.put(s.getName(), s);
 			}
 		}
 	}
-	
+
 	public Map<String, State> getStateMap() {
-		return stateMap;
+		return this.stateMap;
 	}
-
-	// public String getId() {
-	// return id;
-	// }
-	//
-	// public void setId(String id) {
-	// this.id = id;
-	// }
-
 
 }

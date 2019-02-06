@@ -10,6 +10,11 @@ body {
 
 #debugBox {
 	width: 80%;
+	text-align: left;
+	position: absolute;
+	background: rgba(50,50,50,0.1);
+	box-shadow: 0 0 10px 0px #000;
+	padding: 10px 15px;
 }
 
 .currentState td {
@@ -39,6 +44,7 @@ body {
 	height: 400px;
 	overflow: scroll;
 	font-size: 8pt;
+	text-align: left;
 }
 
 .console-logs {
@@ -161,15 +167,16 @@ input[type="text"] {
 .statusbar-step {
     display: block;
     float: left;
-    border: 2px solid #000;
+    border: 2px solid rgba(0,125,2,0.5);
+    color: rgba(0,125,2,0.33);
     height: 50px;
     width: 150px;
     text-align: center;
     font-weight: bold;
-    padding-top: 2px;
+    padding-top: 12px;
     vertical-align: middle;
     text-shadow: none;
-    border-radius: 5px
+    border-radius: 5px;
 }
 
 .statusbar-step-next {
@@ -189,6 +196,9 @@ input[type="text"] {
     -webkit-transform: rotate(90deg);
     transform: rotate(90deg);
 }
+.statusbar-step-next-done {
+    border-bottom-color: #000;
+}
 
 .statusbar-step-done {
     color: #000;
@@ -204,5 +214,8 @@ input[type="text"] {
     border-color: rgba(0,125,2,0.5);
     color: rgba(0,125,2,0.33);
 }
-   
+
+[ng\:cloak], [ng-cloak], [data-ng-cloak], [x-ng-cloak], .ng-cloak, .x-ng-cloak {
+  display: none !important;
+}
    

@@ -61,7 +61,8 @@ public class StrategyExecutor {
 		/* Setup a thread pool for observing the strategies. */
 		ExecutorService pool = Executors.newFixedThreadPool(strategyDirectories.length); // allow all to work in parallel
 
-		final int timeoutInSeconds = timeoutInMS / 1000;
+		int timeoutInSeconds = timeoutInMS / 1000;
+		timeoutInSeconds -= 10;
 
 		/* time stamp directly before scheduling the processes for the strategies */
 		long preSchedule = System.currentTimeMillis();
@@ -78,7 +79,7 @@ public class StrategyExecutor {
 			commandArguments[3] = outputPath.getAbsolutePath();
 			commandArguments[4] = "" + timeoutInSeconds;
 			new File(commandArguments[0]).setExecutable(true);
-			
+
 			/* organize log outputs */
 			ProcessBuilder pb = new ProcessBuilder(commandArguments);
 			if (GLOBAL_CONFIG.debugMode() && GLOBAL_CONFIG.redirectProcessOutputs()) {

@@ -26,9 +26,9 @@ import de.upb.crc901.proseco.GlobalConfig;
 import de.upb.crc901.proseco.core.PROSECOConfig;
 import de.upb.crc901.proseco.core.composition.PROSECOProcessEnvironment;
 import de.upb.crc901.proseco.core.interview.InterviewFillout;
-import de.upb.crc901.proseco.core.interview.Question;
 import de.upb.crc901.proseco.view.app.model.LogPair;
 import de.upb.crc901.proseco.view.app.model.LogResponseBody;
+import de.upb.crc901.proseco.view.app.model.processstatus.ProcessStateProvider;
 import de.upb.crc901.proseco.view.util.FileUtil;
 import de.upb.crc901.proseco.view.util.SerializationUtil;
 
@@ -91,7 +91,7 @@ public class APIController {
 	 */
 	@RequestMapping("/api/result/{id}")
 	public ResponseBodyEmitter pushResult(@PathVariable("id") final String id) throws Exception {
-		PROSECOProcessEnvironment env = this.processController.getConstructionProcessEnvironment(id);
+		PROSECOProcessEnvironment env = ProcessStateProvider.getProcessEnvironment(id);
 		final SseEmitter emitter = new SseEmitter(3600000L);
 		if (id.equals("init")) {
 			emitter.complete();
@@ -140,13 +140,13 @@ public class APIController {
 	}
 
 	private int getTimeoutValue(final String id) throws Exception {
-		InterviewFillout interview = getInterviewFillout(id);
+		InterviewFillout interview = this.getInterviewFillout(id);
 		String timeoutValue = interview.getAnswer("timeout");
-		return timeoutValue != null ? Integer.parseInt(timeoutValue) : - 1;
+		return timeoutValue != null ? Integer.parseInt(timeoutValue) : -1;
 	}
-	
+
 	private InterviewFillout getInterviewFillout(final String id) throws Exception {
-		PROSECOProcessEnvironment env = this.processController.getConstructionProcessEnvironment(id);
+		PROSECOProcessEnvironment env = ProcessStateProvider.getProcessEnvironment(id);
 		return SerializationUtil.readAsJSON(env.getInterviewStateFile());
 	}
 
@@ -158,7 +158,7 @@ public class APIController {
 	 * @throws Exception
 	 */
 	private boolean checkStatus(final String id) throws Exception {
-		PROSECOProcessEnvironment env = this.processController.getConstructionProcessEnvironment(id);
+		PROSECOProcessEnvironment env = ProcessStateProvider.getProcessEnvironment(id);
 		return env.getServiceHandle().exists();
 	}
 
@@ -290,7 +290,7 @@ public class APIController {
 	 */
 	private List<LogPair> findLogById(final String id) throws Exception {
 		List<LogPair> logList = new ArrayList<>();
-		PROSECOProcessEnvironment env = this.processController.getConstructionProcessEnvironment(id);
+		PROSECOProcessEnvironment env = ProcessStateProvider.getProcessEnvironment(id);
 
 		File processFolder = env.getProcessDirectory();
 		if (processFolder == null || env.getPrototypeName() == null || !env.getSearchOutputDirectory().exists()) {
@@ -323,4 +323,5 @@ public class APIController {
 
 		return logList;
 	}
+
 }
