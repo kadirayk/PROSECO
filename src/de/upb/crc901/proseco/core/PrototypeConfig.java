@@ -53,7 +53,7 @@ public interface PrototypeConfig extends Mutable {
 	public String getNameOfStrategyFolder();
 
 	@Key(GROUNDING_FOLDER)
-	@DefaultValue(".")
+	@DefaultValue("")
 	public String getNameOfGroundingFolder();
 
 	@Key(GROUNDING_EXEC)
@@ -89,7 +89,7 @@ public interface PrototypeConfig extends Mutable {
 	public int getSecondsReservedForDeployment();
 
 	@Key(STRATEGY_RUNNABLE)
-	@DefaultValue("run.sh")
+	@DefaultValue("run")
 	public String getSearchRunnable();
 
 	public static PrototypeConfig get(final PROSECOConfig prosecoConfig, final String prototypeName) {

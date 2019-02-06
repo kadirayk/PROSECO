@@ -41,6 +41,7 @@ import de.upb.crc901.proseco.view.app.model.processstatus.EProcessState;
 import de.upb.crc901.proseco.view.app.model.processstatus.ProcessStateProvider;
 import de.upb.crc901.proseco.view.core.NextStateNotFoundException;
 import de.upb.crc901.proseco.view.core.Parser;
+import de.upb.crc901.proseco.view.html.Script;
 import de.upb.crc901.proseco.view.util.ListUtil;
 import de.upb.crc901.proseco.view.util.SerializationUtil;
 
@@ -216,6 +217,10 @@ public class InterviewController {
 			if (ListUtil.isNotEmpty(questions)) {
 				int i = 0;
 				for (Question q : questions) {
+					if(q.getUiElement() instanceof Script) {
+                        updatedAnswers.put(q.getId(), "script");
+                        continue;
+                    }
 					String answerToThisQuestion = answers.get(i);
 					logger.info("Processing answer {} to question {}", answerToThisQuestion, q);
 					// if (!StringUtils.isEmpty(answerToThisQuestion)) {
