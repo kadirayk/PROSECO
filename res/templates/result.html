@@ -17,7 +17,6 @@
 <body ng-app="ProsecoApp">
 
     <div class="ng-cloak site-wrapper" ng-controller="ProsecoAppController as pac">
-
       <div class="site-wrapper-inner">
 
 			<div class="row header" th:fragment="header">
@@ -45,19 +44,40 @@
             <div th:if="${interviewDTO.showConfigurationPane}">
                 <h1>Composition Process</h1>
                 <div style="margin-left: 10px; font-size: 18px;">
+                    <span class="glyphicon glyphicon-repeat normal-right-spinner" style="font-size: 30px;"></span>
                     Result: <span id="strategy-result"> </span>
-                   <input type="button" id="btn-stop-service" class="btn btn-default" style="display: none;" onclick="StopService()" value="Stop Service" />
                 </div>
     
                 <!-- Console boxes -->
                 <div th:if="${interviewDTO.showConsole}">
     
                     <!-- General process -->
-    
-                    <!-- Search boxes -->
-                    <div class="container" style="margin-top: 25px;">
-                        <input type="button" id="btn-strategy-log-listener" class="btn btn-default" onclick="stopListeningStrategyLogs()" value="Stop Console" />
-                        <div id="strategy-logs" class="container"></div>
+                    
+                    <div class="container">
+                    	<div ng-repeat="log in pac.getLogList()">
+                    		<div class="log-container-headline">
+                    			<div class="dropdown" style="float: right;" ng-hide="log.collapseStrategy">
+  									<button class="btn btn-default dropdown-toggle" type="button" id="dropdown-{{log.strategyName}}" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true" ng-bind-html="pac.currentOutput(log.strategyName)"></button>
+  									<ul class="dropdown-menu" aria-labelledby="dropdown-{{log.strategyName}}">
+  										<li><a ng-click="pac.showStrategyLog(log.strategyName,'all')">Console: All</a></li>
+  										<li><a ng-click="pac.showStrategyLog(log.strategyName,'out')">Console: System.out</a></li>
+  										<li><a ng-click="pac.showStrategyLog(log.strategyName,'err')">Console: System.err</a></li>
+  									</ul>
+								</div>
+								<div class="log-container-headline-strategyname" ng-click="pac.collapseStrategy(log.strategyName)">
+									<i class="glyphicon glyphicon-minus" ng-if="!log.collapseStrategy"></i>
+									<i class="glyphicon glyphicon-plus" ng-if="log.collapseStrategy"></i>
+                    				<span class="log-container-headline-strategyname" ng-bind="log.strategyName"></span>
+                    			</div>
+                    			<div style="clear: both;"></div>
+							</div>
+							                    	
+							<div ng-hide="log.collapseStrategy">	
+                    			<div id="{{log.strategyName}}-all" ng-bind-html="log.sysAll" ng-show="pac.showLog(log.showLog,'all')" class="console-box" style="height: 200px; overflow: scroll;"></div>
+                    			<div id="{{log.strategyName}}-err" ng-bind-html="log.sysErr" ng-show="pac.showLog(log.showLog,'err')" class="console-box" style="height: 200px; overflow: scroll;"></div>
+                    			<div id="{{log.strategyName}}-out" ng-bind-html="log.sysOut" ng-show="pac.showLog(log.showLog,'out')" class="console-box" style="height: 200px; overflow: scroll;"></div>
+                    		</div>
+                    	</div>
                     </div>
                 </div>
             </div>
@@ -68,7 +88,11 @@
             
               <div class="mastfoot">
                 <div class="inner">
-                  <p><a href="https://github.com/fmohr/PROSECO">Fork me on GitHub</a> | <a ng-click="pac.setDebugTableFlag(!pac.showDebugTable())">Show Debug</a></p>
+                  <p>
+                  	<a href="https://github.com/fmohr/PROSECO">Fork me on GitHub</a> | 
+                  	<a ng-click="pac.setDebugTableFlag(!pac.showDebugTable())">Show Debug</a> | 
+                  	<a ng-click="pac.toggleAutoScroll()">AutoScroll <b ng-if="pac.getAutoScroll()">On</b><b ng-if="!pac.getAutoScroll()">Off</b></a>
+                  </p>
                 </div>
               </div>
     
@@ -80,11 +104,13 @@
     </div>
     
     <script src="/js/jquery-3.3.1.min.js"></script>
-	<script src="/js/Chart.min.js"></script>
 	<script src="/js/bootstrap.min.js"></script>
+	<script src="/js/Chart.min.js"></script>
 	<script src="/js/angularjs-1.7.6.min.js"></script>
+	<script src="/js/angular-sanitize.js"></script>
 	<script src="/js/angular-chart.min.js"></script>
 	<script src="/js/proseco-app.js"></script>
+	<script src="/js/controller.ProsecoApp.js"></script>
 	<script type="text/javascript" src="/js/main.js"></script>
 </body>
 </html>

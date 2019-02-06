@@ -1,5 +1,6 @@
 var moduleList = [
-	'chart.js'
+	'chart.js',
+	'ngSanitize'
 ];
 
 var ProsecoApp = angular.module('ProsecoApp', moduleList);
@@ -35,108 +36,21 @@ ProsecoApp.service('ProsecoService', ['$scope', '$http', '$interval', function($
 
 }]);
 
-ProsecoApp.controller('ProsecoAppController', ['$scope', '$http', '$timeout', '$interval', '$location', function($scope, $http, $timeout, $interval, $location){
-	var self = this;
+class StrategyLog {
 	
-	this.debugTableFlag = false;
-	this.prosecoStatus = "domain";
-	this.processID = "NaN";
-	
-	this.showDebugTable = function() {
-		return this.debugTableFlag;
+	constructor(strategyName, prototypeName, sysOut, sysErr, sysAll, showLog) {
+		this.strategyName = strategyName;
+		this.prototypeName = prototypeName;
+		this.sysOut = sysOut;
+		this.sysErr = sysErr.replace(/\$\_\(/g, '<span style="color:red">').replace(/\)\_\$/g, "</span>");
+		this.sysAll = sysAll.replace(/\$\_\(/g, '<span style="color:red">').replace(/\)\_\$/g, "</span>");
+		this.showLog = showLog;
+		this.collapseStrategy = false;
 	}
-	
-	this.setDebugTableFlag = function(newFlag) {
-		this.debugTableFlag = newFlag;
-	}
-	
-	this.getProsecoStatus = function(cb = 'NaN') {
-		var urlToCall = '/api/process/'+self.processID+'/status';
-		$http({method: 'GET', url: urlToCall}).then(function successCallback(response) {
-			if(response.data.status !== null) {
-				self.prosecoStatus = response.data.status;
-			} else {
-				self.prosecoStatus ="domain";
-			}
-			
-			if(cb !== "NaN") {
-				cb();
-			}
-		}, function errorCallback(response) {
-			self.prosecoStatus = "domain";
-			if(cb !== "NaN") {
-				cb();
-			}
-    	});
-	};
-	
-	this.getProcessID = function(cb = 'NaN') {
-		var url = $location.$$absUrl;
-		if(url.split("/").length == 5) {
-			self.processID = url.split("/")[4];
-		}
-		if(cb !== "NaN") {
-			cb();
-		}
-	};
-	
-	this.showChart = function() {
-		return this.prosecoStatus === "search";
-	}
-	
-	this.showInterview = function() {
-		return this.prosecoStatus === "interview";
-	}
-	
-	this.statusClassFor = function(id) {
-		order = ["domain", "interview","search","grounding","deployment","done"];
-		index = order.indexOf(id);
-		currentIndex = order.indexOf(this.prosecoStatus);
-		if(index < currentIndex) {
-			return "statusbar-step-done";
-		}
-		if(index === currentIndex) {
-			return "statusbar-step-active";
-		}
-		
-		return "statusbar-step-todo";
-	}
-	
-	this.statusClassForArrow = function(id) {
-		order = ["interview","search","grounding","deployment","done"];
-		index = order.indexOf(id);
-		currentIndex = order.indexOf(this.prosecoStatus);
-		if(index <= currentIndex) {
-			return "statusbar-step-next-done";
-		}
-		return "";
-	}
-	
-	this.initializeBenchmarkScore = function() {
-		var initialValues = [100,67,54,34,32,32,31,30,29,28,27,26,25,24.4];
-		this.benchmarkValues.push(initialValues);
-		
-	}
-	
-	this.addBenchmarkScore = function() {
-		this.labels.push("a");
-		this.data[0].push(parseFloat(this.newBenchmarkScore));
-		this.benchmarkScore.push(parseFloat(this.newBenchmarkScore));
-	}
-	
-    $timeout(function() {
-		self.getProcessID(self.getProsecoStatus);
-    });
-    
-    
-    $interval(function() {
-    	if(self.prosecoStatus !== "done") {
-    		self.getProsecoStatus();
-    	}
-    }, 1000);
-    
-    
-}]);
+
+}
+
+
 
 
 ProsecoApp.controller('StrategyChartController', function($scope, $http, $timeout, $interval){

@@ -5,6 +5,7 @@ import java.io.FileFilter;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -13,14 +14,18 @@ import org.aeonbits.owner.ConfigCache;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyEmitter;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import de.upb.crc901.proseco.GlobalConfig;
 import de.upb.crc901.proseco.core.PROSECOConfig;
@@ -31,6 +36,7 @@ import de.upb.crc901.proseco.view.app.model.LogResponseBody;
 import de.upb.crc901.proseco.view.app.model.processstatus.ProcessStateProvider;
 import de.upb.crc901.proseco.view.util.FileUtil;
 import de.upb.crc901.proseco.view.util.SerializationUtil;
+import de.upb.crc901.proseco.view.util.ToJSONStringUtil;
 
 /**
  * API End Point for web service calls
@@ -170,13 +176,11 @@ public class APIController {
 	 * @throws Exception
 	 */
 	@GetMapping("/api/log/{id}")
-	public ResponseEntity<?> getLog(@PathVariable("id") final String id) throws Exception {
+	@ResponseBody
+	public ResponseEntity<Object> getLog(@PathVariable("id") final String id) throws Exception {
 		LogResponseBody result = new LogResponseBody();
-
 		result.setLogList(this.findLogById(id));
-
-		return ResponseEntity.ok(result);
-
+		return new ResponseEntity<Object>(Arrays.asList(ToJSONStringUtil.parseObjectToJsonNode(result, new ObjectMapper())), HttpStatus.OK);
 	}
 
 	/**

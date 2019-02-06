@@ -14,6 +14,8 @@ public interface GlobalConfig extends Config {
 	/* Keys for accessing properties. */
 	public static final String K_DEBUG_MODE = "proseco.debug.mode";
 	public static final String K_REDIRECT_PROCESS_OUTPUTS = "proseco.debug.redirectoutputs";
+	public static final String K_DISABLE_GROUNDING = "proseco.debug.disableGrounding";
+	public static final String K_DISABLE_DEPLOYMENT = "proseco.debug.disableDeployment";
 
 	public static final String K_PROSECO_CONFIG_FILE = "proseco.config_file";
 	public static final String K_SCRIPT_EXTENSION_WIN = "proseco.script.extension.windows";
@@ -25,12 +27,20 @@ public interface GlobalConfig extends Config {
 	 * @return A flag stating whether PROSECO is executed in DEBUG mode.
 	 */
 	@Key(K_DEBUG_MODE)
-	@DefaultValue("false")
+	@DefaultValue("true")
 	public boolean debugMode();
 
 	@Key(K_REDIRECT_PROCESS_OUTPUTS)
-	@DefaultValue("true")
+	@DefaultValue("false")
 	public boolean redirectProcessOutputs();
+
+	@Key(K_DISABLE_DEPLOYMENT)
+	@DefaultValue("true")
+	public boolean debugDisableDeployment();
+
+	@Key(K_DISABLE_GROUNDING)
+	@DefaultValue("true")
+	public boolean debugDisableGrounding();
 
 	/**
 	 * @return The file of the proseco config.

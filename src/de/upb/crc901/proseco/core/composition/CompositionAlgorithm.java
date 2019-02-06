@@ -17,6 +17,7 @@ import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import de.upb.crc901.proseco.GlobalConfig;
 import de.upb.crc901.proseco.core.PROSECOConfig;
 import de.upb.crc901.proseco.view.app.model.processstatus.EProcessState;
 import de.upb.crc901.proseco.view.app.model.processstatus.ProcessStateProvider;
@@ -32,6 +33,8 @@ import de.upb.crc901.proseco.view.app.model.processstatus.ProcessStateProvider;
  *
  */
 public class CompositionAlgorithm implements Runnable {
+
+	private static final GlobalConfig GLOBAL_CONFIG = ConfigFactory.create(GlobalConfig.class);
 
 	/* logging */
 	private static final Logger logger = LoggerFactory.getLogger(CompositionAlgorithm.class);
@@ -143,7 +146,11 @@ public class CompositionAlgorithm implements Runnable {
 				// pb.redirectOutput(Redirect.appendTo(groundingLog)).redirectError(Redirect.appendTo(groundingLog));
 				pb.redirectOutput(Redirect.INHERIT).redirectError(Redirect.INHERIT);
 				logger.info("Execute grounding command {}. Working directory is set to {}", Arrays.toString(groundingCommand), this.executionEnvironment.getGroundingDirectory());
-				pb.start().waitFor();
+				if (GLOBAL_CONFIG.debugMode() && GLOBAL_CONFIG.debugDisableGrounding()) {
+					logger.warn("Grounding has been disabled for debugging! You can enable it in the GlobalConfig properties.");
+				} else {
+					pb.start().waitFor();
+				}
 				logger.info("Grounding completed.");
 			}
 
@@ -169,7 +176,15 @@ public class CompositionAlgorithm implements Runnable {
 			logger.info("Deploying service {} to {}:{}", deploymentCommand[1], deploymentCommand[2], deploymentCommand[3]);
 			final ProcessBuilder pb = new ProcessBuilder(deploymentCommand);
 			pb.redirectOutput(Redirect.INHERIT).redirectError(Redirect.INHERIT);
-			pb.start().waitFor();
+			if (GLOBAL_CONFIG.debugMode() && (GLOBAL_CONFIG.debugDisableDeployment() || GLOBAL_CONFIG.debugDisableGrounding())) {
+				if (GLOBAL_CONFIG.debugDisableGrounding()) {
+					logger.warn("Deployment has been disabled as grounding routine was disabled for debugging. To enable both check");
+				} else {
+					logger.warn("Deployment has been disabled for debugging! You can enable it in the GlobalConfig properties.");
+				}
+			} else {
+				pb.start().waitFor();
+			}
 			logger.info("Deployment completed.");
 
 			/* create handle file */

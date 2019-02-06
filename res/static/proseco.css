@@ -32,7 +32,13 @@ body {
 
 .strategy-log {
 	margin: 10px;
-	
+	padding: 10px;
+	background: #ccc;
+	text-align: left;
+}
+
+.console-box>span {
+	color: red;
 }
 
 /**
@@ -45,6 +51,9 @@ body {
 	overflow: scroll;
 	font-size: 8pt;
 	text-align: left;
+	padding: 5px;
+	border: 2px solid #86c644;
+	margin-bottom: 10px;
 }
 
 .console-logs {
@@ -219,3 +228,51 @@ input[type="text"] {
   display: none !important;
 }
    
+.log-container-headline {
+	background: #86c644;
+	padding: 5px 15px;
+}   
+   
+.log-container-headline-strategyname {
+	font-size: 24px;
+	font-weight: bold;
+	text-align: left;
+	cursor: pointer;
+}
+
+.mastfoot>.inner>p>a {
+	cursor: pointer;
+}
+
+
+.glyphicon.normal-right-spinner {
+    -webkit-animation: glyphicon-spin-r 2s infinite linear;
+    animation: glyphicon-spin-r 2s infinite linear;
+}
+
+
+@-webkit-keyframes glyphicon-spin-r {
+    0% {
+        -webkit-transform: rotate(0deg);
+        transform: rotate(0deg);
+    }
+
+    100% {
+        -webkit-transform: rotate(359deg);
+        transform: rotate(359deg);
+    }
+}
+
+@keyframes glyphicon-spin-r {
+    0% {
+        -webkit-transform: rotate(0deg);
+        transform: rotate(0deg);
+    }
+
+    100% {
+        -webkit-transform: rotate(359deg);
+        transform: rotate(359deg);
+    }
+}
+
+
