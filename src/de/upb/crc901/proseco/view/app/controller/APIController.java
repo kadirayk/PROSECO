@@ -6,7 +6,9 @@ import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -58,6 +60,8 @@ public class APIController {
 
 	private final ProcessController processController = new DefaultProcessController(PROSECO_ENV_CONFIG.prosecoConfigFile());
 
+	private final Map<String, Integer> deadlineCache = new HashMap<>();
+
 	/**
 	 * Returns SystemOut and SystemError logs of Strategies of prototype with the given ID
 	 *
@@ -96,53 +100,18 @@ public class APIController {
 	 * @throws Exception
 	 */
 	@RequestMapping("/api/result/{id}")
-	public ResponseBodyEmitter pushResult(@PathVariable("id") final String id) throws Exception {
+	public ResponseEntity<Object> pushResult(@PathVariable("id") final String id) throws Exception {
 		PROSECOProcessEnvironment env = ProcessStateProvider.getProcessEnvironment(id);
-		final SseEmitter emitter = new SseEmitter(3600000L);
-		if (id.equals("init")) {
-			emitter.complete();
-			return emitter;
-		}
-		ExecutorService service = Executors.newSingleThreadExecutor();
-		service.execute(() -> {
-			try {
-				boolean isComplete = false;
-				int animationDots = 0;
-				int countDown = this.getTimeoutValue(id);
-				while (!(isComplete = this.checkStatus(id))) {
-					animationDots = animationDots % 3;
-					try {
-						if (!isComplete) {
-							if (countDown > 0) {
-								emitter.send("Your service is being configured. It will be accessible in at most " + countDown + "s.", MediaType.TEXT_PLAIN);
-								countDown--;
-							} else {
-								emitter.send(new String(new char[animationDots + 1]).replace("\0", ". "), MediaType.TEXT_PLAIN);
-								animationDots++;
-							}
-						}
-						Thread.sleep(1000);
-					} catch (IOException e) {
-						L.info("Connection closed by client.");
-						emitter.completeWithError(e);
-						return;
-					} catch (Exception e) {
-						emitter.completeWithError(e);
-						e.printStackTrace();
-						return;
-					}
-				}
-				if (isComplete) {
-					emitter.send("Ready. You can now <a href=\"" + FileUtils.readFileToString(env.getServiceHandle(), Charset.defaultCharset()) + "\">use your customized service</a>.", MediaType.TEXT_PLAIN);
-				}
-			} catch (Exception e) {
-				emitter.completeWithError(e);
-				e.printStackTrace();
-			}
-			emitter.complete();
-		});
+		int remainingTime = this.getTimeoutValue(id);
+		boolean isComplete = this.checkStatus(id);
+		String serviceHandle = FileUtils.readFileToString(env.getServiceHandle(), Charset.defaultCharset());
 
-		return emitter;
+		Map<String, String> result = new HashMap<>();
+		result.put("remainingTime", remainingTime + "");
+		result.put("isComplete", isComplete + "");
+		result.put("serviceHandle", serviceHandle);
+
+		return new ResponseEntity<>(result, HttpStatus.OK);
 	}
 
 	private int getTimeoutValue(final String id) throws Exception {

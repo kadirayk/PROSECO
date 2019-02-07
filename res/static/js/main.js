@@ -1,3 +1,5 @@
+/*
+
 $(document).ready(function() {
 	checkResult();
 });
@@ -14,7 +16,6 @@ function checkResult() {
 		resultSource = new EventSource("/api/result/" + currentUrl);
 		resultSource.onmessage = function(event) {
 
-			console.log("juhu", event.data);
 			if (false) {
 				$("#btn-stop-service").css("display", "");
 			}
@@ -24,7 +25,7 @@ function checkResult() {
 		document.getElementById("strategy-result").innerHTML = "Your browser does not support server-sent events.";
 	}
 }
-
+*/
 
 // Stop Created Prototype Service
 function StopService() {

@@ -53,7 +53,7 @@ body {
 	text-align: left;
 	padding: 5px;
 	border: 2px solid #86c644;
-	margin-bottom: 10px;
+	background: #f2f2f2;
 }
 
 .console-logs {
@@ -227,6 +227,10 @@ input[type="text"] {
 [ng\:cloak], [ng-cloak], [data-ng-cloak], [x-ng-cloak], .ng-cloak, .x-ng-cloak {
   display: none !important;
 }
+
+.log-container {
+	margin-bottom: 10px;
+}
    
 .log-container-headline {
 	background: #86c644;
@@ -245,11 +249,21 @@ input[type="text"] {
 }
 
 
+.glyphicon.slow-right-spinner {
+    -webkit-animation: glyphicon-spin-r 3s infinite linear;
+    animation: glyphicon-spin-r 3s infinite linear;
+}
+
 .glyphicon.normal-right-spinner {
     -webkit-animation: glyphicon-spin-r 2s infinite linear;
     animation: glyphicon-spin-r 2s infinite linear;
 }
 
+
+.glyphicon.fast-right-spinner {
+    -webkit-animation: glyphicon-spin-r 1s infinite linear;
+    animation: glyphicon-spin-r 1s infinite linear;
+}
 
 @-webkit-keyframes glyphicon-spin-r {
     0% {

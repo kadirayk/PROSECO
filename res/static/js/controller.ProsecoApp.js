@@ -1,3 +1,17 @@
+class StrategyLog {
+	
+	constructor(strategyName, prototypeName, sysOut, sysErr, sysAll, showLog) {
+		this.strategyName = strategyName;
+		this.prototypeName = prototypeName;
+		this.sysOut = sysOut;
+		this.sysErr = sysErr.replace(/\$\_\(/g, '<span style="color:red">').replace(/\)\_\$/g, "</span>");
+		this.sysAll = sysAll.replace(/\$\_\(/g, '<span style="color:red">').replace(/\)\_\$/g, "</span>");
+		this.showLog = showLog;
+		this.collapseStrategy = false;
+	}
+
+}
+
 ProsecoApp.controller('ProsecoAppController', ['$scope', '$http', '$timeout', '$interval', '$location', function($scope, $http, $timeout, $interval, $location){
 	var self = this;
 	
@@ -5,6 +19,10 @@ ProsecoApp.controller('ProsecoAppController', ['$scope', '$http', '$timeout', '$
 	this.prosecoStatus = "domain";
 	this.processID = "NaN";
 	this.logList = [];
+	this.result = {
+			"remainingTime": null,
+			"serviceHandle": null
+	};
 	this.autoScroll = true;
 	
 	this.showDebugTable = function() {
@@ -19,6 +37,10 @@ ProsecoApp.controller('ProsecoAppController', ['$scope', '$http', '$timeout', '$
 		return this.logList;
 	};
 	
+	this.getCurrentMessage = function() {
+		return this.currentMessage;
+	}
+	
 	this.collapseStrategy = function(strategyName) {
 		for(let x in this.logList) {
 			if(this.logList[x].strategyName === strategyName) {
@@ -28,7 +50,6 @@ ProsecoApp.controller('ProsecoAppController', ['$scope', '$http', '$timeout', '$
 	}
 	
 	this.toggleAutoScroll = function() {
-		console.log("Set autoScroll from " + this.autoScroll + " to " + (!this.autoScroll));
 		this.autoScroll = !this.autoScroll;
 	}
 	
@@ -136,6 +157,15 @@ ProsecoApp.controller('ProsecoAppController', ['$scope', '$http', '$timeout', '$
 		return "";
 	};
 	
+	this.pullResult = function() {
+		var urlToCall = '/api/result/'+self.processID;
+		$http({method: 'GET', url: urlToCall}).then(function successCallback(response) {
+			console.log(response);
+		}, function errorCallback(response) {
+			console.log("Could not pull result from server");
+    	});
+	}
+	
 	
 	this.getLogs = function() {
 		var urlToCall = '/api/strategyLogs/'+self.processID;
@@ -155,18 +185,18 @@ ProsecoApp.controller('ProsecoAppController', ['$scope', '$http', '$timeout', '$
 							updated = true;
 						}
 					}
-					
 					if(!updated) {
 						self.logList.push(strategyLog);
 					}
 				}
+				
 			} else {
 				console.log("Could not pull log list from server");
-				self.logList = null;
+				self.logList = [];
 			}
 		}, function errorCallback(response) {
 			console.log("Could not pull log list from server");
-			self.logList = null;
+			self.logList = [];
     	});
 	};
 	
@@ -197,7 +227,7 @@ ProsecoApp.controller('ProsecoAppController', ['$scope', '$http', '$timeout', '$
     	if(self.prosecoStatus !== "done") {
     		self.getProsecoStatus();
     	}
-    	if(self.prosecoStatus === "search" || self.prosecoStatus === "grounding" || self.prosecoStatus === "deployment" || self.prosecoStatus === "donne") {
+    	if(self.prosecoStatus === "search" || self.prosecoStatus === "grounding" || self.prosecoStatus === "deployment" || self.prosecoStatus === "done") {
     		self.getLogs();
     	}
     	if(self.autoScroll) {
@@ -206,4 +236,10 @@ ProsecoApp.controller('ProsecoAppController', ['$scope', '$http', '$timeout', '$
     		},250);
     	}
     }, 3000);
+    
+    $interval(function() {
+    	if(self.prosecoStatus === "search" || self.prosecoStatus === "grounding" || self.prosecoStatus === "deployment" || self.prosecoStatus === "done") {
+    		self.pullResult();
+    	}
+    }, 1000);
 }]);

@@ -42,9 +42,8 @@
             
             <!-- Control elements for configuration process -->
             <div th:if="${interviewDTO.showConfigurationPane}">
-                <h1>Composition Process</h1>
+                <h1><span class="glyphicon glyphicon-cog slow-right-spinner"></span> Composition Process</h1>
                 <div style="margin-left: 10px; font-size: 18px;">
-                    <span class="glyphicon glyphicon-repeat normal-right-spinner" style="font-size: 30px;"></span>
                     Result: <span id="strategy-result"> </span>
                 </div>
     
@@ -54,7 +53,7 @@
                     <!-- General process -->
                     
                     <div class="container">
-                    	<div ng-repeat="log in pac.getLogList()">
+                    	<div ng-repeat="log in pac.getLogList()" class="log-container">
                     		<div class="log-container-headline">
                     			<div class="dropdown" style="float: right;" ng-hide="log.collapseStrategy">
   									<button class="btn btn-default dropdown-toggle" type="button" id="dropdown-{{log.strategyName}}" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true" ng-bind-html="pac.currentOutput(log.strategyName)"></button>
@@ -89,8 +88,8 @@
               <div class="mastfoot">
                 <div class="inner">
                   <p>
-                  	<a href="https://github.com/fmohr/PROSECO">Fork me on GitHub</a> | 
-                  	<a ng-click="pac.setDebugTableFlag(!pac.showDebugTable())">Show Debug</a> | 
+                  	<a href="https://github.com/fmohr/PROSECO" target="_blank">Fork me on GitHub</a> | 
+                  	<a ng-click="pac.setDebugTableFlag(!pac.showDebugTable())">DebugTable <b ng-if="pac.showDebugTable()">On</b><b ng-if="!pac.showDebugTable()">Off</b></a> | 
                   	<a ng-click="pac.toggleAutoScroll()">AutoScroll <b ng-if="pac.getAutoScroll()">On</b><b ng-if="!pac.getAutoScroll()">Off</b></a>
                   </p>
                 </div>

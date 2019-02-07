@@ -36,20 +36,6 @@ ProsecoApp.service('ProsecoService', ['$scope', '$http', '$interval', function($
 
 }]);
 
-class StrategyLog {
-	
-	constructor(strategyName, prototypeName, sysOut, sysErr, sysAll, showLog) {
-		this.strategyName = strategyName;
-		this.prototypeName = prototypeName;
-		this.sysOut = sysOut;
-		this.sysErr = sysErr.replace(/\$\_\(/g, '<span style="color:red">').replace(/\)\_\$/g, "</span>");
-		this.sysAll = sysAll.replace(/\$\_\(/g, '<span style="color:red">').replace(/\)\_\$/g, "</span>");
-		this.showLog = showLog;
-		this.collapseStrategy = false;
-	}
-
-}
-
 
 
 

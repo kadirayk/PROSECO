@@ -94,10 +94,10 @@ public class PROSECOProcessEnvironment {
 		File prosecoConfigFile = processConfig.getProsecoConfigFile().isAbsolute() ? processConfig.getProsecoConfigFile() : new File(processFolder + File.separator + processConfig.getProsecoConfigFile());
 		L.debug("Load PROSECO config from {}", prosecoConfigFile);
 		this.prosecoConfig = PROSECOConfig.get(prosecoConfigFile);
-		
+
 		/* current process specific data. */
 		this.processId = processConfig.getProcessId();
-		this.processDirectory = new File(this.prosecoConfig.getDirectoryForProcesses() + File.separator + this.processId).getCanonicalFile();
+		this.processDirectory = processFolder;
 		L.debug("Current process with process id {} is located in {}", this.processId, this.processDirectory);
 
 		/* General domain directories and config */
@@ -116,7 +116,7 @@ public class PROSECOProcessEnvironment {
 		/* extract prototype from interview */
 		L.debug("Trying to read interview from file {}. Existent: {}", this.interviewStateFile.getAbsolutePath(), this.interviewStateFile.exists());
 		this.interviewFillout = this.interviewStateFile.exists() ? SerializationUtil.readAsJSON(this.interviewStateFile) : null;
-		L.debug("Interview fillout is {}", interviewFillout);
+		L.debug("Interview fillout is {}", this.interviewFillout);
 
 		/* prototype specific folders if prototype has been set in the interview */
 		if (this.interviewFillout != null && this.interviewFillout.getAnswer("prototype") != null) {
@@ -145,7 +145,6 @@ public class PROSECOProcessEnvironment {
 	}
 
 	private ProcessConfig loadAndValidateProcessConfig(final File processFolder) throws JsonParseException, JsonMappingException, IOException {
-		
 		/* read the process.json */
 		String processConfigFilename = GLOBAL_CONFIG.processConfigFilename();
 		File processConfigFile = new File(processFolder, processConfigFilename);
