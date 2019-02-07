@@ -42,13 +42,25 @@
             
             <!-- Control elements for configuration process -->
             <div th:if="${interviewDTO.showConfigurationPane}">
-                <h1><span class="glyphicon glyphicon-cog slow-right-spinner"></span> Composition Process</h1>
+                <h1><span class="glyphicon glyphicon-cog slow-right-spinner" ng-hide="pac.getIsComplete()"></span><span class="glyphicon glyphicon-ok proseco-green" ng-show="pac.getIsComplete()"></span> <span ng-hide="pac.getIsComplete()">Composition Process</span><span ng-show="pac.getIsComplete()" class="proseco-green">Congratulations!</span></h1>
                 <div style="margin-left: 10px; font-size: 18px;">
-                    Result: <span id="strategy-result"> </span>
+                	<div ng-if="!pac.isRemainingTimeNull()">
+                		<div ng-if="!pac.getIsComplete()">
+                			<div ng-if="!pac.isRemainingTimePositive()">
+		                		Sorry! Unfortunately the provision of your service becomes a little delayed...
+                			</div>
+                			<div ng-if="pac.isRemainingTimePositive()">
+                				Please wait for your request being configured. Your service should be up and running within {{pac.getRemainingTime()}}s.
+	                		</div>
+                		</div>
+                		<div ng-if="pac.getIsComplete()">
+	                		Your service is now available at <a ng-href="{{pac.getServiceHandle()}}" target="_blank" ng-bind="pac.getServiceHandle()"></a>
+                		</div>
+                	</div>
                 </div>
     
                 <!-- Console boxes -->
-                <div th:if="${interviewDTO.showConsole}">
+                <div th:if="${interviewDTO.showConsole}" ng-show="pac.getShowConsoles()">
     
                     <!-- General process -->
                     
@@ -90,7 +102,8 @@
                   <p>
                   	<a href="https://github.com/fmohr/PROSECO" target="_blank">Fork me on GitHub</a> | 
                   	<a ng-click="pac.setDebugTableFlag(!pac.showDebugTable())">DebugTable <b ng-if="pac.showDebugTable()">On</b><b ng-if="!pac.showDebugTable()">Off</b></a> | 
-                  	<a ng-click="pac.toggleAutoScroll()">AutoScroll <b ng-if="pac.getAutoScroll()">On</b><b ng-if="!pac.getAutoScroll()">Off</b></a>
+                  	<a ng-click="pac.toggleAutoScroll()">AutoScroll <b ng-if="pac.getAutoScroll()">On</b><b ng-if="!pac.getAutoScroll()">Off</b></a> | 
+                  	<a ng-click="pac.toggleShowConsoles()">ShowConsoles <b ng-if="pac.getShowConsoles()">On</b><b ng-if="!pac.getShowConsoles()">Off</b></a>
                   </p>
                 </div>
               </div>

@@ -219,6 +219,10 @@ input[type="text"] {
     color: #007D02;
 }  
 
+.proseco-green {
+	color: #86c644;
+}
+
 .statusbar-step-todo {
     border-color: rgba(0,125,2,0.5);
     color: rgba(0,125,2,0.33);

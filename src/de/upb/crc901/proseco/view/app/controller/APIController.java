@@ -3,41 +3,30 @@ package de.upb.crc901.proseco.view.app.controller;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.IOException;
-import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 import org.aeonbits.owner.ConfigCache;
-import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyEmitter;
-import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import de.upb.crc901.proseco.GlobalConfig;
 import de.upb.crc901.proseco.core.PROSECOConfig;
 import de.upb.crc901.proseco.core.composition.PROSECOProcessEnvironment;
-import de.upb.crc901.proseco.core.interview.InterviewFillout;
 import de.upb.crc901.proseco.view.app.model.LogPair;
 import de.upb.crc901.proseco.view.app.model.LogResponseBody;
 import de.upb.crc901.proseco.view.app.model.processstatus.ProcessStateProvider;
 import de.upb.crc901.proseco.view.util.FileUtil;
-import de.upb.crc901.proseco.view.util.SerializationUtil;
 import de.upb.crc901.proseco.view.util.ToJSONStringUtil;
 
 /**
@@ -60,81 +49,18 @@ public class APIController {
 
 	private final ProcessController processController = new DefaultProcessController(PROSECO_ENV_CONFIG.prosecoConfigFile());
 
-	private final Map<String, Integer> deadlineCache = new HashMap<>();
-
 	/**
 	 * Returns SystemOut and SystemError logs of Strategies of prototype with the given ID
 	 *
 	 * @param id
 	 * @return
+	 * @throws Exception
 	 */
 	@RequestMapping("/api/strategyLogs/{id}")
-	public ResponseBodyEmitter pushStrategyLogs(@PathVariable("id") final String id) {
-		final SseEmitter emitter = new SseEmitter(3600000L);
-		if (id.equals("init")) {
-			emitter.complete();
-			return emitter;
-		}
-		ExecutorService service = Executors.newSingleThreadExecutor();
-		service.execute(() -> {
-			try {
-				LogResponseBody result = new LogResponseBody();
-				result.setLogList(this.findLogById(id));
-				emitter.send(result, MediaType.APPLICATION_JSON);
-			} catch (Exception e) {
-				emitter.completeWithError(e);
-				e.printStackTrace();
-			}
-			emitter.complete();
-		});
-
-		return emitter;
-
-	}
-
-	/**
-	 * Server-Sent Event Emitter for search process result Provides feedback to the caller while search process continues returns location of the solution at the end of the process
-	 *
-	 * @param id
-	 * @return
-	 * @throws Exception
-	 */
-	@RequestMapping("/api/result/{id}")
-	public ResponseEntity<Object> pushResult(@PathVariable("id") final String id) throws Exception {
-		PROSECOProcessEnvironment env = ProcessStateProvider.getProcessEnvironment(id);
-		int remainingTime = this.getTimeoutValue(id);
-		boolean isComplete = this.checkStatus(id);
-		String serviceHandle = FileUtils.readFileToString(env.getServiceHandle(), Charset.defaultCharset());
-
-		Map<String, String> result = new HashMap<>();
-		result.put("remainingTime", remainingTime + "");
-		result.put("isComplete", isComplete + "");
-		result.put("serviceHandle", serviceHandle);
-
+	public ResponseEntity<Object> getStrategyLogs(@PathVariable("id") final String id) throws Exception {
+		LogResponseBody result = new LogResponseBody();
+		result.setLogList(this.findLogById(id));
 		return new ResponseEntity<>(result, HttpStatus.OK);
-	}
-
-	private int getTimeoutValue(final String id) throws Exception {
-		InterviewFillout interview = this.getInterviewFillout(id);
-		String timeoutValue = interview.getAnswer("timeout");
-		return timeoutValue != null ? Integer.parseInt(timeoutValue) : -1;
-	}
-
-	private InterviewFillout getInterviewFillout(final String id) throws Exception {
-		PROSECOProcessEnvironment env = ProcessStateProvider.getProcessEnvironment(id);
-		return SerializationUtil.readAsJSON(env.getInterviewStateFile());
-	}
-
-	/**
-	 * Checks if the search strategy completed
-	 *
-	 * @param id
-	 * @return
-	 * @throws Exception
-	 */
-	private boolean checkStatus(final String id) throws Exception {
-		PROSECOProcessEnvironment env = ProcessStateProvider.getProcessEnvironment(id);
-		return env.getServiceHandle().exists();
 	}
 
 	/**

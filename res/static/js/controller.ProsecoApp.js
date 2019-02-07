@@ -21,9 +21,40 @@ ProsecoApp.controller('ProsecoAppController', ['$scope', '$http', '$timeout', '$
 	this.logList = [];
 	this.result = {
 			"remainingTime": null,
-			"serviceHandle": null
+			"serviceHandle": null,
+			"isComplete": false
 	};
 	this.autoScroll = true;
+	this.showConsoles = true;
+	
+	this.getShowConsoles = function() {
+		return this.showConsoles;
+	}
+	
+	this.toggleShowConsoles = function() {
+		this.showConsoles = !this.showConsoles;
+	}
+
+	
+	this.isRemainingTimeNull = function() {
+		return this.result.remainingTime == null;
+	}
+	
+	this.isRemainingTimePositive = function() {
+		return this.result.remainingTime > 0;
+	}
+	
+	this.getRemainingTime = function() {
+		return this.result.remainingTime;
+	}
+	
+	this.getServiceHandle = function() {
+		return this.result.serviceHandle;
+	}
+	
+	this.getIsComplete = function() {
+		return this.result.isComplete;
+	}
 	
 	this.showDebugTable = function() {
 		return this.debugTableFlag;
@@ -160,18 +191,23 @@ ProsecoApp.controller('ProsecoAppController', ['$scope', '$http', '$timeout', '$
 	this.pullResult = function() {
 		var urlToCall = '/api/result/'+self.processID;
 		$http({method: 'GET', url: urlToCall}).then(function successCallback(response) {
-			console.log(response);
+			self.result.isComplete = response.data.isComplete == "true";
+			self.result.serviceHandle = response.data.serviceHandle;
+			self.result.remainingTime = parseInt(response.data.remainingTime);
+			
+			if(self.result.isComplete) {
+				self.showConsoles = false;
+			}
 		}, function errorCallback(response) {
 			console.log("Could not pull result from server");
     	});
 	}
-	
-	
+
 	this.getLogs = function() {
 		var urlToCall = '/api/strategyLogs/'+self.processID;
 		$http({method: 'GET', url: urlToCall}).then(function successCallback(response) {
-			let data = angular.fromJson(response.data.substring(5));
-			if(response.data !== null) {
+			let data = response.data;
+			if(data.logList !== null) {
 				for(let x in data.logList) {
 					let logData = data.logList[x];
 					let strategyLog = new StrategyLog(logData.strategyName, logData.prototypeName, logData.systemOutLog, logData.systemErrorLog, logData.systemAllLog, "all");
@@ -238,7 +274,7 @@ ProsecoApp.controller('ProsecoAppController', ['$scope', '$http', '$timeout', '$
     }, 3000);
     
     $interval(function() {
-    	if(self.prosecoStatus === "search" || self.prosecoStatus === "grounding" || self.prosecoStatus === "deployment" || self.prosecoStatus === "done") {
+    	if(!self.result.isComplete && (self.prosecoStatus === "search" || self.prosecoStatus === "grounding" || self.prosecoStatus === "deployment" || self.prosecoStatus === "done")) {
     		self.pullResult();
     	}
     }, 1000);
