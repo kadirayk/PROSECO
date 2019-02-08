@@ -1,15 +1,15 @@
-//IDE
-apply plugin: "java"
-apply plugin: "eclipse"
-apply plugin: "idea"
-
-//Other
-apply plugin: "maven"
-apply plugin: "jacoco"
-
-// spring boot application
-apply plugin: 'org.springframework.boot'
-apply plugin: 'io.spring.dependency-management'
+plugins {
+	// IDE
+	id "java"
+	id "maven"
+	id "eclipse"
+	id "idea"
+	// Others
+	id "jacoco"
+	// springboot    
+	id "org.springframework.boot" version "2.0.5.RELEASE"
+	//id "io.spring.dependency-management" version "2.0.5.RELEASE"
+}
 
 //Java version
 sourceCompatibility = 1.8
@@ -64,6 +64,11 @@ dependencies {
 	
 	//zip util
 	compile 'org.zeroturnaround:zt-zip:1.12'
+	
+    bootJar {
+        destinationDir = file("$rootDir")
+        baseName = 'PROSECO'
+    }
 }
 
 

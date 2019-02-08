@@ -38,7 +38,6 @@ public class CompositionAlgorithm implements Runnable {
 
 	/* logging */
 	private static final Logger logger = LoggerFactory.getLogger(CompositionAlgorithm.class);
-	private static final boolean LOCAL_TEST = true;
 
 	/** Base folder for matching the availability of prototypes */
 	private final PROSECOProcessEnvironment executionEnvironment;
@@ -210,15 +209,6 @@ public class CompositionAlgorithm implements Runnable {
 	}
 
 	protected void beforeConfiguration() {
-		if (LOCAL_TEST) {
-			File localRepoDirectory = new File("testrsc/discovery/");
-			File targetRepoDirectory = new File(this.executionEnvironment.getProcessDirectory(), "discovery");
-			try {
-				FileUtils.copyDirectory(localRepoDirectory, targetRepoDirectory);
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-		}
 	}
 
 	/**
