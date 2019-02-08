@@ -1,0 +1,296 @@
+body {
+	/* background: #0f0; */
+	background: #f2f2f2;
+}
+
+#main {
+	/* background: #cfc; */
+	background: #f2f2f2;
+}
+
+#debugBox {
+	width: 80%;
+	text-align: left;
+	position: absolute;
+	background: rgba(50,50,50,0.1);
+	box-shadow: 0 0 10px 0px #000;
+	padding: 10px 15px;
+}
+
+.currentState td {
+	background: #b4ff99;
+}
+
+.tab-content {
+	background: #fff;
+	border: 1px #000 solid;
+}
+
+.error {
+	color: red;
+}
+
+.strategy-log {
+	margin: 10px;
+	padding: 10px;
+	background: #ccc;
+	text-align: left;
+}
+
+.console-box>span {
+	color: red;
+}
+
+/**
+ *
+ */
+.console-box {
+	white-space: pre;
+	font-family: courier;
+	height: 400px;
+	overflow: scroll;
+	font-size: 8pt;
+	text-align: left;
+	padding: 5px;
+	border: 2px solid #86c644;
+	background: #f2f2f2;
+}
+
+.console-logs {
+  padding: 10px;
+}
+
+.tabs pre {
+  margin: 0;
+  padding: 0;
+}
+
+.console-error {
+  color: red;
+}
+
+/**
+ * tabbed panes
+ **/
+
+/* hide radio buttons (don't use display: none, because this breaks their functionality) */
+
+.input {
+  position: absolute;
+  opacity: 0;
+}
+
+.label {
+  float: left;
+  height: 50px;
+  padding: 0px 10px;
+  background: #e5e5e5;
+  cursor: pointer;
+  font-weight: bold;
+  font-size: 18px;
+  color: #7f7f7f;
+  transition: background 0.1s, color 0.1s;
+}
+
+.label:hover {
+  background: #d8d8d8;
+}
+
+.label:active {
+  background: #ccc;
+}
+
+.input:focus + .label {
+  box-shadow: inset 0px 0px 0px 3px #2aa1c0;
+  z-index: 1;
+}
+
+.tabs {
+  display: flex;
+  position: relative;
+  flex-wrap: wrap;
+  width: 100%;
+  background: #efefef;
+  box-shadow: 0 48px 80px -32px rgba(0,0,0,0.3);
+}
+
+.panel {
+  position: absolute;
+  top: 50px;
+  left: 0px;
+  display: none;
+  width: 100%;
+  background: #fff;
+}
+
+/* this activates exactly the panel of the checked radio button */
+.input:checked + .label {
+  background: #fff;
+  color: #000;
+}
+
+.input:checked + .label + .panel {
+  display: block;
+}
+
+textarea {
+    background: transparent;
+    border: none;
+    box-shadow: inset 0 0 20px #aaa;
+    min-height: 200px;
+    min-width: 800px;
+    font-family: Arial, non-serif;
+    font-weight: normal;
+    font-size: 18px;
+}
+
+input[type="file"] {
+    margin: 0px auto;
+    font-size: 18px;
+}
+
+input[type="text"] {
+    background: transparent;
+    border: none;
+    box-shadow: inset 0 0 10px #333;
+    font-family: Arial, non-serif;
+    font-size: 18px;
+    padding: 10px 15px;
+}
+
+.clear-left {
+    clear: left;
+}
+
+.header {
+    position: fixed;
+    width: 100%;
+    top: 0;
+}
+
+.statusbar {
+    float: right;
+    padding: 10px;
+}
+   
+.statusbar-step {
+    display: block;
+    float: left;
+    border: 2px solid rgba(0,125,2,0.5);
+    color: rgba(0,125,2,0.33);
+    height: 50px;
+    width: 150px;
+    text-align: center;
+    font-weight: bold;
+    padding-top: 12px;
+    vertical-align: middle;
+    text-shadow: none;
+    border-radius: 5px;
+}
+
+.statusbar-step-next {
+    float: left;
+    border-bottom: 30px solid rgba(0,120,2,0.5);
+    border-left: 10px solid transparent;
+    border-right: 10px solid transparent;
+    height: 0;
+    width: 40px;
+    padding-top: 20px;
+    margin-left: 5px;
+    margin-right: -15px;
+    
+    -moz-transform: rotate(90deg);
+    -ms-transform: rotate(90deg);
+    -o-transform: rotate(90deg);
+    -webkit-transform: rotate(90deg);
+    transform: rotate(90deg);
+}
+.statusbar-step-next-done {
+    border-bottom-color: #000;
+}
+
+.statusbar-step-done {
+    color: #000;
+    border-color: #000;
+}
+
+.statusbar-step-active {
+    border-color: #007D02;
+    color: #007D02;
+}  
+
+.proseco-green {
+	color: #86c644;
+}
+
+.statusbar-step-todo {
+    border-color: rgba(0,125,2,0.5);
+    color: rgba(0,125,2,0.33);
+}
+
+[ng\:cloak], [ng-cloak], [data-ng-cloak], [x-ng-cloak], .ng-cloak, .x-ng-cloak {
+  display: none !important;
+}
+
+.log-container {
+	margin-bottom: 10px;
+}
+   
+.log-container-headline {
+	background: #86c644;
+	padding: 5px 15px;
+}   
+   
+.log-container-headline-strategyname {
+	font-size: 24px;
+	font-weight: bold;
+	text-align: left;
+	cursor: pointer;
+}
+
+.mastfoot>.inner>p>a {
+	cursor: pointer;
+}
+
+
+.glyphicon.slow-right-spinner {
+    -webkit-animation: glyphicon-spin-r 3s infinite linear;
+    animation: glyphicon-spin-r 3s infinite linear;
+}
+
+.glyphicon.normal-right-spinner {
+    -webkit-animation: glyphicon-spin-r 2s infinite linear;
+    animation: glyphicon-spin-r 2s infinite linear;
+}
+
+
+.glyphicon.fast-right-spinner {
+    -webkit-animation: glyphicon-spin-r 1s infinite linear;
+    animation: glyphicon-spin-r 1s infinite linear;
+}
+
+@-webkit-keyframes glyphicon-spin-r {
+    0% {
+        -webkit-transform: rotate(0deg);
+        transform: rotate(0deg);
+    }
+
+    100% {
+        -webkit-transform: rotate(359deg);
+        transform: rotate(359deg);
+    }
+}
+
+@keyframes glyphicon-spin-r {
+    0% {
+        -webkit-transform: rotate(0deg);
+        transform: rotate(0deg);
+    }
+
+    100% {
+        -webkit-transform: rotate(359deg);
+        transform: rotate(359deg);
+    }
+}
+
+

@@ -1,4 +1,23 @@
-apply plugin: 'java'
+//IDE
+apply plugin: "java"
+apply plugin: "eclipse"
+apply plugin: "idea"
+
+//Other
+apply plugin: "maven"
+apply plugin: "jacoco"
+
+// spring boot application
+apply plugin: 'org.springframework.boot'
+apply plugin: 'io.spring.dependency-management'
+
+//Java version
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
+//Project properties
+project.group = 'de.upb.isys'
+project.version = '0.0.1-SNAPSHOT'
 
 sourceSets {
     main {
@@ -6,8 +25,7 @@ sourceSets {
             srcDir 'src'
         }
         resources {
-        	srcDir 'conf'
-        	srcDir 'prototypes/genderrecognition/src'
+        	srcDir 'res'
     	}
     }
     test {
@@ -17,45 +35,43 @@ sourceSets {
     }
 }
 
-task sourcesJar(type: Jar, dependsOn: classes) {
-    classifier = 'sources'
-    from sourceSets.main.allSource
-}
-
-artifacts {
-    archives sourcesJar
-}
-
 dependencies {
-	
-	// Catalano libraries for image filters and preprocessing
-	compile name: 'Catalano.Image'
-	compile name: 'Catalano.Math'
-	compile name: 'Catalano.Statistics'
-	compile name: 'JAICore'
-	compile name: 'HTNSearch'
-
-	// Graph Stream
-	compile group: 'org.graphstream', name: 'gs-core', version: '1.1.1'
-	compile group: 'org.graphstream', name: 'gs-ui', version: '1.3'
-	
-	// Weka
-	compile group: 'nz.ac.waikato.cms.weka', name: 'weka-dev', version: '3.9.1'
-
-	compile 'org.apache.commons:commons-collections4:4.1'
-	compile group: 'commons-io', name: 'commons-io', version: '2.5'
-	compile 'com.google.guava:guava:18.0'
-	
-	
-	// Basics
-	compile 'junit:junit:4.12'
-	compile 'org.slf4j:slf4j-api:1.7.13'
+	// configuration 
+	compile group: 'org.aeonbits.owner', name: 'owner-java8', version:'1.0.6'
+			
+	// Apache Commons
 	compile 'org.apache.commons:commons-lang3:3.4'
 	compile 'org.apache.commons:commons-collections4:4.1'
 	compile group: 'commons-io', name: 'commons-io', version: '2.5'
+	compile group: 'commons-fileupload', name: 'commons-fileupload', version: '1.3.3'
+		
+	// Testing
+	compile 'junit:junit:4.12'
+	
+	// Spring Boot
+	implementation('org.springframework.boot:spring-boot-starter-thymeleaf:1.5.16.RELEASE')
+	compile 'org.springframework.boot:spring-boot-devtools:1.5.16.RELEASE'
+	
+	// Jackson for YAML
+	compile 'com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.8.10'
+	
+	//Hamcrest for unit tests
+	testCompile 'org.hamcrest:hamcrest-core:1.3'
+	
+	// webjars for web ui
+	compile 'org.webjars:jquery:2.2.4'
+	compile 'org.webjars:bootstrap:3.3.7'
+	
+	//zip util
+	compile 'org.zeroturnaround:zt-zip:1.12'
+}
 
-	runtime 'org.slf4j:slf4j-log4j12:1.7.13', 'log4j:log4j:1.2.17'
-	//compile fileTree(dir: "${project.projectDir}/lib/", include: '*.jar')
+
+// since we use spring boot, we now work with logback. So in case that anybody else wants to work with log4j in slf4j, we deactivate that module. Log4j support is enabled automatically via slf4j-over-log4j
+configurations {
+    all {
+        exclude module: 'slf4j-log4j12'
+    }  
 }
 
 repositories {
@@ -63,8 +79,5 @@ repositories {
 	mavenLocal()
 	maven {
         url "http://clojars.org/repo/"
-    }
-    flatDir {
-    	dirs 'lib'
     }
 }

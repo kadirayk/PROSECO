@@ -1,0 +1,55 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:fragment="htmlhead">
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+   
+    <title>PROSECO - PROtotype-based SErvice COmposition</title>
+       
+    <link rel="stylesheet" type="text/css" href="/css/bootstrap.min.css" />
+    <link rel="stylesheet" type="text/css" href="/css/bootstrap-theme.min.css" />
+    <link rel="stylesheet" type="text/css" href="/proseco.css" />
+    <link rel="stylesheet" type="text/css" href="/cover.css" />
+</head>
+<body ng-app="ProsecoApp">
+
+    <div class="site-wrapper" ng-controller="ProsecoAppController as pac">
+      <div class="site-wrapper-inner">
+			<div class="row header">
+			    <div class="col-md-10 col-md-offset-1">
+			            <div class="inner">
+			                <h3 class="masthead-brand"><a href="/"><img src="/img/proseco-logo.png" height="50" /></a></h3>
+			                <div th:replace="fragments/statusbar :: statusbar"></div>
+			            </div>
+			    </div>
+			</div>
+
+          <div class="inner cover">
+            
+            <h1>Please, tell us what kind of software service you are interested in:</h1>
+            <form action="#" th:action="@{/}" th:object="${interviewDTO}"
+                method="post">
+                <textarea rows="4" cols="50" th:field="*{content}"></textarea>
+                <p>
+                    <input type="submit" class="btn btn-lg btn-default" value="Submit" />
+                </p>
+            </form>
+          </div>
+
+          <div th:replace="fragments/footer :: footer"></div>
+
+      </div>
+    </div>
+
+    <script src="/js/jquery-3.3.1.min.js"></script>
+	<script src="/js/bootstrap.min.js"></script>
+	<script src="/js/Chart.min.js"></script>
+	<script src="/js/angularjs-1.7.6.min.js"></script>
+	<script src="/js/angular-sanitize.js"></script>
+	<script src="/js/angular-chart.min.js"></script>
+	<script src="/js/proseco-app.js"></script>
+	<script src="/js/controller.ProsecoApp.js"></script>
+</body>
+
+</html>

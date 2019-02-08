@@ -1,0 +1,128 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+   
+    <title>PROSECO - PROtotype-based SErvice COmposition</title>
+       
+    <link rel="stylesheet" type="text/css" href="/css/bootstrap.min.css" />
+    <link rel="stylesheet" type="text/css" href="/css/bootstrap-theme.min.css" />
+    <link rel="stylesheet" type="text/css" href="/proseco.css" />
+    <link rel="stylesheet" type="text/css" href="/cover.css" />
+</head>
+
+<body ng-app="ProsecoApp">
+
+    <div class="ng-cloak site-wrapper" ng-controller="ProsecoAppController as pac">
+      <div class="site-wrapper-inner">
+
+			<div class="row header" th:fragment="header">
+			    <div class="col-md-10 col-md-offset-1">
+			            <div class="inner">
+			                <h3 class="masthead-brand"><a href="/"><img src="/img/proseco-logo.png" height="50" /></a></h3>
+			                <div th:replace="fragments/statusbar :: statusbar"></div>
+			            </div>
+			    </div>
+			</div>
+          <div class="inner cover">
+            
+            <div th:if="${interviewDTO.showInterview}">
+                <form id="form-submit" action="#" th:action="@{/interview/{id}(id=${interviewDTO.processId})}" th:object="${interviewDTO}" method="post" enctype="multipart/form-data">
+                    <div style="font-size: 24px;">
+                        <div th:remove="tag" th:utext="${interviewDTO.interviewHTML}"></div>
+                    </div>
+                    <p th:if="${interviewDTO.showSubmit}">
+                        <input type="submit" value="Submit" class="btn btn-lg btn-default" />
+                    </p>
+                </form>
+            </div>
+            
+            <!-- Control elements for configuration process -->
+            <div th:if="${interviewDTO.showConfigurationPane}">
+                <h1><span class="glyphicon glyphicon-cog slow-right-spinner" ng-hide="pac.getIsComplete()"></span><span class="glyphicon glyphicon-ok proseco-green" ng-show="pac.getIsComplete()"></span> <span ng-hide="pac.getIsComplete()">Composition Process</span><span ng-show="pac.getIsComplete()" class="proseco-green">Congratulations!</span></h1>
+                <div style="margin-left: 10px; font-size: 18px;">
+                	<div ng-if="!pac.isRemainingTimeNull()">
+                		<div ng-if="!pac.getIsComplete()">
+                			<div ng-if="!pac.isRemainingTimePositive()">
+		                		Sorry! Unfortunately the provision of your service becomes a little delayed...
+                			</div>
+                			<div ng-if="pac.isRemainingTimePositive()">
+                				Please wait for your request being configured. Your service should be up and running within {{pac.getRemainingTime()}}s.
+	                		</div>
+                		</div>
+                		<div ng-if="pac.getIsComplete()">
+	                		Your service is now available at <a ng-href="{{pac.getServiceHandle()}}" target="_blank" ng-bind="pac.getServiceHandle()"></a>
+                		</div>
+                	</div>
+                </div>
+    
+                <!-- Console boxes -->
+                <div th:if="${interviewDTO.showConsole}" ng-show="pac.getShowConsoles()">
+    
+                    <!-- General process -->
+                    
+                    <div class="container">
+                    	<div ng-repeat="log in pac.getLogList()" class="log-container">
+                    		<div class="log-container-headline">
+                    			<div class="dropdown" style="float: right;" ng-hide="log.collapseStrategy">
+  									<button class="btn btn-default dropdown-toggle" type="button" id="dropdown-{{log.strategyName}}" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true" ng-bind-html="pac.currentOutput(log.strategyName)"></button>
+  									<ul class="dropdown-menu" aria-labelledby="dropdown-{{log.strategyName}}">
+  										<li><a ng-click="pac.showStrategyLog(log.strategyName,'all')">Console: All</a></li>
+  										<li><a ng-click="pac.showStrategyLog(log.strategyName,'out')">Console: System.out</a></li>
+  										<li><a ng-click="pac.showStrategyLog(log.strategyName,'err')">Console: System.err</a></li>
+  									</ul>
+								</div>
+								<div class="log-container-headline-strategyname" ng-click="pac.collapseStrategy(log.strategyName)">
+									<i class="glyphicon glyphicon-minus" ng-if="!log.collapseStrategy"></i>
+									<i class="glyphicon glyphicon-plus" ng-if="log.collapseStrategy"></i>
+                    				<span class="log-container-headline-strategyname" ng-bind="log.strategyName"></span>
+                    			</div>
+                    			<div style="clear: both;"></div>
+							</div>
+							                    	
+							<div ng-hide="log.collapseStrategy">	
+                    			<div id="{{log.strategyName}}-all" ng-bind-html="log.sysAll" ng-show="pac.showLog(log.showLog,'all')" class="console-box" style="height: 200px; overflow: scroll;"></div>
+                    			<div id="{{log.strategyName}}-err" ng-bind-html="log.sysErr" ng-show="pac.showLog(log.showLog,'err')" class="console-box" style="height: 200px; overflow: scroll;"></div>
+                    			<div id="{{log.strategyName}}-out" ng-bind-html="log.sysOut" ng-show="pac.showLog(log.showLog,'out')" class="console-box" style="height: 200px; overflow: scroll;"></div>
+                    		</div>
+                    	</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- DEBUG BOX -->
+            
+            <div class="container" th:remove="tag" th:utext="${interviewDTO.debugHTML}"></div>
+            
+              <div class="mastfoot">
+                <div class="inner">
+                  <p>
+                  	<a href="https://github.com/fmohr/PROSECO" target="_blank">Fork me on GitHub</a> | 
+                  	<a ng-click="pac.setDebugTableFlag(!pac.showDebugTable())">DebugTable <b ng-if="pac.showDebugTable()">On</b><b ng-if="!pac.showDebugTable()">Off</b></a> | 
+                  	<a ng-click="pac.toggleAutoScroll()">AutoScroll <b ng-if="pac.getAutoScroll()">On</b><b ng-if="!pac.getAutoScroll()">Off</b></a> | 
+                  	<a ng-click="pac.toggleShowConsoles()">ShowConsoles <b ng-if="pac.getShowConsoles()">On</b><b ng-if="!pac.getShowConsoles()">Off</b></a>
+                  </p>
+                </div>
+              </div>
+    
+            </div>
+            
+          </div>
+
+
+    </div>
+    
+    <script src="/js/jquery-3.3.1.min.js"></script>
+	<script src="/js/bootstrap.min.js"></script>
+	<script src="/js/Chart.min.js"></script>
+	<script src="/js/angularjs-1.7.6.min.js"></script>
+	<script src="/js/angular-sanitize.js"></script>
+	<script src="/js/angular-chart.min.js"></script>
+	<script src="/js/proseco-app.js"></script>
+	<script src="/js/controller.ProsecoApp.js"></script>
+	<script type="text/javascript" src="/js/main.js"></script>
+</body>
+</html>

@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE xml>
+
+<configuration>
+	<appender name="console" class="ch.qos.logback.core.ConsoleAppender">
+		<param name="Target" value="System.out" />
+		<encoder>
+			<!-- <param name="ConversionPattern" value="(%d{ISO8601}) %-5p [%t] [%c{1}.%M:%L] 
+				- %m%n" /> -->
+			<pattern>%-5p [%t] [%c{1}.%M:%L] - %m%n</pattern>
+		</encoder>
+	</appender>
+
+	<appender name="infoFileAppender" class="ch.qos.logback.core.FileAppender">
+		<param name="File" value="logs/lb-info.log" />
+		<param name="Append" value="false" />
+		<encoder>
+			<pattern>(%d{ISO8601}) %-5p [%t] [%c{1}.%M:%L] - %m%n</pattern>
+		</encoder>
+	</appender>
+
+	<appender name="errFileAppender" class="ch.qos.logback.core.FileAppender">
+		<param name="File" value="logs/lb-error.log" />
+		<encoder>
+			<pattern>(%d{ISO8601}) %-5p [%t] [%c{1}.%M:%L] - %m%n</pattern>
+		</encoder>
+	</appender>
+
+	<appender name="warnFileAppender" class="ch.qos.logback.core.FileAppender">
+		<param name="File" value="logs/lb-warn.log" />
+		<encoder>
+			<pattern>(%d) %-5p [%t] [%c{1}.%M:%L] - %m%n</pattern>
+		</encoder>
+	</appender>
+
+	<appender name="traceFileAppender" class="ch.qos.logback.core.FileAppender">
+		<param name="File" value="logs/lb-trace.log" />
+		<param name="Append" value="false" />
+		<encoder>
+			<pattern>%-5p [%t] [%c{1}.%M:%L] - %m%n</pattern>
+		</encoder>
+	</appender>
+	
+	<logger name="org">
+    <level value="warn" />
+    <appender-ref ref="console" />
+    <appender-ref ref="infoFileAppender" />
+    <appender-ref ref="warnFileAppender" />
+    <appender-ref ref="errFileAppender" />
+    <appender-ref ref="traceFileAppender" />
+  </logger>
+
+	<logger name="org.springframework">
+		<level value="info" />
+	</logger>
+	
+	<logger name="imageclassification">
+	  <level value="info" />
+    <appender-ref ref="console" />
+    <appender-ref ref="infoFileAppender" />
+    <appender-ref ref="warnFileAppender" />
+    <appender-ref ref="errFileAppender" />
+    <appender-ref ref="traceFileAppender" />
+	</logger>
+	
+	<logger name="de.upb.crc901.proseco">
+    <level value="debug" />
+    <appender-ref ref="console" />
+    <appender-ref ref="infoFileAppender" />
+    <appender-ref ref="warnFileAppender" />
+    <appender-ref ref="errFileAppender" />
+    <appender-ref ref="traceFileAppender" />
+  </logger>
+  
+  <logger name="hasco">
+    <level value="info" />
+    <appender-ref ref="console" />
+    <appender-ref ref="infoFileAppender" />
+    <appender-ref ref="warnFileAppender" />
+    <appender-ref ref="errFileAppender" />
+    <appender-ref ref="traceFileAppender" />
+  </logger>
+  
+</configuration>

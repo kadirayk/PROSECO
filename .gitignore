@@ -6,7 +6,6 @@ tmp/
 *.swp
 *~.nib
 local.properties
-.settings/
 .loadpath
 .recommenders
 
@@ -50,3 +49,22 @@ local.properties
 /.gradle/
 /execution/
 /logs/
+/build/
+.settings/
+
+# JDT-specific (Eclipse Java Development Tools)
+.classpath
+
+# Generated files
+data/stored
+
+!*.dll
+!*.exe
+!/mod
+
+/.project
+/prototypes/
+/domains/
+/processes/
+debug.json
+/instances/
