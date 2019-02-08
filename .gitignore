@@ -67,3 +67,4 @@ data/stored
 /domains/
 /processes/
 debug.json
+/instances/
