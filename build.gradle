@@ -7,7 +7,7 @@ plugins {
 	// Others
 	id "jacoco"
 	// springboot    
-	id "org.springframework.boot" version "2.0.5.RELEASE"
+	//id "org.springframework.boot" version "2.0.5.RELEASE"
 	//id "io.spring.dependency-management" version "2.0.5.RELEASE"
 }
 
@@ -65,10 +65,10 @@ dependencies {
 	//zip util
 	compile 'org.zeroturnaround:zt-zip:1.12'
 	
-    bootJar {
-        destinationDir = file("$rootDir")
-        baseName = 'PROSECO'
-    }
+    //bootJar {
+    //    destinationDir = file("$rootDir")
+    //    baseName = 'PROSECO'
+    //}
 }
 
 
