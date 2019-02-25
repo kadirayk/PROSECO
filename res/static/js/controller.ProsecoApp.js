@@ -263,7 +263,7 @@ ProsecoApp.controller('ProsecoAppController', ['$scope', '$http', '$timeout', '$
     	if(self.prosecoStatus !== "done") {
     		self.getProsecoStatus();
     	}
-    	if(self.prosecoStatus === "search" || self.prosecoStatus === "grounding" || self.prosecoStatus === "deployment" || self.prosecoStatus === "done") {
+    	if(self.prosecoStatus === "search") {
     		self.getLogs();
     	}
     	if(self.autoScroll) {

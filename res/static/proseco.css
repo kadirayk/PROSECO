@@ -47,13 +47,13 @@ body {
 .console-box {
 	white-space: pre;
 	font-family: courier;
-	height: 400px;
 	overflow: scroll;
 	font-size: 8pt;
 	text-align: left;
 	padding: 5px;
 	border: 2px solid #86c644;
 	background: #f2f2f2;
+	height: 550px;
 }
 
 .console-logs {
