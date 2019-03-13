@@ -215,9 +215,9 @@ ProsecoApp.controller('ProsecoAppController', ['$scope', '$http', '$timeout', '$
 
 					for(let logIx in self.logList) {
 						if(self.logList[logIx].strategyName === strategyLog.strategyName) {
-							self.logList[logIx].sysOut = strategyLog.sysOut;
-							self.logList[logIx].sysErr = strategyLog.sysErr;
-							self.logList[logIx].sysAll = strategyLog.sysAll;
+							self.logList[logIx].sysOut += strategyLog.sysOut;
+							self.logList[logIx].sysErr += strategyLog.sysErr;
+							self.logList[logIx].sysAll += strategyLog.sysAll;
 							updated = true;
 						}
 					}
@@ -263,7 +263,7 @@ ProsecoApp.controller('ProsecoAppController', ['$scope', '$http', '$timeout', '$
     	if(self.prosecoStatus !== "done") {
     		self.getProsecoStatus();
     	}
-    	if(self.prosecoStatus === "search") {
+    	if(self.prosecoStatus === "search" || self.prosecoStatus === "grounding" || self.prosecoStatus === "deployment" || self.prosecoStatus === "done") {
     		self.getLogs();
     	}
     	if(self.autoScroll) {

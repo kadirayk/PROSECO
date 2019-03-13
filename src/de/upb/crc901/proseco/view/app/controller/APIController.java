@@ -27,6 +27,8 @@ import de.upb.crc901.proseco.view.app.model.LogPair;
 import de.upb.crc901.proseco.view.app.model.LogResponseBody;
 import de.upb.crc901.proseco.view.app.model.processstatus.ProcessStateProvider;
 import de.upb.crc901.proseco.view.util.FileUtil;
+import de.upb.crc901.proseco.view.util.LogLine;
+import de.upb.crc901.proseco.view.util.LogLineTracker;
 import de.upb.crc901.proseco.view.util.ToJSONStringUtil;
 
 /**
@@ -42,15 +44,20 @@ public class APIController {
 	/* logging. */
 	private static final Logger L = LoggerFactory.getLogger(APIController.class);
 
-	/* Config for basic properties of proseco's environment, e.g., paths to common properties files. */
+	/*
+	 * Config for basic properties of proseco's environment, e.g., paths to common
+	 * properties files.
+	 */
 	private static final GlobalConfig PROSECO_ENV_CONFIG = ConfigCache.getOrCreate(GlobalConfig.class);
 
 	private final PROSECOConfig config = ConfigCache.getOrCreate(PROSECOConfig.class);
 
-	private final ProcessController processController = new DefaultProcessController(PROSECO_ENV_CONFIG.prosecoConfigFile());
+	private final ProcessController processController = new DefaultProcessController(
+			PROSECO_ENV_CONFIG.prosecoConfigFile());
 
 	/**
-	 * Returns SystemOut and SystemError logs of Strategies of prototype with the given ID
+	 * Returns SystemOut and SystemError logs of Strategies of prototype with the
+	 * given ID
 	 *
 	 * @param id
 	 * @return
@@ -64,7 +71,8 @@ public class APIController {
 	}
 
 	/**
-	 * Returns SystemOut and SystemError logs of Strategies of prototype with the given ID
+	 * Returns SystemOut and SystemError logs of Strategies of prototype with the
+	 * given ID
 	 *
 	 * @param id
 	 * @return
@@ -75,14 +83,15 @@ public class APIController {
 	public ResponseEntity<Object> getLog(@PathVariable("id") final String id) throws Exception {
 		LogResponseBody result = new LogResponseBody();
 		result.setLogList(this.findLogById(id));
-		return new ResponseEntity<Object>(Arrays.asList(ToJSONStringUtil.parseObjectToJsonNode(result, new ObjectMapper())), HttpStatus.OK);
+		return new ResponseEntity<Object>(
+				Arrays.asList(ToJSONStringUtil.parseObjectToJsonNode(result, new ObjectMapper())), HttpStatus.OK);
 	}
 
 	/**
-	 * Finds the deployed web application for with the given session id and kills the process.
+	 * Finds the deployed web application for with the given session id and kills
+	 * the process.
 	 *
-	 * @param id
-	 *            id of the session
+	 * @param id id of the session
 	 * @return success if task is killed, failure if exception occured
 	 * @throws Exception
 	 */
@@ -147,7 +156,8 @@ public class APIController {
 	}
 
 	/**
-	 * Returns the port number occupied by the deployed application for the given session id
+	 * Returns the port number occupied by the deployed application for the given
+	 * session id
 	 *
 	 * @param id
 	 * @return port number
@@ -181,7 +191,8 @@ public class APIController {
 	}
 
 	/**
-	 * returns list of log pairs(SystemOut, SystemErr) of strategies of prototype with the given id
+	 * returns list of log pairs(SystemOut, SystemErr) of strategies of prototype
+	 * with the given id
 	 *
 	 * @param id
 	 * @return
@@ -210,9 +221,18 @@ public class APIController {
 			String systemOut = outputPathOfThisStrategy + File.separator + this.config.getSystemOutFileName();
 			String systemErr = outputPathOfThisStrategy + File.separator + this.config.getSystemErrFileName();
 			String systemAll = outputPathOfThisStrategy + File.separator + this.config.getSystemMergedOutputFileName();
-			String outLog = FileUtil.readFile(systemOut);
-			String errLog = FileUtil.readFile(systemErr);
-			String allLog = FileUtil.readFile(systemAll);
+
+			LogLine logLine = LogLineTracker.getLogLines(id, strategyFolder.getName());
+
+			String outLog = FileUtil.readFileByLineNumber(systemOut, logLine.getOutLineNumber());
+			String errLog = FileUtil.readFileByLineNumber(systemErr, logLine.getErrLineNumber());
+			String allLog = FileUtil.readFileByLineNumber(systemAll, logLine.getAllLineNumber());
+
+			logLine.setStrategyName(strategyFolder.getName());
+			logLine.setAllLineNumber(logLine.getAllLineNumber() + allLog.split("\n").length);
+			logLine.setErrLineNumber(logLine.getErrLineNumber() + errLog.split("\n").length);
+			logLine.setOutLineNumber(logLine.getOutLineNumber() + outLog.split("\n").length);
+			LogLineTracker.updateLog(id, logLine);
 
 			if (outLog != null && errLog != null) {
 				LogPair logPair = new LogPair(env.getPrototypeName(), strategyFolder.getName(), outLog, errLog, allLog);

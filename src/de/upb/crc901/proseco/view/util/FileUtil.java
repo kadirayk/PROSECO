@@ -50,4 +50,37 @@ public class FileUtil {
 		}
 		return content;
 	}
+
+	public static String readFileByLineNumber(String filePath, Integer line) {
+		byte[] encoded = null;
+		String content = null;
+		try {
+			encoded = Files.readAllBytes(Paths.get(filePath));
+		} catch (NoSuchFileException e) {
+			return content;
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		try {
+			if (encoded != null) {
+				content = new String(encoded, "utf-8");
+				String[] arr = content.split("\n");
+				StringBuilder str = new StringBuilder();
+				if (arr.length > line) {
+					for (int i = line; i < arr.length; i++) {
+						str.append(arr[i]).append("\n");
+					}
+					content = str.toString();
+				} else {
+					return "";
+				}
+			}
+		} catch (UnsupportedEncodingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return content;
+	}
+
 }

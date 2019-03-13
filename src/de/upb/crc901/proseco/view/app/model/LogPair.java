@@ -18,7 +18,8 @@ public class LogPair {
 	private String systemErrorLog;
 	private String systemAllLog;
 
-	public LogPair(final String prototypeName, final String strategyName, final String systemOutLog, final String systemErrorLog, final String systemAllLog) {
+	public LogPair(final String prototypeName, final String strategyName, final String systemOutLog,
+			final String systemErrorLog, final String systemAllLog) {
 		this.prototypeName = prototypeName;
 		this.strategyName = strategyName.replace(" ", "-");
 		this.systemOutLog = systemOutLog;
