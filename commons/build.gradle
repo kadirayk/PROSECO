@@ -1,0 +1,36 @@
+buildscript {
+    repositories { mavenCentral() }
+}
+
+plugins { id "io.spring.dependency-management" version "1.0.5.RELEASE" }
+
+ext { springBootVersion = '1.5.16.RELEASE' }
+
+apply plugin: 'java'
+apply plugin: 'eclipse'
+
+jar {
+    baseName = 'PROSECO-commons'
+    version = '0.0.1-SNAPSHOT'
+}
+sourceCompatibility = 1.8
+
+repositories { mavenCentral() }
+
+dependencies {	
+	//owner framework
+	compile group: 'org.aeonbits.owner', name: 'owner-java8', version:'1.0.6'
+	
+	//apache commons
+	compile 'org.apache.commons:commons-lang3:3.4'
+	compile 'org.apache.commons:commons-collections4:4.1'
+	compile group: 'commons-io', name: 'commons-io', version: '2.5'
+	compile group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.9.8'
+	
+	// https://mvnrepository.com/artifact/org.slf4j/slf4j-api
+	compile group: 'org.slf4j', name: 'slf4j-api', version: '1.7.25'
+	
+	
+	//jackson for YAML
+	compile 'com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.8.10'
+}

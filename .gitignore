@@ -62,7 +62,16 @@ data/stored
 !*.exe
 !/mod
 
+/*.jar
 /.project
+/webserver/.project
+/webserver/domains/
+/webserver/processes/
+/webserver/build/
+/commons/build/
+/commons/.project
+/core/build/
+/core/.project
 /prototypes/
 /domains/
 /processes/
