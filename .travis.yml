@@ -15,5 +15,23 @@ jdk:
   - openjdk8
 
 
-script: 
+before_script: 
+  - chmod +x gradlew
+  
+addons:
+  sonarcloud:
+    organization: "kadirayk-github"
+    token:
+      secure: F/ftRtFPb/NHzHupJddwrPnIslpBr3MqRfVyRuxtXIPpZH2UlxLzGOZyW4KYE6VRrj0QbWZNVNNJvci9cepcZvDWHfP0Mv87PvLN1nOMGZAoGmUhARD37pgCwamaZRG1DJ6PrS3hoSZ1Ylg8pGbDd4xrhpDb9OiFWnCzG1X53dZXeC4I2YEG1/UJ03fbSMzE1biADruHSJ7hTMOEzZ93NAbnD8ermswaCqj/f40nW6nI1FJ1FJ0xCpL0QaKV1ePGbN2+5EV17O0zi/uWXglQgj8wLhr6MlumMU0q8FfrNZSKMoGAeS7b247KfdbrPllcKJ81aHapVWGD9rTwDvDVBEI2baokMZmXDBMhIXCF+QZEvxRiKfjankSiNisp5NW+hoMFcA4JGUpoNM697E4j76IrIBnXgjB8mwDGQJuDEb6XBMJYZLIw3/sWz0d1RWJyPPIJJ9qNjciqGV4kUaMCcjjFUDefVhBaIsX2vSB87gZUw9w8XIU4D9xQW+f+StNNt9CSdNHVGESJ/o5SEpfQp3uMaQ/ZJe8Pc0AhpeyxJ8VergmTR3DtDdwEKD+OGpbS3Le1KEkQR85cmZTUyS93ZYso5YxV8TvWKYfbB6/z5Ij7djpU0S6O9RPfbx0pjL4fcMd3D6gRVB6cJKQJhLx73WnReS2GPQynDnuSM97f/3g=
+script:
   - ./gradlew build
+  - sonar-scanner
+  
+  
+
+branches:
+  only:
+  - master
+  - development
+  
+  
