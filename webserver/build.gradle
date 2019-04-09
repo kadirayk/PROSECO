@@ -27,7 +27,7 @@ project.version = '0.0.1-SNAPSHOT'
 sourceSets {
     main {
         java {
-            srcDir 'src'
+            srcDir 'src/main/java'
         }
         resources {
         	srcDir 'res'
