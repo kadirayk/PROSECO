@@ -1,0 +1,69 @@
+buildscript {
+  repositories {
+    maven {
+      url "https://plugins.gradle.org/m2/"
+    }
+  }
+  dependencies {
+    classpath "org.springframework.boot:spring-boot-gradle-plugin:2.1.0.RELEASE"
+  }
+}
+
+apply plugin: 'java'
+apply plugin: "eclipse"
+apply plugin: 'org.springframework.boot'
+
+jar {
+    baseName = 'PROSECO-webserver'
+    version = '0.0.1-SNAPSHOT'
+}
+sourceCompatibility = 1.8
+
+repositories { mavenCentral() }
+
+project.group = 'de.upb.isys'
+project.version = '0.0.1-SNAPSHOT'
+
+sourceSets {
+    main {
+        java {
+            srcDir 'src'
+        }
+        resources {
+        	srcDir 'res'
+    	}
+    }
+    test {
+    	java {
+    		srcDir 'test'
+    	}
+    }
+}
+
+dependencies {
+	//springboot
+	implementation('org.springframework.boot:spring-boot-starter-thymeleaf:1.5.16.RELEASE')
+	compile 'org.springframework.boot:spring-boot-devtools:1.5.16.RELEASE'
+	
+	//owner framework
+	compile group: 'org.aeonbits.owner', name: 'owner-java8', version:'1.0.6'
+	
+	//apache commons
+	compile 'org.apache.commons:commons-lang3:3.4'
+	compile 'org.apache.commons:commons-collections4:4.1'
+	compile group: 'commons-io', name: 'commons-io', version: '2.5'
+	compile group: 'commons-fileupload', name: 'commons-fileupload', version: '1.3.3'
+	
+	compile project(':commons')
+	compile project(':core')
+	
+	//jackson for YAML
+	compile 'com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.8.10'
+	
+	bootJar {
+        destinationDir = file("$rootDir")
+        baseName = 'PROSECO'
+        mainClassName = 'de.upb.crc901.proseco.view.app.PROSECOServer'
+    }
+}
+
