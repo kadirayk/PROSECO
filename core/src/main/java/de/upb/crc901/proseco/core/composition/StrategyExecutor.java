@@ -112,7 +112,7 @@ public class StrategyExecutor {
 		L.debug("Time report\n\tTime to start schedule: {}\n\tTime to schedule: {}\n\tTime waiting for termination: {}", (preSchedule - start), (afterSchedule - preSchedule), (timeAfter - afterSchedule));
 
 		pool.shutdownNow();
-		pool.awaitTermination(1, TimeUnit.DAYS);
+		pool.awaitTermination(timeoutInSeconds, TimeUnit.SECONDS);
 		L.debug("Thread pool now is shut down.");
 	}
 
