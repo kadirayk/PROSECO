@@ -24,7 +24,7 @@ addons:
    
    
 script:
-  - ./gradlew build -x test 
+  - ./gradlew build
   - sonar-scanner
   
   
