@@ -8,9 +8,12 @@ import java.lang.ProcessBuilder.Redirect;
 import java.net.Socket;
 import java.nio.charset.Charset;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Optional;
+import java.util.TreeMap;
 
 import org.aeonbits.owner.ConfigFactory;
 import org.apache.commons.io.FileUtils;
@@ -22,7 +25,6 @@ import de.upb.crc901.proseco.commons.config.PROSECOConfig;
 import de.upb.crc901.proseco.commons.processstatus.EProcessState;
 import de.upb.crc901.proseco.commons.processstatus.ProcessStateProvider;
 import de.upb.crc901.proseco.commons.util.PROSECOProcessEnvironment;
-import de.upb.crc901.proseco.core.composition.StrategyExecutor;
 /**
  *
  * PrototypeBasedComposer realizes the service construction of the selected prototype with the filled out interview data.
@@ -133,7 +135,9 @@ public class CompositionAlgorithm implements Runnable {
 			logger.info("Identified {} as a winning strategy with score {}", winningStrategy.get(), bestScoreSeen);
 
 			/* execute grounding routine */
+			
 			ProcessStateProvider.setProcessStatus(this.executionEnvironment.getProcessId(), EProcessState.GROUNDING);
+			int groundingStatus = 0;
 			{
 				File groundingLog = new File(this.executionEnvironment.getGroundingDirectory() + File.separator + this.executionEnvironment.getProsecoConfig().getNameOfServiceLogFile());
 				String[] groundingCommand = new String[4];
@@ -149,7 +153,12 @@ public class CompositionAlgorithm implements Runnable {
 				if (GLOBAL_CONFIG.debugMode() && GLOBAL_CONFIG.debugDisableGrounding()) {
 					logger.warn("Grounding has been disabled for debugging! You can enable it in the GlobalConfig properties.");
 				} else {
-					pb.start().waitFor();
+					Process p = pb.start();
+					p.waitFor();
+					groundingStatus = p.exitValue();
+				}
+				if(groundingStatus!=0) {
+					executeGroundingForBackupStrategy(bestScoreSeen);
 				}
 				logger.info("Grounding completed.");
 			}
@@ -207,6 +216,66 @@ public class CompositionAlgorithm implements Runnable {
 			}
 		}
 
+	}
+
+	private void executeGroundingForBackupStrategy(double bestScoreSeen) throws Exception {
+		Entry<Double, File> secondBestStrategy = findSecondBestStrategy(bestScoreSeen);
+		if(secondBestStrategy==null) {
+			logger.error("Grounding did not succeed for any of the strategies");
+			throw new Exception("Grounding did not succeed for any of the strategies");
+		}
+		bestScoreSeen = secondBestStrategy.getKey();
+		int groundingStatus = 0;
+		{
+			File groundingLog = new File(this.executionEnvironment.getGroundingDirectory() + File.separator + this.executionEnvironment.getProsecoConfig().getNameOfServiceLogFile());
+			String[] groundingCommand = new String[4];
+			groundingCommand[0] = this.executionEnvironment.groundingExecutable().getAbsolutePath();
+			groundingCommand[1] = this.executionEnvironment.getProcessId();
+			groundingCommand[2] = this.executionEnvironment.getSearchOutputDirectory().getAbsolutePath() + File.separator + secondBestStrategy.getValue().getName();
+			groundingCommand[3] = this.executionEnvironment.getSearchOutputDirectory().getAbsolutePath() + File.separator + "final";
+			new File(groundingCommand[0]).setExecutable(true);
+			final ProcessBuilder pb = new ProcessBuilder(groundingCommand).directory(this.executionEnvironment.getGroundingDirectory());
+			// pb.redirectOutput(Redirect.appendTo(groundingLog)).redirectError(Redirect.appendTo(groundingLog));
+			pb.redirectOutput(Redirect.INHERIT).redirectError(Redirect.INHERIT);
+			logger.info("Execute grounding command {}. Working directory is set to {}", Arrays.toString(groundingCommand), this.executionEnvironment.getGroundingDirectory());
+			if (GLOBAL_CONFIG.debugMode() && GLOBAL_CONFIG.debugDisableGrounding()) {
+				logger.warn("Grounding has been disabled for debugging! You can enable it in the GlobalConfig properties.");
+			} else {
+				Process p = pb.start();
+				p.waitFor();
+				groundingStatus = p.exitValue();
+			}
+			if(groundingStatus!=0) {
+				executeGroundingForBackupStrategy(bestScoreSeen);
+				
+			}
+			logger.info("Grounding completed.");
+		}		
+	}
+
+	private Entry<Double,File> findSecondBestStrategy(Double bestScore) throws Exception {
+		TreeMap<Double,File> strategiesByScore = new TreeMap<Double,File>(Collections.reverseOrder());
+		Entry<Double,File> secondBestStrategy = null;
+		for (final File strategy : this.executionEnvironment.getStrategyDirectory().listFiles()) {
+			if (!strategy.isDirectory()) {
+				continue;
+			}
+			final File fValueFile = new File(this.executionEnvironment.getSearchOutputDirectory() + File.separator + strategy.getName() + File.separator + "score");
+			if (!fValueFile.exists()) {
+				logger.info("score file was not found in file {} for strategy {}", fValueFile.getAbsolutePath(), strategy.getName());
+				continue;
+			}
+			Double parsedValue = Double.parseDouble(FileUtils.readFileToString(fValueFile, Charset.defaultCharset()));
+			strategiesByScore.put(parsedValue, strategy);
+		}
+		Entry<Double, File> secondBest = strategiesByScore.lowerEntry(bestScore);
+		if(secondBest==null) {
+			return null;
+		} else {
+			secondBestStrategy = strategiesByScore.lowerEntry(bestScore);
+		}
+		
+		return secondBestStrategy;
 	}
 
 	protected void beforeConfiguration() {
