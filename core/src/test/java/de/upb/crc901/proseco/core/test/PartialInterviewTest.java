@@ -9,15 +9,12 @@ import java.util.Map;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import de.upb.crc901.proseco.commons.controller.DefaultProcessController;
 import de.upb.crc901.proseco.commons.controller.ProcessController;
 import de.upb.crc901.proseco.commons.interview.InterviewFillout;
 import de.upb.crc901.proseco.commons.interview.Question;
 import de.upb.crc901.proseco.commons.interview.State;
-import de.upb.crc901.proseco.commons.processstatus.EProcessState;
-import de.upb.crc901.proseco.commons.processstatus.ProcessStateProvider;
 import de.upb.crc901.proseco.commons.util.PROSECOProcessEnvironment;
-import de.upb.crc901.proseco.commons.util.SerializationUtil;
+import de.upb.crc901.proseco.core.composition.FileBasedConfigurationProcess;
 import de.upb.crc901.proseco.core.test.util.Parser;
 
 public class PartialInterviewTest {
@@ -27,8 +24,10 @@ public class PartialInterviewTest {
 
 	@BeforeClass
 	public static void initialize() throws Exception {
-		ProcessController processController = new DefaultProcessController(new File(""));
-		env = processController.createConstructionProcessEnvironment("test");
+		ProcessController processController = new FileBasedConfigurationProcess(new File(""), 1000);
+		processController.createNew(null);
+		processController.fixDomain("test");
+		env = processController.getProcessEnvironment();
 		interviewFile = new File(env.getInterviewDirectory().getAbsolutePath() + File.separator + "interview.yaml");
 	}
 
@@ -100,7 +99,7 @@ public class PartialInterviewTest {
 		assertEquals("step3", state.getName());
 
 	}
-	
+
 	@Test
 	public void testAllQuestionsAnswered() throws Exception {
 		Parser parser = new Parser();
@@ -125,7 +124,6 @@ public class PartialInterviewTest {
 
 	}
 
-	
 //	@Test
 //	public void testPartialInterviewHasInputsThatAreNotInInterviewDefinition() throws Exception {
 //		ProcessController processController = new DefaultProcessController(new File(""));

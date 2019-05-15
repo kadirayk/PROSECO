@@ -37,6 +37,7 @@ import de.upb.crc901.proseco.commons.html.Script;
 import de.upb.crc901.proseco.commons.interview.InterviewFillout;
 import de.upb.crc901.proseco.commons.interview.Question;
 import de.upb.crc901.proseco.core.composition.CompositionAlgorithm;
+import de.upb.crc901.proseco.core.composition.FileBasedConfigurationProcess;
 import de.upb.crc901.proseco.commons.util.PROSECOProcessEnvironment;
 import de.upb.crc901.proseco.view.app.model.InterviewDTO;
 import de.upb.crc901.proseco.view.app.model.StrategyCandidateFoundEvent;
@@ -64,7 +65,7 @@ public class InterviewController {
 	private static final String ERROR_TEMPLATE = "error";
 
 	private static final String ROOT_TEMPLATE = "index";
-	private ProcessController processController = new DefaultProcessController(new File("conf/proseco.conf"));
+	private ProcessController processController = new FileBasedConfigurationProcess(new File("conf/proseco.conf"), 1000);
 
 	private final StrategyCandidatesDatastore datastore = new StrategyCandidatesDatastore();
 	private static final Map<String, PROSECOProcessEnvironment> envCache = new HashMap<>();
@@ -108,7 +109,9 @@ public class InterviewController {
 		/* create a new PROSECO service construction process and retrieve the interview */
 		try {
 			logger.info("Initializing new process folder for domain {}.", domainName);
-			PROSECOProcessEnvironment env = this.processController.createConstructionProcessEnvironment(domainName);
+			processController.createNew(null);
+			processController.fixDomain(domainName);
+			PROSECOProcessEnvironment env = processController.getProcessEnvironment();
 			File interviewFile = new File(env.getInterviewDirectory().getAbsolutePath() + File.separator + "interview.yaml");
 			logger.info("Reading interview file {}", interviewFile);
 			Parser parser = new Parser();
@@ -185,7 +188,7 @@ public class InterviewController {
 					e.printStackTrace();
 				}
 			};
-			ProcessStateProvider.setProcessStatus(env.getProcessId(), EProcessState.SEARCH_STRATEGIES);
+			ProcessStateProvider.setProcessStatus(env.getProcessId(), EProcessState.STRATEGY_CHOSEN);
 			new Thread(task).start();
 			interviewDTO.setShowConfigurationPane(true);
 			interviewDTO.setShowConsole(true);
@@ -255,7 +258,8 @@ public class InterviewController {
 	 * @throws Exception
 	 */
 	private void populateInterviewDTO(final InterviewDTO interviewDTO, final String id) throws Exception {
-		PROSECOProcessEnvironment env = this.processController.getConstructionProcessEnvironment(id);
+		processController.attach(id);
+		PROSECOProcessEnvironment env = this.processController.getProcessEnvironment();
 		InterviewFillout interview = SerializationUtil.readAsJSON(env.getInterviewStateFile());
 		interviewDTO.setInterviewFillout(interview);
 		interviewDTO.setProcessId(id);
@@ -269,7 +273,8 @@ public class InterviewController {
 	 * @throws Exception
 	 */
 	private void saveInterviewState(final InterviewDTO interviewDTO) throws Exception {
-		PROSECOProcessEnvironment env = this.processController.getConstructionProcessEnvironment(interviewDTO.getProcessId());
+		processController.attach(interviewDTO.getProcessId());
+		PROSECOProcessEnvironment env = this.processController.getProcessEnvironment();
 		SerializationUtil.writeAsJSON(env.getInterviewStateFile(), interviewDTO.getInterviewFillout());
 	}
 

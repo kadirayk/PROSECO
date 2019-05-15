@@ -1,24 +1,20 @@
 package de.upb.crc901.proseco.core.test;
 
+import static org.junit.Assert.assertEquals;
+
 import java.io.File;
-import java.util.HashMap;
 import java.util.Map;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import de.upb.crc901.proseco.commons.controller.DefaultProcessController;
+import de.upb.crc901.proseco.commons.controller.PROSECOSolution;
 import de.upb.crc901.proseco.commons.controller.ProcessController;
 import de.upb.crc901.proseco.commons.interview.InterviewFillout;
-import de.upb.crc901.proseco.commons.interview.Question;
-import de.upb.crc901.proseco.commons.processstatus.EProcessState;
-import de.upb.crc901.proseco.commons.processstatus.ProcessStateProvider;
 import de.upb.crc901.proseco.commons.util.FileUtil;
 import de.upb.crc901.proseco.commons.util.PROSECOProcessEnvironment;
-import de.upb.crc901.proseco.commons.util.SerializationUtil;
-import de.upb.crc901.proseco.core.composition.CompositionAlgorithm;
+import de.upb.crc901.proseco.core.composition.FileBasedConfigurationProcess;
 import de.upb.crc901.proseco.core.test.util.Parser;
-import static org.junit.Assert.*;
 
 public class PathTest {
 
@@ -28,30 +24,25 @@ public class PathTest {
 
 	@BeforeClass
 	public static void initialize() throws Exception {
-		ProcessController processController = new DefaultProcessController(new File(""));
-		env = processController.createConstructionProcessEnvironment("test");
+		ProcessController processController = new FileBasedConfigurationProcess(new File(""), 1000);
+		processController.createNew(null);
+		processController.fixDomain("test");
+		env = processController.getProcessEnvironment();
+		processId = env.getProcessId();
 		File interviewFile = new File(
 				env.getInterviewDirectory().getAbsolutePath() + File.separator + "interview.yaml");
 		Parser parser = new Parser();
 		InterviewFillout fillout = new InterviewFillout(parser.initializeInterviewFromConfig(interviewFile));
-		Map<String, String> answers = new HashMap<>(fillout.getAnswers());
+		Map<String, String> answers = fillout.retrieveQuestionAnswerMap();
+		answers.put("Please select prototype", "test");
+		processController.updateInterview(answers);
 
-		Question prototypeQuestion = fillout.getCurrentState().getQuestions().get(0);
-		answers.put(prototypeQuestion.getId(), "test");
-
-		fillout = new InterviewFillout(fillout.getInterview(), answers);
-
-		SerializationUtil.writeAsJSON(env.getInterviewStateFile(), fillout);
-		ProcessStateProvider.setProcessStatus(env.getProcessId(), EProcessState.INTERVIEW);
-		processId = env.getProcessId();
-		env = processController.getConstructionProcessEnvironment(processId);
-
-		CompositionAlgorithm algorithm = new CompositionAlgorithm(env, 1000);
-		algorithm.run();
+		PROSECOSolution solution = processController.startComposition();
+		processController.chooseAndDeploySolution(solution);
+		env = processController.getProcessEnvironment();
 		output = FileUtil.readFile("processes/" + processId + "/test.out");
 	}
 
-	
 	@Test
 	public void testStrategyDirectory() {
 		int startStrategy = output.indexOf("Strategy");
@@ -62,7 +53,7 @@ public class PathTest {
 		String strategyDir = strategyFile.substring(0, fileIndex);
 		assertEquals(env.getStrategyDirectory().getAbsolutePath(), strategyDir);
 	}
-	
+
 	@Test
 	public void testProcessDirectory() {
 		int startStrategy = output.indexOf("Strategy");
@@ -72,7 +63,7 @@ public class PathTest {
 		String processDir = output.substring(startProcessDir, lineEnd).trim();
 		assertEquals(env.getProcessDirectory().getAbsolutePath(), processDir);
 	}
-	
+
 	@Test
 	public void testGroundingFile() {
 		int startGrounding = output.indexOf("Grounding");
@@ -81,7 +72,7 @@ public class PathTest {
 		String groundingFile = output.substring(startGroundingFile, lineEnd).trim();
 		assertEquals(env.groundingExecutable().getAbsolutePath(), groundingFile);
 	}
-	
+
 	@Test
 	public void testDeploymentFile() {
 		int startDeployment = output.indexOf("Deployment");
@@ -90,16 +81,15 @@ public class PathTest {
 		String deploymentFile = output.substring(startDeploymentFile, lineEnd).trim();
 		assertEquals(env.deploymentExecutable().getAbsolutePath(), deploymentFile);
 	}
-	
+
 	@Test
 	public void testSearchDirectory() {
 
 		int startStrategy = output.indexOf("Strategy");
 		int startSearchDir = output.indexOf("param2:", startStrategy) + "param2:".length();
 		int lineEnd = output.indexOf("\n", startSearchDir);
-		String searchDir = output.substring(startSearchDir, lineEnd-("//inputs ").length());
+		String searchDir = output.substring(startSearchDir, lineEnd - ("//inputs ").length());
 		assertEquals(env.getSearchDirectory().getAbsolutePath(), searchDir);
-	
 
 	}
 
