@@ -3,6 +3,7 @@ package de.upb.crc901.proseco.commons.processstatus;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -24,7 +25,7 @@ public class ProcessStateProvider {
 	private static final String NO_PROCESS_PROCESSID = "NaN";
 	private static final EProcessState DEFAULT_PROCESS_STATE = EProcessState.DOMAIN_DEFINITION;
 
-	private static final ProcessController PROCESS_CONTROLLER = new DefaultProcessController(new File("conf/proseco.conf"));
+	private static final DefaultProcessController PROCESS_CONTROLLER = new DefaultProcessController(new File("conf/proseco.conf"));
 	private static final Map<String, PROSECOProcessEnvironment> envCache = new HashMap<>();
 
 	public static String getProcessStatus(final String processID) throws Exception {
@@ -41,11 +42,14 @@ public class ProcessStateProvider {
 		}
 	}
 
-	public static void setProcessStatus(final String processID, final EProcessState newStatus) throws Exception {
+	public static void setProcessStatus(final String processID, final EProcessState newStatus) {
 		PROSECOProcessEnvironment env = getProcessEnvironment(processID);
 		File processStatus = new File(env.getProcessDirectory(), "process.status");
 		try (BufferedWriter bw = new BufferedWriter(new FileWriter(processStatus))) {
 			bw.write(newStatus.toString());
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 	}
 
@@ -58,14 +62,14 @@ public class ProcessStateProvider {
 		}
 	}
 
-	public static PROSECOProcessEnvironment getProcessEnvironment(final String processID, final boolean invalidateIfExists) throws Exception {
+	public static PROSECOProcessEnvironment getProcessEnvironment(final String processID, final boolean invalidateIfExists) {
 		if (invalidateIfExists && envCache.containsKey(processID)) {
 			envCache.remove(processID);
 		}
 		return getProcessEnvironment(processID);
 	}
 
-	public static PROSECOProcessEnvironment getProcessEnvironment(final String processID) throws Exception {
+	public static PROSECOProcessEnvironment getProcessEnvironment(final String processID) {
 		if (envCache.containsKey(processID)) {
 			logger.trace("return env from cache for processid " + processID);
 			return envCache.get(processID);

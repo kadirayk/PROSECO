@@ -4,21 +4,19 @@ import java.io.Serializable;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import de.upb.crc901.proseco.commons.html.HTMLConstants;
 import de.upb.crc901.proseco.commons.html.UIElement;
-import de.upb.crc901.proseco.commons.interview.Interview;
-import de.upb.crc901.proseco.commons.interview.InterviewFillout;
-import de.upb.crc901.proseco.commons.interview.Question;
-import de.upb.crc901.proseco.commons.interview.State;
 import de.upb.crc901.proseco.commons.util.ListUtil;
 
 @SuppressWarnings("serial")
 public class InterviewFillout implements Serializable {
 	private Interview interview;
-	private Map<String, String> answers; // this is a map from question IDs to answers. Using String instead of Question is ON PURPOSE to ease serialization with Jackson!
+	private Map<String, String> answers; // this is a map from question IDs to answers. Using String instead of Question
+											// is ON PURPOSE to ease serialization with Jackson!
 	private State currentState;
 
 	public InterviewFillout() {
@@ -39,7 +37,8 @@ public class InterviewFillout implements Serializable {
 	}
 
 	/**
-	 * This constructor automatically activates the first state with an unanswered question
+	 * This constructor automatically activates the first state with an unanswered
+	 * question
 	 *
 	 * @param interview
 	 * @param answers
@@ -64,6 +63,39 @@ public class InterviewFillout implements Serializable {
 
 	public Interview getInterview() {
 		return this.interview;
+	}
+
+	public Map<String, String> retrieveQuestionAnswerMap() {
+		Map<String, String> questionAnswerMap = new HashMap<>();
+		for (State s : this.interview.getStates()) {
+			List<Question> questions = s.getQuestions();
+			if (ListUtil.isNotEmpty(questions)) {
+				for (Question q : questions) {
+					questionAnswerMap.put(q.getContent(), null);
+					if (answers.containsKey(q.getId())) {
+						questionAnswerMap.put(q.getContent(), answers.get(q.getId()));
+					}
+				}
+			}
+		}
+		return questionAnswerMap;
+	}
+
+	public void updateAnswers(Map<String, String> questionAnswerMap) {
+		for (Entry<String, String> e : questionAnswerMap.entrySet()) {
+			if (e.getValue() != null) {
+				for (State s : this.interview.getStates()) {
+					List<Question> questions = s.getQuestions();
+					if (ListUtil.isNotEmpty(questions)) {
+						for (Question q : questions) {
+							if (q.getContent().equals(e.getKey())) {
+								answers.put(q.getId(), e.getValue());
+							}
+						}
+					}
+				}
+			}
+		}
 	}
 
 	public Map<String, String> getAnswers() {
@@ -103,20 +135,23 @@ public class InterviewFillout implements Serializable {
 	// public void nextState() throws NextStateNotFoundException {
 	// String nextStateName = AnswerInterpreter.findNextState(this, currentState);
 	// if (nextStateName != null) {
-	// assert states.contains(stateMap.get(nextStateName)) : "Switching to state " + nextStateName + " that is not in the list of states!";
+	// assert states.contains(stateMap.get(nextStateName)) : "Switching to state " +
+	// nextStateName + " that is not in the list of states!";
 	// currentState = stateMap.get(nextStateName);
 	// } // else there is no next step i.e. last step
 	// }
 	//
 	// public void prevState() {
-	// String nextStateName = stateMap.get(currentState.getName()).getTransition().get("prev");
+	// String nextStateName =
+	// stateMap.get(currentState.getName()).getTransition().get("prev");
 	// if (nextStateName != null) {
 	// currentState = stateMap.get(nextStateName);
 	// } // else there is no next step i.e. last step
 	// }
 
 	/**
-	 * Generates concrete HTML element from the UI Elements of the questions to make up the form
+	 * Generates concrete HTML element from the UI Elements of the questions to make
+	 * up the form
 	 *
 	 * @return
 	 */
@@ -127,7 +162,8 @@ public class InterviewFillout implements Serializable {
 			if (!this.answers.containsKey(q.getId())) {
 				String formQuestion = q.getContent();
 				if (formQuestion != null) {
-					htmlElement.append(HTMLConstants.LINE_BREAK).append("<h1>" + formQuestion + "</h1>").append(HTMLConstants.LINE_BREAK);
+					htmlElement.append(HTMLConstants.LINE_BREAK).append("<h1>" + formQuestion + "</h1>")
+							.append(HTMLConstants.LINE_BREAK);
 				}
 				UIElement formUiElement = q.getUiElement();
 				if (formUiElement != null) {
