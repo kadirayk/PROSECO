@@ -25,7 +25,10 @@ addons:
    
 script:
   - ./gradlew build -x test 
-  - 'if [ "$TRAVIS_PULL_REQUEST" = "false" ]; then sonar-scanner; fi' # sonar only on non-PRs
+  - wget https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-3.2.0.1227-linux.zip
+  - unzip sonar-scanner-cli-3.2.0.1227-linux.zip
+  - export PATH=$PATH:$TRAVIS_BUILD_DIR/sonar-scanner-cli-3.2.0.1227-linux/bin
+  - sonar-scanner
  
 
 branches:
