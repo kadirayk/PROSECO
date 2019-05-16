@@ -31,7 +31,7 @@ public class NaturalLanguageSupportingConfigurationProcess extends AProsecoConfi
 	private final File prosecoConfigFile;
 	private final PROSECOConfig config;
 
-	public NaturalLanguageSupportingConfigurationProcess(File prosecoConfigFile, int timeoutInSeconds) {
+	public NaturalLanguageSupportingConfigurationProcess(File prosecoConfigFile) {
 		try {
 			super.updateProcessState(EProcessState.INIT);
 		} catch (InvalidStateTransitionException e) {
@@ -39,7 +39,6 @@ public class NaturalLanguageSupportingConfigurationProcess extends AProsecoConfi
 			e.printStackTrace();
 		}
 		this.prosecoConfigFile = prosecoConfigFile;
-		this.timeoutInSeconds = timeoutInSeconds;
 		config = PROSECOConfig.get(prosecoConfigFile);
 	}
 

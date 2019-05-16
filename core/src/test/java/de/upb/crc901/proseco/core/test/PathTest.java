@@ -24,7 +24,7 @@ public class PathTest {
 
 	@BeforeClass
 	public static void initialize() throws Exception {
-		ProcessController processController = new FileBasedConfigurationProcess(new File(""), 1000);
+		ProcessController processController = new FileBasedConfigurationProcess(new File(""));
 		processController.createNew(null);
 		processController.fixDomain("test");
 		env = processController.getProcessEnvironment();
@@ -37,7 +37,7 @@ public class PathTest {
 		answers.put("Please select prototype", "test");
 		processController.updateInterview(answers);
 
-		PROSECOSolution solution = processController.startComposition();
+		PROSECOSolution solution = processController.startComposition(1000);
 		processController.chooseAndDeploySolution(solution);
 		env = processController.getProcessEnvironment();
 		output = FileUtil.readFile("processes/" + processId + "/test.out");

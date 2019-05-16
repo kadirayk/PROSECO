@@ -59,7 +59,7 @@ public class ProcessStateTransitionController {
 		if (transitionMap.get(currentState).contains(nextState)) {
 			return nextState;
 		} else {
-			throw new InvalidStateTransitionException();
+			throw new InvalidStateTransitionException(String.format("CurrentState: %s, NextState: %s", currentState, nextState));
 		}
 	}
 

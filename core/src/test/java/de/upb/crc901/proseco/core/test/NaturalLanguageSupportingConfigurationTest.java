@@ -20,13 +20,13 @@ public class NaturalLanguageSupportingConfigurationTest {
 
 	@BeforeClass
 	public static void initialize() throws Exception {
-		NaturalLanguageSupportingConfigurationProcess processController = new NaturalLanguageSupportingConfigurationProcess(new File(""), 1000);
+		NaturalLanguageSupportingConfigurationProcess processController = new NaturalLanguageSupportingConfigurationProcess(new File(""));
 		processController.createNew(null);
 		processController.receiveGeneralTaskDescription("test");
 		env = processController.getProcessEnvironment();
 		processId = env.getProcessId();
 
-		PROSECOSolution solution = processController.startComposition();
+		PROSECOSolution solution = processController.startComposition(1000);
 		processController.chooseAndDeploySolution(solution);
 
 		output = FileUtil.readFile("processes/" + processId + "/test.out");

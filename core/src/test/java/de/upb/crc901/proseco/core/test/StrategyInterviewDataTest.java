@@ -21,7 +21,7 @@ public class StrategyInterviewDataTest {
 
 	@BeforeClass
 	public static void initialize() throws Exception {
-		ProcessController processController = new FileBasedConfigurationProcess(new File(""), 1000);
+		ProcessController processController = new FileBasedConfigurationProcess(new File(""));
 		processController.createNew(null);
 		processController.fixDomain("test");
 		env = processController.getProcessEnvironment();

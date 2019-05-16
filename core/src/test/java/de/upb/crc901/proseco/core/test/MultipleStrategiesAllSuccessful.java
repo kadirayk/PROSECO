@@ -24,7 +24,7 @@ public class MultipleStrategiesAllSuccessful {
 
 	@BeforeClass
 	public static void initialize() throws Exception {
-		ProcessController processController = new FileBasedConfigurationProcess(new File(""), 1000);
+		ProcessController processController = new FileBasedConfigurationProcess(new File(""));
 		processController.createNew(null);
 		processController.fixDomain("test");
 		env = processController.getProcessEnvironment();
@@ -37,7 +37,7 @@ public class MultipleStrategiesAllSuccessful {
 		answers.put("Please select prototype", "test1");
 		processController.updateInterview(answers);
 
-		PROSECOSolution solution = processController.startComposition();
+		PROSECOSolution solution = processController.startComposition(1000);
 		processController.chooseAndDeploySolution(solution);
 
 		output = FileUtil.readFile("processes/" + processId + "/test.out");

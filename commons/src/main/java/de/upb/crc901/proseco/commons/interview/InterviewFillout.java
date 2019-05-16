@@ -88,7 +88,9 @@ public class InterviewFillout implements Serializable {
 					List<Question> questions = s.getQuestions();
 					if (ListUtil.isNotEmpty(questions)) {
 						for (Question q : questions) {
-							if (q.getContent().equals(e.getKey())) {
+							if (q.getContent() != null && q.getContent().equals(e.getKey())) {
+								answers.put(q.getId(), e.getValue());
+							} else if (q.getId().equals(e.getKey())) {
 								answers.put(q.getId(), e.getValue());
 							}
 						}

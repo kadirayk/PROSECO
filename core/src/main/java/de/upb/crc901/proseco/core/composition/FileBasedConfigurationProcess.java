@@ -28,7 +28,7 @@ public class FileBasedConfigurationProcess extends AProsecoConfigurationProcess 
 	private final File prosecoConfigFile;
 	private final PROSECOConfig config;
 
-	public FileBasedConfigurationProcess(File prosecoConfigFile, int timeoutInSeconds) {
+	public FileBasedConfigurationProcess(File prosecoConfigFile) {
 		try {
 			super.updateProcessState(EProcessState.INIT);
 		} catch (InvalidStateTransitionException e) {
@@ -36,7 +36,6 @@ public class FileBasedConfigurationProcess extends AProsecoConfigurationProcess 
 			e.printStackTrace();
 		}
 		this.prosecoConfigFile = prosecoConfigFile;
-		this.timeoutInSeconds = timeoutInSeconds;
 		config = PROSECOConfig.get(prosecoConfigFile);
 	}
 
@@ -105,16 +104,18 @@ public class FileBasedConfigurationProcess extends AProsecoConfigurationProcess 
 			throw new ProcessIdDoesNotExistException();
 		}
 		this.processId = processId;
-		super.updateProcessState(EProcessState.CREATED);
-		
+
 		try {
 			processEnvironment = new PROSECOProcessEnvironment(processFolder);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		
-		// domain is already known after attaching
-		super.updateProcessState(EProcessState.DOMAIN_DEFINITION);
+
+		if (getProcessState() != EProcessState.DOMAIN_DEFINITION) { // no need to update state
+			super.updateProcessState(EProcessState.CREATED);
+			// domain is already known after attaching
+			super.updateProcessState(EProcessState.DOMAIN_DEFINITION);
+		}
 
 	}
 

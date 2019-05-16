@@ -12,6 +12,9 @@ public class DefaultPrototypeExtractor implements IPrototypeExtractor {
 		String prototype = null;
 		if (answers != null) {
 			prototype = answers.get("Please select prototype");
+			if(prototype == null) {
+				prototype = answers.get("prototype");
+			}
 		}
 		if (prototype == null) {
 			throw new PrototypeCouldNotBeExtractedException();

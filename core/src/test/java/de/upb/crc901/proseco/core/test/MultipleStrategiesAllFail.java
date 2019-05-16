@@ -23,7 +23,7 @@ public class MultipleStrategiesAllFail {
 
 	@BeforeClass
 	public static void initialize() throws Exception {
-		processController = new FileBasedConfigurationProcess(new File(""), 1000);
+		processController = new FileBasedConfigurationProcess(new File(""));
 		processController.createNew(null);
 		processController.fixDomain("test");
 		env = processController.getProcessEnvironment();
@@ -42,7 +42,7 @@ public class MultipleStrategiesAllFail {
 	 */
 	@Test(expected = NoStrategyFoundASolutionException.class)
 	public void testGroundingNotExists() throws Exception {
-		processController.startComposition();
+		processController.startComposition(1000);
 	}
 
 	/**

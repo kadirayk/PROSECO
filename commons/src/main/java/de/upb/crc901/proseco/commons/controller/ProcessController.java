@@ -36,7 +36,7 @@ public interface ProcessController {
 	/**
 	 * 
 	 */
-	public PROSECOSolution startComposition() throws NoStrategyFoundASolutionException, InvalidStateTransitionException, PrototypeCouldNotBeExtractedException;
+	public PROSECOSolution startComposition(int timeoutInSeconds) throws NoStrategyFoundASolutionException, InvalidStateTransitionException, PrototypeCouldNotBeExtractedException;
 
 	/**
 	 * 

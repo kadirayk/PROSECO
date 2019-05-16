@@ -56,7 +56,7 @@ public class APIController {
 	private final PROSECOConfig config = ConfigCache.getOrCreate(PROSECOConfig.class);
 
 	private final ProcessController processController = new FileBasedConfigurationProcess(
-			PROSECO_ENV_CONFIG.prosecoConfigFile(), 1000);
+			PROSECO_ENV_CONFIG.prosecoConfigFile());
 
 	/**
 	 * Returns SystemOut and SystemError logs of Strategies of prototype with the

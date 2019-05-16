@@ -93,7 +93,7 @@ public class StateTransitionTest {
 	@Test(expected = InvalidStateTransitionException.class)
 	public void testInitToComposition() throws Exception {
 		ProcessController process = getProcessForState(EProcessState.INIT);
-		process.startComposition();
+		process.startComposition(1000);
 	}
 
 	/**
@@ -143,7 +143,7 @@ public class StateTransitionTest {
 	@Test(expected = InvalidStateTransitionException.class)
 	public void testCreatedToComposition() throws Exception {
 		ProcessController process = getProcessForState(EProcessState.CREATED);
-		process.startComposition();
+		process.startComposition(1000);
 	}
 	
 	/**
@@ -192,7 +192,7 @@ public class StateTransitionTest {
 	@Test(expected = InvalidStateTransitionException.class)
 	public void testDomainToComposition() throws Exception {
 		ProcessController process = getProcessForState(EProcessState.DOMAIN_DEFINITION);
-		process.startComposition();
+		process.startComposition(1000);
 	}
 	
 	/**
@@ -243,7 +243,7 @@ public class StateTransitionTest {
 	@Test
 	public void testInterviewToComposition() throws Exception {
 		ProcessController process = getProcessForState(EProcessState.INTERVIEW);
-		process.startComposition();
+		process.startComposition(1000);
 		assertEquals(EProcessState.STRATEGY_CHOSEN, process.getProcessState());
 	}
 	
@@ -293,7 +293,7 @@ public class StateTransitionTest {
 	@Test(expected = InvalidStateTransitionException.class)
 	public void testChosenToComposition() throws Exception {
 		ProcessController process = getProcessForState(EProcessState.STRATEGY_CHOSEN);
-		process.startComposition();
+		process.startComposition(1000);
 	}
 	
 	/**
@@ -343,7 +343,7 @@ public class StateTransitionTest {
 	@Test(expected = InvalidStateTransitionException.class)
 	public void testDoneToComposition() throws Exception {
 		ProcessController process = getProcessForState(EProcessState.DONE);
-		process.startComposition();
+		process.startComposition(1000);
 	}
 	
 	/**
@@ -357,7 +357,7 @@ public class StateTransitionTest {
 	
 	@Test
 	public void testWholeTransition() throws Exception {
-		ProcessController processController = new FileBasedConfigurationProcess(new File(""), 1000);
+		ProcessController processController = new FileBasedConfigurationProcess(new File(""));
 		assertEquals(EProcessState.INIT, processController.getProcessState());
 
 		processController.createNew(null);
@@ -377,7 +377,7 @@ public class StateTransitionTest {
 		processController.updateInterview(answers);
 		assertEquals(EProcessState.INTERVIEW, processController.getProcessState());
 
-		PROSECOSolution solution = processController.startComposition();
+		PROSECOSolution solution = processController.startComposition(1000);
 		assertEquals(EProcessState.STRATEGY_CHOSEN, processController.getProcessState());
 
 		processController.chooseAndDeploySolution(solution);
@@ -386,13 +386,13 @@ public class StateTransitionTest {
 
 	@Test
 	public void testWholeTransitionWithAttached() throws Exception {
-		ProcessController processController = new FileBasedConfigurationProcess(new File(""), 1000);
+		ProcessController processController = new FileBasedConfigurationProcess(new File(""));
 		processController.createNew(null);
 		processController.fixDomain("test");
 		env = processController.getProcessEnvironment();
 		processId = env.getProcessId();
 		
-		processController = new FileBasedConfigurationProcess(new File(""), 1000);
+		processController = new FileBasedConfigurationProcess(new File(""));
 		processController.attach(processId);
 		env = processController.getProcessEnvironment();
 		
@@ -405,414 +405,13 @@ public class StateTransitionTest {
 		processController.updateInterview(answers);
 		assertEquals(EProcessState.INTERVIEW, processController.getProcessState());
 
-		PROSECOSolution solution = processController.startComposition();
+		PROSECOSolution solution = processController.startComposition(1000);
 		assertEquals(EProcessState.STRATEGY_CHOSEN, processController.getProcessState());
 
 		processController.chooseAndDeploySolution(solution);
 		assertEquals(EProcessState.DONE, processController.getProcessState());
 	}
 	
-//	@Test(expected = InvalidStateTransitionException.class)
-//	public void testFixDomainBeforeCreateNew() throws Exception {
-//		ProcessController processController = new FileBasedConfigurationProcess(new File(""), 1000);
-//		assertEquals(EProcessState.INIT, processController.getProcessState());
-//
-//		processController.fixDomain("test");
-//	}
-//
-//	@Test(expected = InvalidStateTransitionException.class)
-//	public void testInterviewBeforeCreateNew() throws Exception {
-//		ProcessController processController = new FileBasedConfigurationProcess(new File(""), 1000);
-//		assertEquals(EProcessState.INIT, processController.getProcessState());
-//
-//		env = processController.getProcessEnvironment();
-//		processId = env.getProcessId();
-//		File interviewFile = new File(
-//				env.getInterviewDirectory().getAbsolutePath() + File.separator + "interview.yaml");
-//		Parser parser = new Parser();
-//		InterviewFillout fillout = new InterviewFillout(parser.initializeInterviewFromConfig(interviewFile));
-//		Map<String, String> answers = fillout.retrieveQuestionAnswerMap();
-//		answers.put("Please select prototype", "test1");
-//		processController.updateInterview(answers);
-//	}
-//
-//	@Test(expected = InvalidStateTransitionException.class)
-//	public void testStartCompositionBeforeCreateNew() throws Exception {
-//		ProcessController processController = new FileBasedConfigurationProcess(new File(""), 1000);
-//		assertEquals(EProcessState.INIT, processController.getProcessState());
-//
-//		processController.startComposition();
-//	}
-//
-//	@Test(expected = InvalidStateTransitionException.class)
-//	public void testDeployBeforeCreateNew() throws Exception {
-//		ProcessController processController = new FileBasedConfigurationProcess(new File(""), 1000);
-//		assertEquals(EProcessState.INIT, processController.getProcessState());
-//
-//		PROSECOSolution solution = null;
-//		processController.chooseAndDeploySolution(solution);
-//	}
-//
-//	@Test(expected = InvalidStateTransitionException.class)
-//	public void testInterviewBeforeFixDomain() throws Exception {
-//		ProcessController processController = new FileBasedConfigurationProcess(new File(""), 1000);
-//		assertEquals(EProcessState.INIT, processController.getProcessState());
-//
-//		processController.createNew(null);
-//		assertEquals(EProcessState.CREATED, processController.getProcessState());
-//
-//		env = processController.getProcessEnvironment();
-//		processId = env.getProcessId();
-//		File interviewFile = new File(
-//				env.getInterviewDirectory().getAbsolutePath() + File.separator + "interview.yaml");
-//		Parser parser = new Parser();
-//		InterviewFillout fillout = new InterviewFillout(parser.initializeInterviewFromConfig(interviewFile));
-//		Map<String, String> answers = fillout.retrieveQuestionAnswerMap();
-//		answers.put("Please select prototype", "test1");
-//		processController.updateInterview(answers);
-//	}
-//
-//	@Test(expected = InvalidStateTransitionException.class)
-//	public void testCompositionBeforeFixDomain() throws Exception {
-//		ProcessController processController = new FileBasedConfigurationProcess(new File(""), 1000);
-//		assertEquals(EProcessState.INIT, processController.getProcessState());
-//
-//		processController.createNew(null);
-//		assertEquals(EProcessState.CREATED, processController.getProcessState());
-//
-//		processController.startComposition();
-//	}
-//
-//	@Test(expected = InvalidStateTransitionException.class)
-//	public void testDeployBeforeFixDomain() throws Exception {
-//		ProcessController processController = new FileBasedConfigurationProcess(new File(""), 1000);
-//		assertEquals(EProcessState.INIT, processController.getProcessState());
-//
-//		processController.createNew(null);
-//		assertEquals(EProcessState.CREATED, processController.getProcessState());
-//
-//		processController.chooseAndDeploySolution(null);
-//	}
-//
-//	@Test(expected = InvalidStateTransitionException.class)
-//	public void testCompositionBeforeInterview() throws Exception {
-//		ProcessController processController = new FileBasedConfigurationProcess(new File(""), 1000);
-//		assertEquals(EProcessState.INIT, processController.getProcessState());
-//
-//		processController.createNew(null);
-//		assertEquals(EProcessState.CREATED, processController.getProcessState());
-//
-//		processController.fixDomain("test");
-//		assertEquals(EProcessState.DOMAIN_DEFINITION, processController.getProcessState());
-//
-//		processController.startComposition();
-//	}
-//
-//	@Test(expected = InvalidStateTransitionException.class)
-//	public void testDeployBeforeInterview() throws Exception {
-//		ProcessController processController = new FileBasedConfigurationProcess(new File(""), 1000);
-//		assertEquals(EProcessState.INIT, processController.getProcessState());
-//
-//		processController.createNew(null);
-//		assertEquals(EProcessState.CREATED, processController.getProcessState());
-//
-//		processController.fixDomain("test");
-//		assertEquals(EProcessState.DOMAIN_DEFINITION, processController.getProcessState());
-//
-//		processController.chooseAndDeploySolution(null);
-//	}
-//
-//	@Test(expected = InvalidStateTransitionException.class)
-//	public void testDeployBeforeComposition() throws Exception {
-//		ProcessController processController = new FileBasedConfigurationProcess(new File(""), 1000);
-//		assertEquals(EProcessState.INIT, processController.getProcessState());
-//
-//		processController.createNew(null);
-//		assertEquals(EProcessState.CREATED, processController.getProcessState());
-//
-//		processController.fixDomain("test");
-//		assertEquals(EProcessState.DOMAIN_DEFINITION, processController.getProcessState());
-//
-//		env = processController.getProcessEnvironment();
-//		processId = env.getProcessId();
-//		File interviewFile = new File(
-//				env.getInterviewDirectory().getAbsolutePath() + File.separator + "interview.yaml");
-//		Parser parser = new Parser();
-//		InterviewFillout fillout = new InterviewFillout(parser.initializeInterviewFromConfig(interviewFile));
-//		Map<String, String> answers = fillout.retrieveQuestionAnswerMap();
-//		answers.put("Please select prototype", "test1");
-//		processController.updateInterview(answers);
-//		assertEquals(EProcessState.INTERVIEW, processController.getProcessState());
-//
-//		processController.chooseAndDeploySolution(null);
-//	}
-//
-//	@Test(expected = InvalidStateTransitionException.class)
-//	public void testCreateNewAfterFixDomain() throws Exception {
-//		ProcessController processController = new FileBasedConfigurationProcess(new File(""), 1000);
-//		assertEquals(EProcessState.INIT, processController.getProcessState());
-//
-//		processController.createNew(null);
-//		assertEquals(EProcessState.CREATED, processController.getProcessState());
-//
-//		processController.fixDomain("test");
-//		assertEquals(EProcessState.DOMAIN_DEFINITION, processController.getProcessState());
-//
-//		processController.createNew(null);
-//	}
-//
-//	@Test(expected = InvalidStateTransitionException.class)
-//	public void testCreateNewAfterInterview() throws Exception {
-//		ProcessController processController = new FileBasedConfigurationProcess(new File(""), 1000);
-//		assertEquals(EProcessState.INIT, processController.getProcessState());
-//
-//		processController.createNew(null);
-//		assertEquals(EProcessState.CREATED, processController.getProcessState());
-//
-//		processController.fixDomain("test");
-//		assertEquals(EProcessState.DOMAIN_DEFINITION, processController.getProcessState());
-//
-//		env = processController.getProcessEnvironment();
-//		processId = env.getProcessId();
-//		File interviewFile = new File(
-//				env.getInterviewDirectory().getAbsolutePath() + File.separator + "interview.yaml");
-//		Parser parser = new Parser();
-//		InterviewFillout fillout = new InterviewFillout(parser.initializeInterviewFromConfig(interviewFile));
-//		Map<String, String> answers = fillout.retrieveQuestionAnswerMap();
-//		answers.put("Please select prototype", "test1");
-//		processController.updateInterview(answers);
-//		assertEquals(EProcessState.INTERVIEW, processController.getProcessState());
-//
-//		processController.createNew(null);
-//	}
-//
-//	@Test(expected = InvalidStateTransitionException.class)
-//	public void testCreateNewAfterComposition() throws Exception {
-//		ProcessController processController = new FileBasedConfigurationProcess(new File(""), 1000);
-//		assertEquals(EProcessState.INIT, processController.getProcessState());
-//
-//		processController.createNew(null);
-//		assertEquals(EProcessState.CREATED, processController.getProcessState());
-//
-//		processController.fixDomain("test");
-//		assertEquals(EProcessState.DOMAIN_DEFINITION, processController.getProcessState());
-//
-//		env = processController.getProcessEnvironment();
-//		processId = env.getProcessId();
-//		File interviewFile = new File(
-//				env.getInterviewDirectory().getAbsolutePath() + File.separator + "interview.yaml");
-//		Parser parser = new Parser();
-//		InterviewFillout fillout = new InterviewFillout(parser.initializeInterviewFromConfig(interviewFile));
-//		Map<String, String> answers = fillout.retrieveQuestionAnswerMap();
-//		answers.put("Please select prototype", "test1");
-//		processController.updateInterview(answers);
-//		assertEquals(EProcessState.INTERVIEW, processController.getProcessState());
-//
-//		PROSECOSolution solution = processController.startComposition();
-//		assertEquals(EProcessState.STRATEGY_CHOSEN, processController.getProcessState());
-//		processController.createNew(null);
-//	}
-//
-//	@Test(expected = InvalidStateTransitionException.class)
-//	public void testCreateNewAfterDeploy() throws Exception {
-//		ProcessController processController = new FileBasedConfigurationProcess(new File(""), 1000);
-//		assertEquals(EProcessState.INIT, processController.getProcessState());
-//
-//		processController.createNew(null);
-//		assertEquals(EProcessState.CREATED, processController.getProcessState());
-//
-//		processController.fixDomain("test");
-//		assertEquals(EProcessState.DOMAIN_DEFINITION, processController.getProcessState());
-//
-//		env = processController.getProcessEnvironment();
-//		processId = env.getProcessId();
-//		File interviewFile = new File(
-//				env.getInterviewDirectory().getAbsolutePath() + File.separator + "interview.yaml");
-//		Parser parser = new Parser();
-//		InterviewFillout fillout = new InterviewFillout(parser.initializeInterviewFromConfig(interviewFile));
-//		Map<String, String> answers = fillout.retrieveQuestionAnswerMap();
-//		answers.put("Please select prototype", "test1");
-//		processController.updateInterview(answers);
-//		assertEquals(EProcessState.INTERVIEW, processController.getProcessState());
-//
-//		PROSECOSolution solution = processController.startComposition();
-//		assertEquals(EProcessState.STRATEGY_CHOSEN, processController.getProcessState());
-//
-//		processController.chooseAndDeploySolution(solution);
-//		assertEquals(EProcessState.DONE, processController.getProcessState());
-//		processController.createNew(null);
-//	}
-//
-//	@Test(expected = InvalidStateTransitionException.class)
-//	public void testFixDomainAfterInterview() throws Exception {
-//		ProcessController processController = new FileBasedConfigurationProcess(new File(""), 1000);
-//		assertEquals(EProcessState.INIT, processController.getProcessState());
-//
-//		processController.createNew(null);
-//		assertEquals(EProcessState.CREATED, processController.getProcessState());
-//
-//		processController.fixDomain("test");
-//		assertEquals(EProcessState.DOMAIN_DEFINITION, processController.getProcessState());
-//
-//		env = processController.getProcessEnvironment();
-//		processId = env.getProcessId();
-//		File interviewFile = new File(
-//				env.getInterviewDirectory().getAbsolutePath() + File.separator + "interview.yaml");
-//		Parser parser = new Parser();
-//		InterviewFillout fillout = new InterviewFillout(parser.initializeInterviewFromConfig(interviewFile));
-//		Map<String, String> answers = fillout.retrieveQuestionAnswerMap();
-//		answers.put("Please select prototype", "test1");
-//		processController.updateInterview(answers);
-//		assertEquals(EProcessState.INTERVIEW, processController.getProcessState());
-//
-//		processController.fixDomain("test");
-//	}
-//
-//	@Test(expected = InvalidStateTransitionException.class)
-//	public void testFixDomainAfterComposition() throws Exception {
-//		ProcessController processController = new FileBasedConfigurationProcess(new File(""), 1000);
-//		assertEquals(EProcessState.INIT, processController.getProcessState());
-//
-//		processController.createNew(null);
-//		assertEquals(EProcessState.CREATED, processController.getProcessState());
-//
-//		processController.fixDomain("test");
-//		assertEquals(EProcessState.DOMAIN_DEFINITION, processController.getProcessState());
-//
-//		env = processController.getProcessEnvironment();
-//		processId = env.getProcessId();
-//		File interviewFile = new File(
-//				env.getInterviewDirectory().getAbsolutePath() + File.separator + "interview.yaml");
-//		Parser parser = new Parser();
-//		InterviewFillout fillout = new InterviewFillout(parser.initializeInterviewFromConfig(interviewFile));
-//		Map<String, String> answers = fillout.retrieveQuestionAnswerMap();
-//		answers.put("Please select prototype", "test1");
-//		processController.updateInterview(answers);
-//		assertEquals(EProcessState.INTERVIEW, processController.getProcessState());
-//
-//		PROSECOSolution solution = processController.startComposition();
-//		assertEquals(EProcessState.STRATEGY_CHOSEN, processController.getProcessState());
-//		processController.fixDomain("test");
-//	}
-//
-//	@Test(expected = InvalidStateTransitionException.class)
-//	public void testFixDomainAfterDeploy() throws Exception {
-//		ProcessController processController = new FileBasedConfigurationProcess(new File(""), 1000);
-//		assertEquals(EProcessState.INIT, processController.getProcessState());
-//
-//		processController.createNew(null);
-//		assertEquals(EProcessState.CREATED, processController.getProcessState());
-//
-//		processController.fixDomain("test");
-//		assertEquals(EProcessState.DOMAIN_DEFINITION, processController.getProcessState());
-//
-//		env = processController.getProcessEnvironment();
-//		processId = env.getProcessId();
-//		File interviewFile = new File(
-//				env.getInterviewDirectory().getAbsolutePath() + File.separator + "interview.yaml");
-//		Parser parser = new Parser();
-//		InterviewFillout fillout = new InterviewFillout(parser.initializeInterviewFromConfig(interviewFile));
-//		Map<String, String> answers = fillout.retrieveQuestionAnswerMap();
-//		answers.put("Please select prototype", "test1");
-//		processController.updateInterview(answers);
-//		assertEquals(EProcessState.INTERVIEW, processController.getProcessState());
-//
-//		PROSECOSolution solution = processController.startComposition();
-//		assertEquals(EProcessState.STRATEGY_CHOSEN, processController.getProcessState());
-//
-//		processController.chooseAndDeploySolution(solution);
-//		assertEquals(EProcessState.DONE, processController.getProcessState());
-//		processController.fixDomain("test");
-//	}
-//
-//	@Test(expected = InvalidStateTransitionException.class)
-//	public void testInterviewAfterComposition() throws Exception {
-//		ProcessController processController = new FileBasedConfigurationProcess(new File(""), 1000);
-//		assertEquals(EProcessState.INIT, processController.getProcessState());
-//
-//		processController.createNew(null);
-//		assertEquals(EProcessState.CREATED, processController.getProcessState());
-//
-//		processController.fixDomain("test");
-//		assertEquals(EProcessState.DOMAIN_DEFINITION, processController.getProcessState());
-//
-//		env = processController.getProcessEnvironment();
-//		processId = env.getProcessId();
-//		File interviewFile = new File(
-//				env.getInterviewDirectory().getAbsolutePath() + File.separator + "interview.yaml");
-//		Parser parser = new Parser();
-//		InterviewFillout fillout = new InterviewFillout(parser.initializeInterviewFromConfig(interviewFile));
-//		Map<String, String> answers = fillout.retrieveQuestionAnswerMap();
-//		answers.put("Please select prototype", "test1");
-//		processController.updateInterview(answers);
-//		assertEquals(EProcessState.INTERVIEW, processController.getProcessState());
-//
-//		PROSECOSolution solution = processController.startComposition();
-//		assertEquals(EProcessState.STRATEGY_CHOSEN, processController.getProcessState());
-//
-//		processController.updateInterview(answers);
-//	}
-//
-//	@Test(expected = InvalidStateTransitionException.class)
-//	public void testInterviewAfterDeploy() throws Exception {
-//		ProcessController processController = new FileBasedConfigurationProcess(new File(""), 1000);
-//		assertEquals(EProcessState.INIT, processController.getProcessState());
-//
-//		processController.createNew(null);
-//		assertEquals(EProcessState.CREATED, processController.getProcessState());
-//
-//		processController.fixDomain("test");
-//		assertEquals(EProcessState.DOMAIN_DEFINITION, processController.getProcessState());
-//
-//		env = processController.getProcessEnvironment();
-//		processId = env.getProcessId();
-//		File interviewFile = new File(
-//				env.getInterviewDirectory().getAbsolutePath() + File.separator + "interview.yaml");
-//		Parser parser = new Parser();
-//		InterviewFillout fillout = new InterviewFillout(parser.initializeInterviewFromConfig(interviewFile));
-//		Map<String, String> answers = fillout.retrieveQuestionAnswerMap();
-//		answers.put("Please select prototype", "test1");
-//		processController.updateInterview(answers);
-//		assertEquals(EProcessState.INTERVIEW, processController.getProcessState());
-//
-//		PROSECOSolution solution = processController.startComposition();
-//		assertEquals(EProcessState.STRATEGY_CHOSEN, processController.getProcessState());
-//
-//		processController.chooseAndDeploySolution(solution);
-//		assertEquals(EProcessState.DONE, processController.getProcessState());
-//		processController.updateInterview(answers);
-//	}
-//
-//	@Test(expected = InvalidStateTransitionException.class)
-//	public void testCompositionAfterDeploy() throws Exception {
-//		ProcessController processController = new FileBasedConfigurationProcess(new File(""), 1000);
-//		assertEquals(EProcessState.INIT, processController.getProcessState());
-//
-//		processController.createNew(null);
-//		assertEquals(EProcessState.CREATED, processController.getProcessState());
-//
-//		processController.fixDomain("test");
-//		assertEquals(EProcessState.DOMAIN_DEFINITION, processController.getProcessState());
-//
-//		env = processController.getProcessEnvironment();
-//		processId = env.getProcessId();
-//		File interviewFile = new File(
-//				env.getInterviewDirectory().getAbsolutePath() + File.separator + "interview.yaml");
-//		Parser parser = new Parser();
-//		InterviewFillout fillout = new InterviewFillout(parser.initializeInterviewFromConfig(interviewFile));
-//		Map<String, String> answers = fillout.retrieveQuestionAnswerMap();
-//		answers.put("Please select prototype", "test1");
-//		processController.updateInterview(answers);
-//		assertEquals(EProcessState.INTERVIEW, processController.getProcessState());
-//
-//		PROSECOSolution solution = processController.startComposition();
-//		assertEquals(EProcessState.STRATEGY_CHOSEN, processController.getProcessState());
-//
-//		processController.chooseAndDeploySolution(solution);
-//		assertEquals(EProcessState.DONE, processController.getProcessState());
-//
-//		processController.startComposition();
-//	}
 
 	private ProcessController getProcessForState(EProcessState requestedState) throws ProcessIdAlreadyExistsException,
 			InvalidStateTransitionException, CannotFixDomainInThisProcessException, NoStrategyFoundASolutionException,
@@ -820,19 +419,19 @@ public class StateTransitionTest {
 		ProcessController process = null;
 		switch (requestedState) {
 		case INIT:
-			process = new FileBasedConfigurationProcess(new File(""), 1000);
+			process = new FileBasedConfigurationProcess(new File(""));
 			break;
 		case CREATED:
-			process = new FileBasedConfigurationProcess(new File(""), 1000);
+			process = new FileBasedConfigurationProcess(new File(""));
 			process.createNew(null);
 			break;
 		case DOMAIN_DEFINITION:
-			process = new FileBasedConfigurationProcess(new File(""), 1000);
+			process = new FileBasedConfigurationProcess(new File(""));
 			process.createNew(null);
 			process.fixDomain("test");
 			break;
 		case INTERVIEW:
-			process = new FileBasedConfigurationProcess(new File(""), 1000);
+			process = new FileBasedConfigurationProcess(new File(""));
 			process.createNew(null);
 			process.fixDomain("test");
 			env = process.getProcessEnvironment();
@@ -855,7 +454,7 @@ public class StateTransitionTest {
 			System.err.println("This State is inaccessible from outside");
 			break;
 		case STRATEGY_CHOSEN:
-			process = new FileBasedConfigurationProcess(new File(""), 1000);
+			process = new FileBasedConfigurationProcess(new File(""));
 			process.createNew(null);
 			process.fixDomain("test");
 			env = process.getProcessEnvironment();
@@ -872,13 +471,13 @@ public class StateTransitionTest {
 			answers = fillout.retrieveQuestionAnswerMap();
 			answers.put("Please select prototype", "test1");
 			process.updateInterview(answers);
-			PROSECOSolution solution = process.startComposition();
+			PROSECOSolution solution = process.startComposition(1000);
 			break;
 		case DEPLOYMENT:
 			System.err.println("This State is inaccessible from outside");
 			break;
 		case DONE:
-			process = new FileBasedConfigurationProcess(new File(""), 1000);
+			process = new FileBasedConfigurationProcess(new File(""));
 			process.createNew(null);
 			process.fixDomain("test");
 			env = process.getProcessEnvironment();
@@ -895,7 +494,7 @@ public class StateTransitionTest {
 			answers = fillout.retrieveQuestionAnswerMap();
 			answers.put("Please select prototype", "test1");
 			process.updateInterview(answers);
-			solution = process.startComposition();
+			solution = process.startComposition(1000);
 			process.chooseAndDeploySolution(solution);
 			break;
 		case GROUNDING:
@@ -905,7 +504,7 @@ public class StateTransitionTest {
 			System.err.println("This State is inaccessible from outside");
 			break;
 		default:
-			process = new FileBasedConfigurationProcess(new File(""), 1000);
+			process = new FileBasedConfigurationProcess(new File(""));
 			break;
 
 		}

@@ -71,7 +71,7 @@ public abstract class AProsecoConfigurationProcess implements ProcessController 
 	}
 
 	@Override
-	public PROSECOSolution startComposition() throws NoStrategyFoundASolutionException, InvalidStateTransitionException,
+	public PROSECOSolution startComposition(int timeoutInSeconds) throws NoStrategyFoundASolutionException, InvalidStateTransitionException,
 			PrototypeCouldNotBeExtractedException {
 		updateProcessState(EProcessState.COMPOSITION);
 
