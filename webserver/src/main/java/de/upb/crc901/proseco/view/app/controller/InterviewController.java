@@ -31,23 +31,22 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 import org.thymeleaf.util.StringUtils;
 
-import de.upb.crc901.proseco.commons.controller.DefaultProcessController;
 import de.upb.crc901.proseco.commons.controller.ProcessController;
 import de.upb.crc901.proseco.commons.html.Script;
 import de.upb.crc901.proseco.commons.interview.InterviewFillout;
 import de.upb.crc901.proseco.commons.interview.Question;
+import de.upb.crc901.proseco.commons.processstatus.EProcessState;
+import de.upb.crc901.proseco.commons.processstatus.ProcessStateProvider;
+import de.upb.crc901.proseco.commons.util.ListUtil;
+import de.upb.crc901.proseco.commons.util.PROSECOProcessEnvironment;
+import de.upb.crc901.proseco.commons.util.Parser;
+import de.upb.crc901.proseco.commons.util.SerializationUtil;
 import de.upb.crc901.proseco.core.composition.CompositionAlgorithm;
 import de.upb.crc901.proseco.core.composition.FileBasedConfigurationProcess;
-import de.upb.crc901.proseco.commons.util.PROSECOProcessEnvironment;
 import de.upb.crc901.proseco.view.app.model.InterviewDTO;
 import de.upb.crc901.proseco.view.app.model.StrategyCandidateFoundEvent;
 import de.upb.crc901.proseco.view.app.model.StrategyCandidatesDatastore;
-import de.upb.crc901.proseco.commons.processstatus.EProcessState;
-import de.upb.crc901.proseco.commons.processstatus.ProcessStateProvider;
 import de.upb.crc901.proseco.view.core.NextStateNotFoundException;
-import de.upb.crc901.proseco.view.core.Parser;
-import de.upb.crc901.proseco.commons.util.ListUtil;
-import de.upb.crc901.proseco.commons.util.SerializationUtil;
 
 /**
  * Interview Controller for web application

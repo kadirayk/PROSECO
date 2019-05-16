@@ -12,8 +12,8 @@ import de.upb.crc901.proseco.commons.controller.NoStrategyFoundASolutionExceptio
 import de.upb.crc901.proseco.commons.controller.ProcessController;
 import de.upb.crc901.proseco.commons.interview.InterviewFillout;
 import de.upb.crc901.proseco.commons.util.PROSECOProcessEnvironment;
+import de.upb.crc901.proseco.commons.util.Parser;
 import de.upb.crc901.proseco.core.composition.FileBasedConfigurationProcess;
-import de.upb.crc901.proseco.core.test.util.Parser;
 
 public class MultipleStrategiesAllFail {
 	static String processId;

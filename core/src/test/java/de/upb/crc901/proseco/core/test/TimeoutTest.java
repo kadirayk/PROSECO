@@ -1,28 +1,12 @@
 package de.upb.crc901.proseco.core.test;
 
-import static org.junit.Assert.assertTrue;
-
-import java.io.File;
-import java.util.HashMap;
-import java.util.Map;
-
 import org.junit.FixMethodOrder;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
 
-import de.upb.crc901.proseco.commons.controller.DefaultProcessController;
-import de.upb.crc901.proseco.commons.controller.ProcessController;
-import de.upb.crc901.proseco.commons.interview.InterviewFillout;
-import de.upb.crc901.proseco.commons.interview.Question;
-import de.upb.crc901.proseco.commons.processstatus.EProcessState;
-import de.upb.crc901.proseco.commons.processstatus.ProcessStateProvider;
 import de.upb.crc901.proseco.commons.util.FileUtil;
 import de.upb.crc901.proseco.commons.util.PROSECOProcessEnvironment;
-import de.upb.crc901.proseco.commons.util.SerializationUtil;
-import de.upb.crc901.proseco.core.composition.CompositionAlgorithm;
-import de.upb.crc901.proseco.core.composition.FileBasedConfigurationProcess;
-import de.upb.crc901.proseco.core.test.util.Parser;
 
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 @Ignore // This test may not be required since timeout case is tested in MultipleStrategies4Fail

@@ -20,8 +20,8 @@ import de.upb.crc901.proseco.commons.interview.InterviewFillout;
 import de.upb.crc901.proseco.commons.processstatus.EProcessState;
 import de.upb.crc901.proseco.commons.processstatus.InvalidStateTransitionException;
 import de.upb.crc901.proseco.commons.util.PROSECOProcessEnvironment;
+import de.upb.crc901.proseco.commons.util.Parser;
 import de.upb.crc901.proseco.commons.util.SerializationUtil;
-import de.upb.crc901.proseco.core.test.util.Parser;
 
 public class FileBasedConfigurationProcess extends AProsecoConfigurationProcess {
 

@@ -1,4 +1,4 @@
-package de.upb.crc901.proseco.core.test.util;
+package de.upb.crc901.proseco.commons.util;
 
 import java.io.File;
 import java.io.IOException;

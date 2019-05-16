@@ -10,7 +10,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import de.upb.crc901.proseco.commons.interview.Interview;
-import de.upb.crc901.proseco.view.core.Parser;
+import de.upb.crc901.proseco.commons.util.Parser;
 
 public class ParserTest {
 	Parser parser;
