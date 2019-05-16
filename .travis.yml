@@ -1,6 +1,6 @@
 language: java
 install: true
-sudo: required  # faster builds
+sudo: false  # faster builds
 
 # Cache gradle files:
 before_cache:
