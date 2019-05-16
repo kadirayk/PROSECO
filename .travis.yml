@@ -1,6 +1,6 @@
 language: java
 install: true
-sudo: false  # faster builds
+sudo: required  # faster builds
 
 # Cache gradle files:
 before_cache:
@@ -27,3 +27,8 @@ script:
   - ./gradlew build -x test 
   - sonar-scanner
  
+
+branches:
+  only:
+  - master
+  - development
