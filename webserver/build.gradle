@@ -78,3 +78,8 @@ dependencies {
     }
 }
 
+javadoc {
+    source = sourceSets.main.allJava
+    classpath = configurations.compile
+	failOnError = true
+}

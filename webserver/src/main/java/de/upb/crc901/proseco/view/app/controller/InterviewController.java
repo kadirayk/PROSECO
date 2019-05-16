@@ -41,7 +41,6 @@ import de.upb.crc901.proseco.commons.util.ListUtil;
 import de.upb.crc901.proseco.commons.util.PROSECOProcessEnvironment;
 import de.upb.crc901.proseco.commons.util.Parser;
 import de.upb.crc901.proseco.commons.util.SerializationUtil;
-import de.upb.crc901.proseco.core.composition.CompositionAlgorithm;
 import de.upb.crc901.proseco.core.composition.FileBasedConfigurationProcess;
 import de.upb.crc901.proseco.view.app.model.InterviewDTO;
 import de.upb.crc901.proseco.view.app.model.StrategyCandidateFoundEvent;
@@ -96,10 +95,10 @@ public class InterviewController {
 	/**
 	 * Initiates interview process and decides prototype according to given
 	 * information
-	 *
-	 * @param init
+	 * 
+	 * @param interviewDTO
 	 * @return
-	 * @throws NextStateNotFoundException
+	 * @throws Exception
 	 */
 	@PostMapping("/")
 	public String initSubmit(@ModelAttribute final InterviewDTO interviewDTO) throws Exception {
@@ -137,9 +136,10 @@ public class InterviewController {
 	 * Http Get method for /interview/{id} to display the current state of the
 	 * interview with the given {id}
 	 *
-	 * @param init
+	 * @param id
+	 * @param interviewDTO
 	 * @return
-	 * @throws NextStateNotFoundException
+	 * @throws Exception
 	 */
 	@GetMapping("/interview/{id}")
 	public String next(@PathVariable("id") final String id, @ModelAttribute final InterviewDTO interviewDTO)

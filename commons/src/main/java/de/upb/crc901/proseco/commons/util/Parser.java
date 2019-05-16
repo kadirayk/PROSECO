@@ -47,12 +47,12 @@ public class Parser {
 
 	/**
 	 * Parses interview definition with the given path and returns interview object
-	 * 
-	 * @param filePath
+	 *
+	 * @param interviewFile
 	 * @return
-	 * @throws IOException 
-	 * @throws JsonMappingException 
-	 * @throws JsonParseException 
+	 * @throws JsonParseException
+	 * @throws JsonMappingException
+	 * @throws IOException
 	 */
 	public Interview initializeInterviewFromConfig(File interviewFile) throws JsonParseException, JsonMappingException, IOException {
 		
