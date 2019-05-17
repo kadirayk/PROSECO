@@ -52,7 +52,6 @@ public class SerializationUtil {
 	}
 
 	public static void write(String path, Interview interview) {
-		System.out.println("OKASD");
 		String filePath = path + "interview_state";
 		try (FileOutputStream f = new FileOutputStream(new File(filePath));
 				ObjectOutputStream o = new ObjectOutputStream(f)) {

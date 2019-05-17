@@ -26,11 +26,8 @@ addons:
 script:
   - ./gradlew build -x test 
   - sonar-scanner
-  
-  
 
 branches:
   only:
   - master
   - development
-  

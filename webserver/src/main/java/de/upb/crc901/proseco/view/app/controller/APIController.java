@@ -32,6 +32,7 @@ import de.upb.crc901.proseco.commons.util.FileUtil;
 import de.upb.crc901.proseco.view.util.LogLine;
 import de.upb.crc901.proseco.view.util.LogLineTracker;
 import de.upb.crc901.proseco.commons.util.ToJSONStringUtil;
+import de.upb.crc901.proseco.core.composition.FileBasedConfigurationProcess;
 
 /**
  * API End Point for web service calls
@@ -54,7 +55,7 @@ public class APIController {
 
 	private final PROSECOConfig config = ConfigCache.getOrCreate(PROSECOConfig.class);
 
-	private final ProcessController processController = new DefaultProcessController(
+	private final ProcessController processController = new FileBasedConfigurationProcess(
 			PROSECO_ENV_CONFIG.prosecoConfigFile());
 
 	/**
@@ -119,7 +120,8 @@ public class APIController {
 	 * @throws Exception
 	 */
 	private String getServiceLog(final String id) throws Exception {
-		PROSECOProcessEnvironment env = this.processController.getConstructionProcessEnvironment(id);
+		processController.attach(id);
+		PROSECOProcessEnvironment env = this.processController.getProcessEnvironment();
 		String serviceLogFile = env.getGroundingDirectory() + File.separator + this.config.getNameOfServiceLogFile();
 		String serviceLog = FileUtil.readFile(serviceLogFile);
 		return serviceLog;

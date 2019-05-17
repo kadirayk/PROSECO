@@ -72,6 +72,8 @@ data/stored
 /commons/.project
 /core/build/
 /core/.project
+/core/processes/*
+!/core/processes/test-default
 /prototypes/
 /domains/
 /processes/

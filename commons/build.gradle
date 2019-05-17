@@ -30,7 +30,15 @@ dependencies {
 	// https://mvnrepository.com/artifact/org.slf4j/slf4j-api
 	compile group: 'org.slf4j', name: 'slf4j-api', version: '1.7.25'
 	
+	// https://mvnrepository.com/artifact/junit/junit
+	testCompile group: 'junit', name: 'junit', version: '4.12'
 	
 	//jackson for YAML
 	compile 'com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.8.10'
+}
+
+javadoc {
+    source = sourceSets.main.allJava
+    classpath = configurations.compile
+	failOnError = true
 }
