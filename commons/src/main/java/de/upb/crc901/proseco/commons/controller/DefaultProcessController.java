@@ -12,7 +12,7 @@ import de.upb.crc901.proseco.commons.config.PROSECOConfig;
 import de.upb.crc901.proseco.commons.config.ProcessConfig;
 import de.upb.crc901.proseco.commons.util.PROSECOProcessEnvironment;
 
-public class DefaultProcessController implements ProcessController {
+public class DefaultProcessController {
 
 	private final File prosecoConfigFile;
 	private final PROSECOConfig config;

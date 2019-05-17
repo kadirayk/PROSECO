@@ -25,12 +25,10 @@ addons:
    
 script:
   - ./gradlew build -x test 
-  - sonar-scanner -X
-  
-  
+  - 'if [ "$TRAVIS_PULL_REQUEST" = "false" ]; then sonar-scanner; fi' # sonar only on non-PRs
+ 
 
 branches:
   only:
   - master
   - development
-  

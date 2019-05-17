@@ -20,6 +20,7 @@ public interface PrototypeConfig extends Mutable {
 	/* search */
 	public static final String STRATEGIES = "pbc.strategies_path";
 	public static final String STRATEGY_RUNNABLE = "pbc.strategy.runnable";
+	public static final String DISABLED_STRATEGIES = "proseco.disabled.strategies";
 
 	/* pre-grounding filter */
 	public static final String PRE_GROUNDING_HOOK = "pbc.hook.preground";
@@ -51,6 +52,10 @@ public interface PrototypeConfig extends Mutable {
 	@Key(STRATEGIES)
 	@DefaultValue("strategies")
 	public String getNameOfStrategyFolder();
+	
+	@Key(DISABLED_STRATEGIES)
+	@DefaultValue("")
+	public String getDisabledStrategies();
 
 	@Key(GROUNDING_FOLDER)
 	@DefaultValue("")
