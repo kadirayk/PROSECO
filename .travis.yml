@@ -25,7 +25,7 @@ addons:
    
 script:
   - ./gradlew build -x test 
-  - 'if [ "$TRAVIS_PULL_REQUEST_SLUG" = "fmohr/PROSECO" ]; then sonar-scanner; fi' # sonar only on non-PRs
+  - 'if [ "$TRAVIS_PULL_REQUEST_SLUG" = "$TRAVIS_REPO_SLUG" ]; then sonar-scanner; fi' # sonar only on internal PR
 
 branches:
   only:
