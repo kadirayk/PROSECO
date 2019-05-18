@@ -23,6 +23,7 @@ public class FileUtil {
 			writer = new PrintWriter(output);
 			writer.print(content);
 			writer.close();
+			System.out.println("Test to see that sonarcloud really runs");
 		} catch (FileNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
