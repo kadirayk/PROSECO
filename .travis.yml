@@ -24,7 +24,7 @@ addons:
    
    
 script:
-  - ./gradlew build -x test 
+  - ./gradlew build
   - 'if [ "$TRAVIS_PULL_REQUEST_SLUG" = "$TRAVIS_REPO_SLUG" ]; then sonar-scanner; fi' # sonar only on internal PR
 
 branches:
