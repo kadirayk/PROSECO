@@ -1,6 +1,7 @@
 package de.upb.crc901.proseco.core.test;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 import java.util.Map;
@@ -49,7 +50,7 @@ public class PathTest {
 		int startStrategyFile = output.indexOf("file:", startStrategy) + "file:".length();
 		int lineEnd = output.indexOf("\n", startStrategyFile);
 		String strategyFile = output.substring(startStrategyFile, lineEnd);
-		int fileIndex = strategyFile.indexOf("\\strategy1");
+		int fileIndex = strategyFile.indexOf("strategy1") - 1;
 		String strategyDir = strategyFile.substring(0, fileIndex);
 		assertEquals(env.getStrategyDirectory().getAbsolutePath(), strategyDir);
 	}
@@ -89,7 +90,7 @@ public class PathTest {
 		int startSearchDir = output.indexOf("param2:", startStrategy) + "param2:".length();
 		int lineEnd = output.indexOf("\n", startSearchDir);
 		String searchDir = output.substring(startSearchDir, lineEnd - ("//inputs ").length());
-		assertEquals(env.getSearchDirectory().getAbsolutePath(), searchDir);
+		assertTrue(env.getSearchDirectory().getAbsolutePath().contains(searchDir));
 
 	}
 
