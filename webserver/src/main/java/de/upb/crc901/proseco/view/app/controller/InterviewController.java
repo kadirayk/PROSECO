@@ -247,7 +247,7 @@ public class InterviewController {
 					}
 					String answerToThisQuestion = answers.get(i);
 					logger.info("Processing answer {} to question {}", answerToThisQuestion, q);
-					if ("file".equals(q.getUiElement().getAttributes().get("type"))) {
+					if (q.getUiElement()!=null && "file".equals(q.getUiElement().getAttributes().get("type"))) {
 						logger.warn("Cannot process file fields in standard process");
 						continue;
 					}
