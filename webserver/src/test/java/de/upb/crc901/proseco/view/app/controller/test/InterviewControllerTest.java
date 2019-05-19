@@ -22,9 +22,9 @@ import de.upb.crc901.proseco.commons.util.SerializationUtil;
 import de.upb.crc901.proseco.view.app.controller.InterviewController;
 import de.upb.crc901.proseco.view.app.model.InterviewDTO;
 
+@Ignore
 public class InterviewControllerTest {
 
-	@Ignore
 	@Test
 	public void testFileUpload() throws Exception {
 		
