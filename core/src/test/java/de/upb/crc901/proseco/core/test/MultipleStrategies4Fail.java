@@ -7,6 +7,7 @@ import java.io.File;
 import java.util.Map;
 
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import de.upb.crc901.proseco.commons.controller.PROSECOSolution;
@@ -16,7 +17,7 @@ import de.upb.crc901.proseco.commons.util.FileUtil;
 import de.upb.crc901.proseco.commons.util.PROSECOProcessEnvironment;
 import de.upb.crc901.proseco.commons.util.Parser;
 import de.upb.crc901.proseco.core.composition.FileBasedConfigurationProcess;
-
+@Ignore
 public class MultipleStrategies4Fail {
 	static String processId;
 	static PROSECOProcessEnvironment env;

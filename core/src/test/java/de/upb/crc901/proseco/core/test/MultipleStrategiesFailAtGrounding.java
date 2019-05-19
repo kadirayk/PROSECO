@@ -7,6 +7,7 @@ import java.io.File;
 import java.util.Map;
 
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import de.upb.crc901.proseco.commons.controller.GroundingNotSuccessfulForAnyStrategyException;
@@ -18,6 +19,7 @@ import de.upb.crc901.proseco.commons.util.PROSECOProcessEnvironment;
 import de.upb.crc901.proseco.commons.util.Parser;
 import de.upb.crc901.proseco.core.composition.FileBasedConfigurationProcess;
 
+@Ignore
 public class MultipleStrategiesFailAtGrounding {
 	static String processId;
 	static PROSECOProcessEnvironment env;
@@ -49,7 +51,7 @@ public class MultipleStrategiesFailAtGrounding {
 	}
 
 	/**
-	 * Al strategies fail recursively at grounding step
+	 * All strategies fail recursively at grounding step
 	 */
 	@Test
 	public void testWinningAndBackupStrategy() {
