@@ -1,43 +1,14 @@
 buildscript {
-  repositories {
-    maven {
-      url "https://plugins.gradle.org/m2/"
-    }
-  }
   dependencies {
     classpath "org.springframework.boot:spring-boot-gradle-plugin:2.1.0.RELEASE"
   }
 }
 
-apply plugin: 'java'
-apply plugin: "eclipse"
 apply plugin: 'org.springframework.boot'
 
 jar {
     baseName = 'PROSECO-webserver'
     version = '0.0.1-SNAPSHOT'
-}
-sourceCompatibility = 1.8
-
-repositories { mavenCentral() }
-
-project.group = 'de.upb.isys'
-project.version = '0.0.1-SNAPSHOT'
-
-sourceSets {
-    main {
-        java {
-            srcDir 'src/main/java'
-        }
-        resources {
-        	srcDir 'res'
-    	}
-    }
-    test {
-    	java {
-    		srcDir 'test'
-    	}
-    }
 }
 
 dependencies {
@@ -54,17 +25,6 @@ dependencies {
 	compile group: 'commons-io', name: 'commons-io', version: '2.5'
 	compile group: 'commons-fileupload', name: 'commons-fileupload', version: '1.3.3'
 	
-	// https://mvnrepository.com/artifact/junit/junit
-	testCompile group: 'junit', name: 'junit', version: '4.12'
-	
-	// https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-test-autoconfigure
-	compile group: 'org.springframework.boot', name: 'spring-boot-test-autoconfigure', version: '1.4.0.RELEASE'
-	
-	// https://mvnrepository.com/artifact/org.springframework/spring-test
-	testCompile group: 'org.springframework', name: 'spring-test', version: '4.3.2.RELEASE'
-
-		
-		
 	compile project(':commons')
 	compile project(':core')
 	
@@ -78,8 +38,3 @@ dependencies {
     }
 }
 
-javadoc {
-    source = sourceSets.main.allJava
-    classpath = configurations.compile
-	failOnError = true
-}
