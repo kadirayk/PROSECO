@@ -26,7 +26,7 @@ addons:
 script:
   - ./gradlew build
   - ./gradlew generateJavadoc
-  - 'if [ "$TRAVIS_PULL_REQUEST_SLUG" = "$TRAVIS_REPO_SLUG" ]; then sonarqube; fi' # sonar only on internal PR
+  - 'if [ "$TRAVIS_PULL_REQUEST_SLUG" = "$TRAVIS_REPO_SLUG" ]; then sonar-scanner; fi' # sonar only on internal PR
 
 branches:
   only:

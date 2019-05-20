@@ -39,6 +39,7 @@ public class StrategyInterviewDataTest {
 //		InterviewFillout filloutState = SerializationUtil.readAsJSON(env.getInterviewStateFile());
 //		filloutState.getAnswers().get("nonexisting-id");
 //		System.out.println("");
+		System.out.println("trigger CI");
 
 	}
 
