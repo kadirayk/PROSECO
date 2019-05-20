@@ -36,6 +36,7 @@ public class FileBasedConfigurationProcess extends AProsecoConfigurationProcess 
 			e.printStackTrace();
 		}
 		this.prosecoConfigFile = prosecoConfigFile;
+		System.out.println("trigger CI");
 		config = PROSECOConfig.get(prosecoConfigFile);
 	}
 
