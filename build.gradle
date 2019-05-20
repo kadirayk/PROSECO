@@ -57,6 +57,10 @@ allprojects {
 		mavenLocal()
 	}
 	
+	dependencies {
+		testCompile group: 'junit', name: 'junit', version: '4.12'
+	}
+	
 	// generate JavaDoc for each project
     task generateJavadoc(type: Javadoc) {
        	source = sourceSets.main.allJava
