@@ -102,7 +102,7 @@ public class InterviewDTO {
 		System.out.println("Appending HTML for current state: " + interviewFillout.getCurrentState());
 		this.interviewHTML = interviewFillout.getHTMLOfOpenQuestionsInCurrentState();
 		this.setShowSubmitValue();
-		this.setDebugHtml(interviewFillout);
+		this.createDebugHtmlTable(interviewFillout);
 	}
 
 	/**
@@ -110,7 +110,7 @@ public class InterviewDTO {
 	 *
 	 * @param interview
 	 */
-	private void setDebugHtml(final InterviewFillout interviewFillout) {
+	private void createDebugHtmlTable(final InterviewFillout interviewFillout) {
 		StringBuilder htmlElement = new StringBuilder();
 		htmlElement.append("<div id=\"debugBox\" ng-show=\"pac.showDebugTable();\">");
 		htmlElement.append(HTMLConstants.LINE_BREAK).append("Debug: ");
