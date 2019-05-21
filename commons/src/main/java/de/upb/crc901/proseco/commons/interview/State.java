@@ -4,8 +4,6 @@ import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 
-import de.upb.crc901.proseco.commons.interview.Question;
-import de.upb.crc901.proseco.commons.interview.State;
 import de.upb.crc901.proseco.commons.util.ListUtil;
 
 /**
@@ -80,18 +78,21 @@ public class State implements Serializable {
 		if (name == null) {
 			if (other.name != null)
 				return false;
-		} else if (!name.equals(other.name))
+		} else if (!name.equals(other.name)) {
 			return false;
+		}
 		if (questions == null) {
 			if (other.questions != null)
 				return false;
-		} else if (!questions.equals(other.questions))
+		} else if (!questions.equals(other.questions)) {
 			return false;
+		}
 		if (transition == null) {
 			if (other.transition != null)
 				return false;
-		} else if (!transition.equals(other.transition))
+		} else if (!transition.equals(other.transition)) {
 			return false;
+		}
 		return true;
 	}
 

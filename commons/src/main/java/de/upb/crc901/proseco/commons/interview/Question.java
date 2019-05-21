@@ -3,7 +3,6 @@ package de.upb.crc901.proseco.commons.interview;
 import java.io.Serializable;
 
 import de.upb.crc901.proseco.commons.html.UIElement;
-import de.upb.crc901.proseco.commons.interview.Question;
 
 /**
  * Question is the building block of Interview which consists of UI element,
@@ -68,18 +67,21 @@ public class Question implements Serializable {
 		if (content == null) {
 			if (other.content != null)
 				return false;
-		} else if (!content.equals(other.content))
+		} else if (!content.equals(other.content)) {
 			return false;
+		}
 		if (id == null) {
 			if (other.id != null)
 				return false;
-		} else if (!id.equals(other.id))
+		} else if (!id.equals(other.id)) {
 			return false;
+		}
 		if (uiElement == null) {
 			if (other.uiElement != null)
 				return false;
-		} else if (!uiElement.equals(other.uiElement))
+		} else if (!uiElement.equals(other.uiElement)) {
 			return false;
+		}
 		return true;
 	}
 
