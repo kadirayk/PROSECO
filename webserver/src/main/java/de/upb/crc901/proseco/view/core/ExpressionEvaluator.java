@@ -62,12 +62,9 @@ public class ExpressionEvaluator {
 	/**
 	 * Executes the actual operation and returns the result
 	 * 
-	 * @param nodeFirst
-	 *            first operand
-	 * @param nodeLast
-	 *            last operand
-	 * @param operation
-	 *            operation to be applied to the operands
+	 * @param nodeFirst first operand
+	 * @param nodeLast  last operand
+	 * @param operation operation to be applied to the operands
 	 * @return the result of the operation
 	 * @see Node
 	 */
@@ -116,7 +113,6 @@ public class ExpressionEvaluator {
 	 * @param expression
 	 */
 	private void convertToPostfix(String expression) {
-		// TODO: reduce Cognitive Complexity
 		int cursor = 0;
 		while (cursor < expression.length()) {
 			StringBuilder str = new StringBuilder();
@@ -135,56 +131,67 @@ public class ExpressionEvaluator {
 				isOperand = true;
 			}
 			if (isOperand) {
-				String value = str.toString().trim();
-				if (!value.isEmpty()) {
-					Node operand = null;
-					if (isNumericOperand(value)) {
-						operand = new NumericOperand(value);
-					} else {
-						operand = new Operand(value);
-					}
-					postfixQueue.add(operand);
-				}
+				handleOperand(str);
 			} else {
-				String opString = expression.substring(cursor, cursor + 1);
-				if ((opString.equals(OperatorEnum.GREATER.value()) || opString.equals(OperatorEnum.LESS.value()))
-						&& cursor < expression.length()) {
-					String operator = expression.substring(cursor, cursor + 2);
-					if (operator.equals(OperatorEnum.GREATER_EQUAL.value())
-							|| operator.equals(OperatorEnum.LESS_EQUAL.value())) {
-						opString = operator;
-						cursor++;
-					}
-				}
-				if (!opString.equals(OperatorEnum.LEFT_P.value()) && !opString.equals(OperatorEnum.RIGHT_P.value())) {
-					while (!operatorStack.isEmpty()
-							&& !operatorStack.peek().getValue().equals(OperatorEnum.LEFT_P.value())
-							&& !operatorStack.peek().getValue().equals(OperatorEnum.RIGHT_P.value())
-							&& isHigerPrec(opString, operatorStack.peek().getValue())) {
-						postfixQueue.add(operatorStack.pop());
-					}
-					Node operator = new Operator(opString);
-					operatorStack.push(operator);
-				} else if (opString.equals(OperatorEnum.LEFT_P.value())) {
-					Node operator = new Operator(opString);
-					operatorStack.push(operator);
-				} else if (opString.equals(OperatorEnum.RIGHT_P.value())) {
-					while (!operatorStack.isEmpty()
-							&& !operatorStack.peek().getValue().equals(OperatorEnum.LEFT_P.value())) {
-						postfixQueue.add(operatorStack.pop());
-					}
-					if (!operatorStack.isEmpty()) {
-						operatorStack.pop();
-					}
-
-				}
-
-				cursor++;
+				cursor = handleOperator(expression, cursor);
 			}
 		}
 
 		while (!operatorStack.isEmpty())
 			postfixQueue.add(operatorStack.pop());
+	}
+
+	private int handleOperator(String expression, int cursor) {
+		String opString = expression.substring(cursor, cursor + 1);
+		if ((opString.equals(OperatorEnum.GREATER.value()) || opString.equals(OperatorEnum.LESS.value()))
+				&& cursor < expression.length()) {
+			String operator = expression.substring(cursor, cursor + 2);
+			if (operator.equals(OperatorEnum.GREATER_EQUAL.value())
+					|| operator.equals(OperatorEnum.LESS_EQUAL.value())) {
+				opString = operator;
+				cursor++;
+			}
+		}
+		handleParanthesis(opString);
+
+		cursor++;
+		return cursor;
+	}
+
+	private void handleParanthesis(String opString) {
+		if (!opString.equals(OperatorEnum.LEFT_P.value()) && !opString.equals(OperatorEnum.RIGHT_P.value())) {
+			while (!operatorStack.isEmpty() && !operatorStack.peek().getValue().equals(OperatorEnum.LEFT_P.value())
+					&& !operatorStack.peek().getValue().equals(OperatorEnum.RIGHT_P.value())
+					&& isHigerPrec(opString, operatorStack.peek().getValue())) {
+				postfixQueue.add(operatorStack.pop());
+			}
+			Node operator = new Operator(opString);
+			operatorStack.push(operator);
+		} else if (opString.equals(OperatorEnum.LEFT_P.value())) {
+			Node operator = new Operator(opString);
+			operatorStack.push(operator);
+		} else if (opString.equals(OperatorEnum.RIGHT_P.value())) {
+			while (!operatorStack.isEmpty() && !operatorStack.peek().getValue().equals(OperatorEnum.LEFT_P.value())) {
+				postfixQueue.add(operatorStack.pop());
+			}
+			if (!operatorStack.isEmpty()) {
+				operatorStack.pop();
+			}
+
+		}
+	}
+
+	private void handleOperand(StringBuilder str) {
+		String value = str.toString().trim();
+		if (!value.isEmpty()) {
+			Node operand = null;
+			if (isNumericOperand(value)) {
+				operand = new NumericOperand(value);
+			} else {
+				operand = new Operand(value);
+			}
+			postfixQueue.add(operand);
+		}
 	}
 
 	private boolean isNumericOperand(String value) {
