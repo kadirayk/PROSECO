@@ -35,14 +35,14 @@ public class NaturalLanguageSupportingConfigurationProcess extends AProsecoConfi
 		try {
 			super.updateProcessState(EProcessState.INIT);
 		} catch (InvalidStateTransitionException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.error(e.getMessage());
 		}
 		this.prosecoConfigFile = prosecoConfigFile;
 		config = PROSECOConfig.get(prosecoConfigFile);
 	}
 
-	public <T> void receiveGeneralTaskDescription(T description) throws DomainCouldNotBeDetectedException, InvalidStateTransitionException {
+	public <T> void receiveGeneralTaskDescription(T description)
+			throws DomainCouldNotBeDetectedException, InvalidStateTransitionException {
 		if (description instanceof String) {
 			String descriptionString = (String) description;
 			DefaultDomainScoreComputer domainScoreComputer = new DefaultDomainScoreComputer();
@@ -61,7 +61,7 @@ public class NaturalLanguageSupportingConfigurationProcess extends AProsecoConfi
 				super.fixDomain(detectedDomain);
 				createEnvironment(detectedDomain);
 			} catch (CannotFixDomainInThisProcessException e) {
-				e.printStackTrace();
+				logger.error(e.getMessage());
 			}
 			answerInterview();
 		}
@@ -76,32 +76,33 @@ public class NaturalLanguageSupportingConfigurationProcess extends AProsecoConfi
 		try {
 			fillout = new InterviewFillout(parser.initializeInterviewFromConfig(interviewFile));
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.error(e.getMessage());
 		}
-		Map<String, String> answers = fillout.retrieveQuestionAnswerMap();
-		for(String question: answers.keySet()) {
-			String answer = askOracle(question);
-			answers.put(question, answer);
+		if (fillout != null) {
+			Map<String, String> answers = fillout.retrieveQuestionAnswerMap();
+			for (String question : answers.keySet()) {
+				String answer = askOracle(question);
+				answers.put(question, answer);
+			}
+			updateInterview(answers);
 		}
-		updateInterview(answers);
 	}
-	
+
 	private String askOracle(String question) {
 		String answer = null;
-		if(question.equals("Please select prototype")) {
+		if (question.equals("Please select prototype")) {
 			answer = "test1";
 		}
 		return answer;
 	}
-	
+
 	@Override
 	public void updateInterview(Map<String, String> answers) throws InvalidStateTransitionException {
-		if(this.answers==null) {
+		if (this.answers == null) {
 			this.answers = new HashMap<>();
 		}
 		this.answers.putAll(answers);
-		
+
 		File interviewFile = new File(
 				this.processEnvironment.getInterviewDirectory().getAbsolutePath() + File.separator + "interview.yaml");
 		Parser parser = new Parser();
@@ -111,11 +112,11 @@ public class NaturalLanguageSupportingConfigurationProcess extends AProsecoConfi
 			fillout.updateAnswers(this.answers);
 			fillout = new InterviewFillout(fillout.getInterview(), fillout.getAnswers());
 		} catch (IOException e) {
-			e.printStackTrace();
+			logger.error(e.getMessage());
 		}
 
 		SerializationUtil.writeAsJSON(this.processEnvironment.getInterviewStateFile(), fillout);
-		
+
 		super.updateProcessState(EProcessState.INTERVIEW);
 
 	}
@@ -133,9 +134,9 @@ public class NaturalLanguageSupportingConfigurationProcess extends AProsecoConfi
 				throw new ProcessIdAlreadyExistsException();
 			}
 		}
-		
+
 		this.processId = processId;
-		
+
 		super.updateProcessState(EProcessState.CREATED);
 	}
 
@@ -147,59 +148,56 @@ public class NaturalLanguageSupportingConfigurationProcess extends AProsecoConfi
 		}
 		this.processId = processId;
 		super.updateProcessState(EProcessState.CREATED);
-		
+
 		try {
 			processEnvironment = new PROSECOProcessEnvironment(processFolder);
 		} catch (IOException e) {
-			e.printStackTrace();
+			logger.error(e.getMessage());
 		}
-		
+
 		// domain is already known after attaching
 		super.updateProcessState(EProcessState.DOMAIN_DEFINITION);
 
 	}
-	
+
 	private void createEnvironment(String domain) {
-		if(this.processId==null) {
+		if (this.processId == null) {
 			String id = domain + "-" + UUID.randomUUID().toString().replace("-", "").substring(0, 10).toLowerCase();
 			this.processId = id;
 		}
 		File processFolder = new File(config.getDirectoryForProcesses() + File.separator + this.processId);
-		
+
 		try {
 			FileUtils.forceMkdir(processFolder);
 		} catch (IOException e) {
 			// File IO exception is only relevant for FileBasedConfigurationProcess
-			e.printStackTrace();
+			logger.error(e.getMessage());
 		}
-		
+
 		ProcessConfig pc = new ProcessConfig(processId, domain, prosecoConfigFile);
 		try {
 			new ObjectMapper().writeValue(new File(processFolder + File.separator + "process.json"), pc);
 		} catch (IOException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
+			logger.error(e1.getMessage());
 		}
 		try {
 			processEnvironment = new PROSECOProcessEnvironment(processFolder);
 		} catch (IOException e) {
-			e.printStackTrace();
+			logger.error(e.getMessage());
 		}
-		
+
 	}
 
-	
 	@Override
 	protected void extractPrototype() throws PrototypeCouldNotBeExtractedException, InvalidStateTransitionException {
 		super.extractPrototype();
 		File processFolder = new File(config.getDirectoryForProcesses() + File.separator + processId);
-		
+
 		// update environment with prototype info
 		try {
 			this.processEnvironment = new PROSECOProcessEnvironment(processFolder);
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.error(e.getMessage());
 		}
 	}
 

@@ -2,8 +2,6 @@ package de.upb.crc901.proseco.commons.html;
 
 import java.util.Map;
 
-import de.upb.crc901.proseco.commons.html.UIElement;
-
 /**
  * HTML Input element &lt;input\&gt;
  * 

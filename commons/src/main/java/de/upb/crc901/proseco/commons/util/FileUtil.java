@@ -9,6 +9,9 @@ import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
 import java.nio.file.Paths;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * File Utility class
  * 
@@ -16,6 +19,12 @@ import java.nio.file.Paths;
  *
  */
 public class FileUtil {
+
+	private static final Logger logger = LoggerFactory.getLogger(FileUtil.class);
+
+	private FileUtil() {
+	}
+
 	public static void writeToFile(String filePath, String content) {
 		PrintWriter writer;
 		try {
@@ -24,8 +33,7 @@ public class FileUtil {
 			writer.print(content);
 			writer.close();
 		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.error(e.getMessage());
 		}
 	}
 
@@ -37,16 +45,14 @@ public class FileUtil {
 		} catch (NoSuchFileException e) {
 			return content;
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.error(e.getMessage());
 		}
 		try {
 			if (encoded != null) {
 				content = new String(encoded, "utf-8");
 			}
 		} catch (UnsupportedEncodingException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.error(e.getMessage());
 		}
 		return content;
 	}
@@ -59,8 +65,7 @@ public class FileUtil {
 		} catch (NoSuchFileException e) {
 			return content;
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.error(e.getMessage());
 		}
 		try {
 			if (encoded != null) {
@@ -77,8 +82,7 @@ public class FileUtil {
 				}
 			}
 		} catch (UnsupportedEncodingException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.error(e.getMessage());
 		}
 		return content;
 	}

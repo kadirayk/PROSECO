@@ -4,7 +4,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import de.upb.crc901.proseco.commons.interview.Question;
 import de.upb.crc901.proseco.commons.util.ListUtil;
 
 /**

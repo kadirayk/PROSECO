@@ -35,8 +35,7 @@ public class DefaultProcessController {
 		FileUtils.forceMkdir(processFolder);
 		ProcessConfig pc = new ProcessConfig(id, domainName, prosecoConfigFile);
 		new ObjectMapper().writeValue(new File(processFolder + File.separator + "process.json"), pc);
-		PROSECOProcessEnvironment env = new PROSECOProcessEnvironment(processFolder);
-		return env;
+		return new PROSECOProcessEnvironment(processFolder);
 	}
 
 	public PROSECOProcessEnvironment getConstructionProcessEnvironment(String processId) {
@@ -44,7 +43,7 @@ public class DefaultProcessController {
 			File processFolder = new File(config.getDirectoryForProcesses() + File.separator + processId);
 			return new PROSECOProcessEnvironment(processFolder);
 		} catch (Exception e) {
-			throw new RuntimeException("Could not create an environment object for process id " + processId, e);
+			throw new PROSECORuntimeException("Could not create an environment object for process id " + processId, e);
 		}
 	}
 

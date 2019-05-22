@@ -37,7 +37,7 @@ public abstract class AProsecoConfigurationProcess implements ProcessController 
 	protected String processId;
 	protected PROSECOProcessEnvironment processEnvironment;
 	protected int timeoutInSeconds;
-	private static final Logger logger = LoggerFactory.getLogger(AProsecoConfigurationProcess.class);
+	protected static final Logger logger = LoggerFactory.getLogger(AProsecoConfigurationProcess.class);
 	private static final GlobalConfig GLOBAL_CONFIG = ConfigFactory.create(GlobalConfig.class);
 	private String domain;
 	protected String prototype;
@@ -71,8 +71,8 @@ public abstract class AProsecoConfigurationProcess implements ProcessController 
 	}
 
 	@Override
-	public PROSECOSolution startComposition(int timeoutInSeconds) throws NoStrategyFoundASolutionException, InvalidStateTransitionException,
-			PrototypeCouldNotBeExtractedException {
+	public PROSECOSolution startComposition(int timeoutInSeconds) throws NoStrategyFoundASolutionException,
+			InvalidStateTransitionException, PrototypeCouldNotBeExtractedException {
 		updateProcessState(EProcessState.COMPOSITION);
 
 		extractPrototype();
@@ -89,8 +89,8 @@ public abstract class AProsecoConfigurationProcess implements ProcessController 
 			updateProcessState(EProcessState.STRATEGY_CHOSEN);
 			executeStrategiesCommand.execute(timeout * 1000);
 		} catch (IOException | InterruptedException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
+			logger.error(e1.getMessage());
+			Thread.currentThread().interrupt();
 		}
 		logger.info("Execution of strategies finished!");
 
@@ -114,8 +114,7 @@ public abstract class AProsecoConfigurationProcess implements ProcessController 
 			try {
 				parsedValue = Double.parseDouble(FileUtils.readFileToString(fValueFile, Charset.defaultCharset()));
 			} catch (NumberFormatException | IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				logger.error(e.getMessage());
 			}
 			if (parsedValue < bestScoreSeen) {
 				winningStrategy = Optional.of(strategy);
@@ -128,14 +127,14 @@ public abstract class AProsecoConfigurationProcess implements ProcessController 
 			throw new NoStrategyFoundASolutionException();
 		}
 		logger.info("Identified {} as a winning strategy with score {}", winningStrategy.get(), bestScoreSeen);
-		PROSECOSolution solution = new PROSECOSolution();
-		solution.setProcessId(processId);
-		solution.setWinningScore(bestScoreSeen);
-		solution.setWinningStrategyFolder(winningStrategy.get());
-		this.solution = solution;
-		return solution;
+		PROSECOSolution prosecoSolution = new PROSECOSolution();
+		prosecoSolution.setProcessId(processId);
+		prosecoSolution.setWinningScore(bestScoreSeen);
+		prosecoSolution.setWinningStrategyFolder(winningStrategy.get());
+		this.solution = prosecoSolution;
+		return prosecoSolution;
 	}
-	
+
 	public PROSECOSolution getSolution() {
 		return solution;
 	}
@@ -144,8 +143,8 @@ public abstract class AProsecoConfigurationProcess implements ProcessController 
 	public void chooseAndDeploySolution(PROSECOSolution solution)
 			throws InvalidStateTransitionException, GroundingNotSuccessfulForAnyStrategyException {
 		updateProcessState(EProcessState.GROUNDING);
-		if(solution==null) {
-			if(this.solution!=null) {
+		if (solution == null) {
+			if (this.solution != null) {
 				solution = this.solution;
 			} else {
 				return;
@@ -154,53 +153,20 @@ public abstract class AProsecoConfigurationProcess implements ProcessController 
 		try {
 			ProcessStateProvider.setProcessStatus(this.processEnvironment.getProcessId(), EProcessState.GROUNDING);
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.error(e.getMessage());
 		}
-		int groundingStatus = 0;
-		{
-			File groundingLog = new File(this.processEnvironment.getGroundingDirectory() + File.separator
-					+ this.processEnvironment.getProsecoConfig().getNameOfServiceLogFile());
-			String[] groundingCommand = new String[4];
-			groundingCommand[0] = this.processEnvironment.groundingExecutable().getAbsolutePath();
-			groundingCommand[1] = this.processEnvironment.getProcessId();
-			groundingCommand[2] = this.processEnvironment.getSearchOutputDirectory().getAbsolutePath() + File.separator
-					+ solution.getWinningStrategyFolder().getName();
-			groundingCommand[3] = this.processEnvironment.getSearchOutputDirectory().getAbsolutePath() + File.separator
-					+ "final";
-			new File(groundingCommand[0]).setExecutable(true);
-			final ProcessBuilder pb = new ProcessBuilder(groundingCommand)
-					.directory(this.processEnvironment.getGroundingDirectory());
-			// pb.redirectOutput(Redirect.appendTo(groundingLog)).redirectError(Redirect.appendTo(groundingLog));
-			pb.redirectOutput(Redirect.INHERIT).redirectError(Redirect.INHERIT);
-			logger.info("Execute grounding command {}. Working directory is set to {}",
-					Arrays.toString(groundingCommand), this.processEnvironment.getGroundingDirectory());
-			if (GLOBAL_CONFIG.debugMode() && GLOBAL_CONFIG.debugDisableGrounding()) {
-				logger.warn(
-						"Grounding has been disabled for debugging! You can enable it in the GlobalConfig properties.");
-			} else {
-				try {
-					Process p = pb.start();
-					p.waitFor();
-					groundingStatus = p.exitValue();
-				} catch (Exception e) {
-
-				}
-			}
-			if (groundingStatus != 0) {
-				try {
-					executeGroundingForBackupStrategy(solution.getWinningScore());
-				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-			}
-			logger.info("Grounding completed.");
-		}
+		handleGrounding(solution);
 
 		/*
 		 * deploy service. First determine available port. Then execute the deployment.
 		 */
+		handleDeployment();
+		updateProcessState(EProcessState.DONE);
+		ProcessStateProvider.setProcessStatus(this.processEnvironment.getProcessId(), EProcessState.DONE);
+
+	}
+
+	private void handleDeployment() throws InvalidStateTransitionException {
 		updateProcessState(EProcessState.DEPLOYMENT);
 		ProcessStateProvider.setProcessStatus(this.processEnvironment.getProcessId(), EProcessState.DEPLOYMENT);
 		String host = this.processEnvironment.getPrototypeConfig().getDeploymentHost();
@@ -212,6 +178,7 @@ public abstract class AProsecoConfigurationProcess implements ProcessController 
 				portIsAvailable = false;
 				port++;
 			} catch (IOException ex) {
+				logger.error(ex.getMessage());
 			}
 		} while (!portIsAvailable);
 		String[] deploymentCommand = new String[4];
@@ -219,7 +186,9 @@ public abstract class AProsecoConfigurationProcess implements ProcessController 
 		deploymentCommand[1] = this.processEnvironment.getProcessId();
 		deploymentCommand[2] = host;
 		deploymentCommand[3] = "" + port;
-		new File(deploymentCommand[0]).setExecutable(true);
+		if (!new File(deploymentCommand[0]).setExecutable(true)) {
+			logger.error("cannot set deploymentCommand as executable");
+		}
 		logger.info("Deploying service {} to {}:{}", deploymentCommand[1], deploymentCommand[2], deploymentCommand[3]);
 		final ProcessBuilder pb = new ProcessBuilder(deploymentCommand);
 		pb.redirectOutput(Redirect.INHERIT).redirectError(Redirect.INHERIT);
@@ -236,8 +205,8 @@ public abstract class AProsecoConfigurationProcess implements ProcessController 
 			try {
 				pb.start().waitFor();
 			} catch (InterruptedException | IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				logger.error(e.getMessage());
+				Thread.currentThread().interrupt();
 			}
 		}
 		logger.info("Deployment completed.");
@@ -249,12 +218,48 @@ public abstract class AProsecoConfigurationProcess implements ProcessController 
 							+ this.processEnvironment.getPrototypeConfig().getDeploymentEntryPoint(),
 					Charset.defaultCharset());
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.error(e.getMessage());
 		}
-		updateProcessState(EProcessState.DONE);
-		ProcessStateProvider.setProcessStatus(this.processEnvironment.getProcessId(), EProcessState.DONE);
+	}
 
+	private void handleGrounding(PROSECOSolution solution) throws GroundingNotSuccessfulForAnyStrategyException {
+		int groundingStatus = 0;
+		String[] groundingCommand = new String[4];
+		groundingCommand[0] = this.processEnvironment.groundingExecutable().getAbsolutePath();
+		groundingCommand[1] = this.processEnvironment.getProcessId();
+		groundingCommand[2] = this.processEnvironment.getSearchOutputDirectory().getAbsolutePath() + File.separator
+				+ solution.getWinningStrategyFolder().getName();
+		groundingCommand[3] = this.processEnvironment.getSearchOutputDirectory().getAbsolutePath() + File.separator
+				+ "final";
+		if (!new File(groundingCommand[0]).setExecutable(true)) {
+			logger.error("cannot set groundingCommand as executable");
+		}
+		final ProcessBuilder pb = new ProcessBuilder(groundingCommand)
+				.directory(this.processEnvironment.getGroundingDirectory());
+		pb.redirectOutput(Redirect.INHERIT).redirectError(Redirect.INHERIT);
+		if (logger.isInfoEnabled()) {
+			logger.info("Execute grounding command {}. Working directory is set to {}",
+					Arrays.toString(groundingCommand), this.processEnvironment.getGroundingDirectory());
+		}
+		if (GLOBAL_CONFIG.debugMode() && GLOBAL_CONFIG.debugDisableGrounding()) {
+			logger.warn("Grounding has been disabled for debugging! You can enable it in the GlobalConfig properties.");
+		} else {
+			try {
+				Process p = pb.start();
+				p.waitFor();
+				groundingStatus = p.exitValue();
+			} catch (Exception e) {
+				logger.error(e.getMessage());
+			}
+		}
+		if (groundingStatus != 0) {
+			try {
+				executeGroundingForBackupStrategy(solution.getWinningScore());
+			} catch (IOException e) {
+				logger.error(e.getMessage());
+			}
+		}
+		logger.info("Grounding completed.");
 	}
 
 	private void executeGroundingForBackupStrategy(double bestScoreSeen)
@@ -265,46 +270,50 @@ public abstract class AProsecoConfigurationProcess implements ProcessController 
 			throw new GroundingNotSuccessfulForAnyStrategyException();
 		}
 		bestScoreSeen = secondBestStrategy.getKey();
+		handleGroundingForBackup(bestScoreSeen, secondBestStrategy);
+	}
+
+	private void handleGroundingForBackup(double bestScoreSeen, Entry<Double, File> secondBestStrategy)
+			throws IOException, GroundingNotSuccessfulForAnyStrategyException {
 		int groundingStatus = 0;
-		{
-			File groundingLog = new File(this.processEnvironment.getGroundingDirectory() + File.separator
-					+ this.processEnvironment.getProsecoConfig().getNameOfServiceLogFile());
-			String[] groundingCommand = new String[4];
-			groundingCommand[0] = this.processEnvironment.groundingExecutable().getAbsolutePath();
-			groundingCommand[1] = this.processEnvironment.getProcessId();
-			groundingCommand[2] = this.processEnvironment.getSearchOutputDirectory().getAbsolutePath() + File.separator
-					+ secondBestStrategy.getValue().getName();
-			groundingCommand[3] = this.processEnvironment.getSearchOutputDirectory().getAbsolutePath() + File.separator
-					+ "final";
-			new File(groundingCommand[0]).setExecutable(true);
-			final ProcessBuilder pb = new ProcessBuilder(groundingCommand)
-					.directory(this.processEnvironment.getGroundingDirectory());
-			// pb.redirectOutput(Redirect.appendTo(groundingLog)).redirectError(Redirect.appendTo(groundingLog));
-			pb.redirectOutput(Redirect.INHERIT).redirectError(Redirect.INHERIT);
+		String[] groundingCommand = new String[4];
+		groundingCommand[0] = this.processEnvironment.groundingExecutable().getAbsolutePath();
+		groundingCommand[1] = this.processEnvironment.getProcessId();
+		groundingCommand[2] = this.processEnvironment.getSearchOutputDirectory().getAbsolutePath() + File.separator
+				+ secondBestStrategy.getValue().getName();
+		groundingCommand[3] = this.processEnvironment.getSearchOutputDirectory().getAbsolutePath() + File.separator
+				+ "final";
+		if (!new File(groundingCommand[0]).setExecutable(true)) {
+			logger.error("cannot set groundingCommand as executable");
+		}
+		final ProcessBuilder pb = new ProcessBuilder(groundingCommand)
+				.directory(this.processEnvironment.getGroundingDirectory());
+		pb.redirectOutput(Redirect.INHERIT).redirectError(Redirect.INHERIT);
+		if (logger.isInfoEnabled()) {
 			logger.info("Execute grounding command {}. Working directory is set to {}",
 					Arrays.toString(groundingCommand), this.processEnvironment.getGroundingDirectory());
-			if (GLOBAL_CONFIG.debugMode() && GLOBAL_CONFIG.debugDisableGrounding()) {
-				logger.warn(
-						"Grounding has been disabled for debugging! You can enable it in the GlobalConfig properties.");
-			} else {
-				Process p = pb.start();
-				try {
-					p.waitFor();
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-				}
-				groundingStatus = p.exitValue();
-			}
-			if (groundingStatus != 0) {
-				executeGroundingForBackupStrategy(bestScoreSeen);
-
-			}
-			logger.info("Grounding completed.");
 		}
+		if (GLOBAL_CONFIG.debugMode() && GLOBAL_CONFIG.debugDisableGrounding()) {
+			logger.warn("Grounding has been disabled for debugging! You can enable it in the GlobalConfig properties.");
+		} else {
+			Process p = pb.start();
+			try {
+				p.waitFor();
+			} catch (InterruptedException e) {
+				logger.error(e.getMessage());
+				Thread.currentThread().interrupt();
+			}
+			groundingStatus = p.exitValue();
+		}
+		if (groundingStatus != 0) {
+			executeGroundingForBackupStrategy(bestScoreSeen);
+
+		}
+		logger.info("Grounding completed.");
 	}
 
 	private Entry<Double, File> findSecondBestStrategy(Double bestScore) {
-		TreeMap<Double, File> strategiesByScore = new TreeMap<Double, File>(Collections.reverseOrder());
+		TreeMap<Double, File> strategiesByScore = new TreeMap<>(Collections.reverseOrder());
 		Entry<Double, File> secondBestStrategy = null;
 		for (final File strategy : this.processEnvironment.getStrategyDirectory().listFiles()) {
 			if (!strategy.isDirectory()) {
@@ -321,8 +330,7 @@ public abstract class AProsecoConfigurationProcess implements ProcessController 
 			try {
 				parsedValue = Double.parseDouble(FileUtils.readFileToString(fValueFile, Charset.defaultCharset()));
 			} catch (NumberFormatException | IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				logger.error(e.getMessage());
 			}
 			strategiesByScore.put(parsedValue, strategy);
 		}

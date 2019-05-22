@@ -32,8 +32,7 @@ public class FileBasedConfigurationProcess extends AProsecoConfigurationProcess 
 		try {
 			super.updateProcessState(EProcessState.INIT);
 		} catch (InvalidStateTransitionException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.error(e.getMessage());
 		}
 		this.prosecoConfigFile = prosecoConfigFile;
 		config = PROSECOConfig.get(prosecoConfigFile);
@@ -64,20 +63,19 @@ public class FileBasedConfigurationProcess extends AProsecoConfigurationProcess 
 			FileUtils.forceMkdir(processFolder);
 		} catch (IOException e) {
 			// File IO exception is only relevant for FileBasedConfigurationProcess
-			e.printStackTrace();
+			logger.error(e.getMessage());
 		}
 
 		ProcessConfig pc = new ProcessConfig(processId, domain, prosecoConfigFile);
 		try {
 			new ObjectMapper().writeValue(new File(processFolder + File.separator + "process.json"), pc);
 		} catch (IOException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
+			logger.error(e1.getMessage());
 		}
 		try {
 			processEnvironment = new PROSECOProcessEnvironment(processFolder);
 		} catch (IOException e) {
-			e.printStackTrace();
+			logger.error(e.getMessage());
 		}
 
 	}
@@ -108,7 +106,7 @@ public class FileBasedConfigurationProcess extends AProsecoConfigurationProcess 
 		try {
 			processEnvironment = new PROSECOProcessEnvironment(processFolder);
 		} catch (IOException e) {
-			e.printStackTrace();
+			logger.error(e.getMessage());
 		}
 
 		if (getProcessState() != EProcessState.DOMAIN_DEFINITION) { // no need to update state
@@ -136,7 +134,7 @@ public class FileBasedConfigurationProcess extends AProsecoConfigurationProcess 
 			fillout.updateAnswers(this.answers);
 			fillout = new InterviewFillout(fillout.getInterview(), fillout.getAnswers());
 		} catch (IOException e) {
-			e.printStackTrace();
+			logger.error(e.getMessage());
 		}
 
 		SerializationUtil.writeAsJSON(this.processEnvironment.getInterviewStateFile(), fillout);
@@ -152,8 +150,7 @@ public class FileBasedConfigurationProcess extends AProsecoConfigurationProcess 
 		try {
 			this.processEnvironment = new PROSECOProcessEnvironment(processFolder);
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.error(e.getMessage());
 		}
 	}
 
