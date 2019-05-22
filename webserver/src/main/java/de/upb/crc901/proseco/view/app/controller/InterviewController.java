@@ -36,6 +36,7 @@ import de.upb.crc901.proseco.commons.html.Script;
 import de.upb.crc901.proseco.commons.interview.InterviewFillout;
 import de.upb.crc901.proseco.commons.interview.Question;
 import de.upb.crc901.proseco.commons.processstatus.EProcessState;
+import de.upb.crc901.proseco.commons.processstatus.InvalidStateTransitionException;
 import de.upb.crc901.proseco.commons.processstatus.ProcessStateProvider;
 import de.upb.crc901.proseco.commons.util.ListUtil;
 import de.upb.crc901.proseco.commons.util.PROSECOProcessEnvironment;
@@ -60,13 +61,13 @@ public class InterviewController {
 	private static final Logger logger = LoggerFactory.getLogger(InterviewController.class);
 	private static final String INIT_TEMPLATE = "initiator";
 	private static final String RESULT_TEMPLATE = "result";
-	private static final String ERROR_TEMPLATE = "error";
 
 	private static final String ROOT_TEMPLATE = "index";
+	private static final String TIMEOUT = "timeout";
+	private static final String STATUS = "status";
 	private ProcessController processController;
 
 	private final StrategyCandidatesDatastore datastore = new StrategyCandidatesDatastore();
-	private static final Map<String, PROSECOProcessEnvironment> envCache = new HashMap<>();
 	private static final Map<String, Long> deadlineCache = new HashMap<>();
 
 	/**
@@ -98,10 +99,11 @@ public class InterviewController {
 	 * 
 	 * @param interviewDTO
 	 * @return
+	 * @throws InvalidStateTransitionException 
 	 * @throws Exception
 	 */
 	@PostMapping("/")
-	public String initSubmit(@ModelAttribute final InterviewDTO interviewDTO) throws Exception {
+	public String initSubmit(@ModelAttribute final InterviewDTO interviewDTO) throws InvalidStateTransitionException {
 
 		/* determine domain name */
 		String domainName = interviewDTO.getContent();
@@ -139,21 +141,17 @@ public class InterviewController {
 	 * @param id
 	 * @param interviewDTO
 	 * @return
+	 * @throws InvalidStateTransitionException 
 	 * @throws Exception
 	 */
 	@GetMapping("/interview/{id}")
-	public String next(@PathVariable("id") final String id, @ModelAttribute final InterviewDTO interviewDTO)
-			throws Exception {
+	public String next(@PathVariable("id") final String id, @ModelAttribute final InterviewDTO interviewDTO) throws InvalidStateTransitionException {
 		this.populateInterviewDTO(interviewDTO, id);
 		return RESULT_TEMPLATE;
 	}
 
 	@GetMapping("/prev")
 	public String prev(@ModelAttribute final InterviewDTO init) {
-		// if (memorizedInterview != null) {
-		// memorizedInterview.prevState();
-		// init.setInterview(memorizedInterview);
-		// }
 		return RESULT_TEMPLATE;
 	}
 
@@ -165,12 +163,13 @@ public class InterviewController {
 	 * @param response     is any string value that is filled in the form
 	 * @param file         is any file that is uploaded via the form
 	 * @return
+	 * @throws InvalidStateTransitionException 
 	 * @throws NextStateNotFoundException
 	 */
 	@PostMapping("/interview/{id}")
 	public String nextPost(@PathVariable("id") final String id, @ModelAttribute final InterviewDTO interviewDTO,
 			@RequestParam(required = false, name = "response") final String response,
-			@RequestParam(required = false, name = "file") final MultipartFile file) throws Exception {
+			@RequestParam(required = false, name = "file") final MultipartFile file) throws InvalidStateTransitionException {
 
 		/* retrieve the interview state */
 		logger.info("Receiving response {} and file {} for process id {}. Interview: {}", response, file, id,
@@ -188,15 +187,15 @@ public class InterviewController {
 				|| memorizedInterviewFillout.getCurrentState().getTransition().isEmpty()) {
 			Runnable task = () -> {
 				try {
-					if (memorizedInterviewFillout.getAnswer("timeout") == null) {
+					if (memorizedInterviewFillout.getAnswer(TIMEOUT) == null) {
 						System.err.println(
 								"No question with id 'timeout' has been answered, which is mandatory in PROSECO. The timeout must be an integer and will be interpreted in seconds!");
 						return;
 					}
 					deadlineCache.put(id, (System.currentTimeMillis()
-							+ 1000 * Long.parseLong(memorizedInterviewFillout.getAnswer("timeout"))));
+							+ 1000 * Long.parseLong(memorizedInterviewFillout.getAnswer(TIMEOUT))));
 					processController
-							.startComposition(Integer.parseInt(memorizedInterviewFillout.getAnswer("timeout")));
+							.startComposition(Integer.parseInt(memorizedInterviewFillout.getAnswer(TIMEOUT)));
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
@@ -212,52 +211,13 @@ public class InterviewController {
 		// the reference of file (file path) as answer to the respected question in the
 		// interview
 		if (file != null && !file.isEmpty()) {
-			try {
-				List<Question> questions = memorizedInterviewFillout.getCurrentState().getQuestions();
-				if (ListUtil.isNotEmpty(questions)) {
-					for (Question q : questions) {
-						if ("file".equals(q.getUiElement().getAttributes().get("type"))) {
-							byte[] bytes = file.getBytes();
-							if (!env.getInterviewResourcesDirectory().exists()) {
-								FileUtils.forceMkdir(env.getInterviewResourcesDirectory());
-							}
-							Path path = Paths.get(env.getInterviewResourcesDirectory() + File.separator + q.getId());
-							Files.write(path, bytes);
-							updatedAnswers.put(q.getId(), path.toFile().getName());
-						}
-					}
-				}
-
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
+			handleFileUpload(file, memorizedInterviewFillout, env, updatedAnswers);
 		}
 
 		// if any string response is given set the responses as answer to the respected
 		// interview question
 		if (response != null && !StringUtils.isEmpty(response)) {
-			List<String> answers = Arrays.asList(response.split(","));
-			List<Question> questions = memorizedInterviewFillout.getCurrentState().getQuestions();
-			if (ListUtil.isNotEmpty(questions)) {
-				int i = 0;
-				for (Question q : questions) {
-					if (q.getUiElement() instanceof Script) {
-						updatedAnswers.put(q.getId(), "script");
-						continue;
-					}
-					String answerToThisQuestion = answers.get(i);
-					logger.info("Processing answer {} to question {}", answerToThisQuestion, q);
-					if (q.getUiElement()!=null && "file".equals(q.getUiElement().getAttributes().get("type"))) {
-						logger.warn("Cannot process file fields in standard process");
-						continue;
-					}
-					if (i < answers.size()) {
-						updatedAnswers.put(q.getId(), answerToThisQuestion);
-						logger.info("Updating answer of question {} to: {}", q.getId(), answerToThisQuestion);
-						i++;
-					}
-				}
-			}
+			handleStringResponse(response, memorizedInterviewFillout, updatedAnswers);
 		}
 		// update current interview state (to the first state with an unanswered
 		// question) and save it
@@ -269,14 +229,64 @@ public class InterviewController {
 		return RESULT_TEMPLATE;
 	}
 
+	private void handleStringResponse(final String response, InterviewFillout memorizedInterviewFillout,
+			Map<String, String> updatedAnswers) {
+		List<String> answers = Arrays.asList(response.split(","));
+		List<Question> questions = memorizedInterviewFillout.getCurrentState().getQuestions();
+		if (ListUtil.isNotEmpty(questions)) {
+			int i = 0;
+			for (Question q : questions) {
+				if (q.getUiElement() instanceof Script) {
+					updatedAnswers.put(q.getId(), "script");
+					continue;
+				}
+				String answerToThisQuestion = answers.get(i);
+				logger.info("Processing answer {} to question {}", answerToThisQuestion, q);
+				if (q.getUiElement()!=null && "file".equals(q.getUiElement().getAttributes().get("type"))) {
+					logger.warn("Cannot process file fields in standard process");
+					continue;
+				}
+				if (i < answers.size()) {
+					updatedAnswers.put(q.getId(), answerToThisQuestion);
+					logger.info("Updating answer of question {} to: {}", q.getId(), answerToThisQuestion);
+					i++;
+				}
+			}
+		}
+	}
+
+	private void handleFileUpload(final MultipartFile file, InterviewFillout memorizedInterviewFillout,
+			PROSECOProcessEnvironment env, Map<String, String> updatedAnswers) {
+		try {
+			List<Question> questions = memorizedInterviewFillout.getCurrentState().getQuestions();
+			if (ListUtil.isNotEmpty(questions)) {
+				for (Question q : questions) {
+					if ("file".equals(q.getUiElement().getAttributes().get("type"))) {
+						byte[] bytes = file.getBytes();
+						if (!env.getInterviewResourcesDirectory().exists()) {
+							FileUtils.forceMkdir(env.getInterviewResourcesDirectory());
+						}
+						Path path = Paths.get(env.getInterviewResourcesDirectory() + File.separator + q.getId());
+						Files.write(path, bytes);
+						updatedAnswers.put(q.getId(), path.toFile().getName());
+					}
+				}
+			}
+
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
 	/**
 	 * Finds interview of the prototype with the given ID
 	 *
 	 * @param id
 	 * @return
+	 * @throws InvalidStateTransitionException 
 	 * @throws Exception
 	 */
-	private void populateInterviewDTO(final InterviewDTO interviewDTO, final String id) throws Exception {
+	private void populateInterviewDTO(final InterviewDTO interviewDTO, final String id) throws InvalidStateTransitionException {
 		PROSECOProcessEnvironment env = this.processController.getProcessEnvironment();
 		InterviewFillout interview = SerializationUtil.readAsJSON(env.getInterviewStateFile());
 		interviewDTO.setInterviewFillout(interview);
@@ -288,9 +298,10 @@ public class InterviewController {
 	 * saves interview state on current prototype instance's directory
 	 *
 	 * @param interviewDTO
+	 * @throws InvalidStateTransitionException 
 	 * @throws Exception
 	 */
-	private void saveInterviewState(final InterviewDTO interviewDTO) throws Exception {
+	private void saveInterviewState(final InterviewDTO interviewDTO) throws InvalidStateTransitionException {
 		PROSECOProcessEnvironment env = this.processController.getProcessEnvironment();
 		SerializationUtil.writeAsJSON(env.getInterviewStateFile(), interviewDTO.getInterviewFillout());
 	}
@@ -300,8 +311,10 @@ public class InterviewController {
 	public ResponseEntity<Object> postCandidateFoundEvent(@PathVariable("id") final String id,
 			@RequestBody final StrategyCandidateFoundEvent e) {
 		Map<String, Object> result = new HashMap<>();
-		logger.debug("Received candidate from strategy " + id + ":\n" + e);
-		result.put("status", this.datastore.put(id, e));
+		if(logger.isDebugEnabled()) {
+			logger.debug(String.format("Received candidate from strategy %s:%n %s",id,e));	
+		}
+		result.put(STATUS, this.datastore.put(id, e));
 		return new ResponseEntity<>(result, HttpStatus.OK);
 	}
 
@@ -309,7 +322,7 @@ public class InterviewController {
 	@ResponseBody
 	public ResponseEntity<Object> getEvaluationsSortedByTimestamp(@PathVariable("id") final String id) {
 		Map<String, Object> result = new HashMap<>();
-		result.put("status", "true");
+		result.put(STATUS, "true");
 		result.put("data", this.datastore.getEvaluationsSortedByTimestamp(id));
 		return new ResponseEntity<>(result, HttpStatus.OK);
 	}
@@ -328,16 +341,16 @@ public class InterviewController {
 	public Map<String, String> processStatus(@PathVariable("id") final String processID) throws Exception {
 		logger.trace("Get status of process {}: {}", processID, ProcessStateProvider.getProcessStatus(processID));
 		Map<String, String> result = new HashMap<>();
-		result.put("status", ProcessStateProvider.getProcessStatus(processID));
+		result.put(STATUS, ProcessStateProvider.getProcessStatus(processID));
 		return result;
 	}
 
 	@PostMapping("/api/process/{id}/status")
 	@ResponseBody
 	public ResponseEntity<Object> setProcessStatus(@PathVariable("id") final String processID,
-			@RequestBody final Map<String, String> e) throws Exception {
-		logger.trace("Set status of process {} to {}", processID, e.get("status"));
-		ProcessStateProvider.setProcessStatus(processID, ProcessStateProvider.readProcessStateValue(e.get("status")));
+			@RequestBody final Map<String, String> e) {
+		logger.trace("Set status of process {} to {}", processID, e.get(STATUS));
+		ProcessStateProvider.setProcessStatus(processID, ProcessStateProvider.readProcessStateValue(e.get(STATUS)));
 		return new ResponseEntity<>(new HashMap<>(), HttpStatus.OK);
 	}
 
@@ -347,9 +360,9 @@ public class InterviewController {
 	 * @return
 	 * @throws Exception
 	 */
-	@RequestMapping("/api/result/{id}")
+	@RequestMapping(value="/api/result/{id}", method = RequestMethod.GET)
 	@ResponseBody
-	public ResponseEntity<Object> pushResult(@PathVariable("id") final String id) throws Exception {
+	public ResponseEntity<Object> pushResult(@PathVariable("id") final String id) {
 		PROSECOProcessEnvironment env = ProcessStateProvider.getProcessEnvironment(id);
 		int remainingTime = this.getTimeoutValue(id);
 		boolean isComplete = this.checkStatus(id);
@@ -368,18 +381,13 @@ public class InterviewController {
 		return new ResponseEntity<>(result, HttpStatus.OK);
 	}
 
-	private int getTimeoutValue(final String id) throws Exception {
+	private int getTimeoutValue(final String id) {
 		Long deadline = deadlineCache.get(id);
 		if (deadline == null) {
 			return -1;
 		} else {
 			return (int) ((deadline - System.currentTimeMillis()) / 1000);
 		}
-	}
-
-	private InterviewFillout getInterviewFillout(final String id) throws Exception {
-		PROSECOProcessEnvironment env = ProcessStateProvider.getProcessEnvironment(id);
-		return SerializationUtil.readAsJSON(env.getInterviewStateFile());
 	}
 
 	/**
@@ -389,7 +397,7 @@ public class InterviewController {
 	 * @return
 	 * @throws Exception
 	 */
-	private boolean checkStatus(final String id) throws Exception {
+	private boolean checkStatus(final String id) {
 		PROSECOProcessEnvironment env = ProcessStateProvider.getProcessEnvironment(id);
 		return env.getServiceHandle().exists();
 	}
