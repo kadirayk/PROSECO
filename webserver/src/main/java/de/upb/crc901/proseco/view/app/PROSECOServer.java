@@ -16,18 +16,18 @@ import org.springframework.web.multipart.commons.CommonsMultipartResolver;
  */
 @SpringBootApplication
 public class PROSECOServer {
-	
-	int MAX_MB_UPLOAD = 150;
-	
-    @Bean
-    @Order(0)
-    public CommonsMultipartResolver multipartResolver() {
-        CommonsMultipartResolver multipart = new CommonsMultipartResolver();
-        multipart.setMaxUploadSize(MAX_MB_UPLOAD * 1024 * 1024);
-        multipart.setMaxUploadSizePerFile(MAX_MB_UPLOAD * 1024 * 1024);
-        return multipart;
-    }
-	
+
+	private static final int MAX_MB_UPLOAD = 150;
+
+	@Bean
+	@Order(0)
+	public CommonsMultipartResolver multipartResolver() {
+		CommonsMultipartResolver multipart = new CommonsMultipartResolver();
+		multipart.setMaxUploadSize(MAX_MB_UPLOAD * 1024 * 1024L);
+		multipart.setMaxUploadSizePerFile(MAX_MB_UPLOAD * 1024 * 1024L);
+		return multipart;
+	}
+
 	public void launch(String... args) {
 		SpringApplication.run(PROSECOServer.class, args);
 	}
@@ -36,4 +36,3 @@ public class PROSECOServer {
 		new PROSECOServer().launch();
 	}
 }
-

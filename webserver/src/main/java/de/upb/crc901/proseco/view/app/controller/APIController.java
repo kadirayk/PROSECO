@@ -8,14 +8,10 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.aeonbits.owner.ConfigCache;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -23,19 +19,18 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import de.upb.crc901.proseco.commons.config.GlobalConfig;
 import de.upb.crc901.proseco.commons.config.PROSECOConfig;
-import de.upb.crc901.proseco.commons.controller.DefaultProcessController;
 import de.upb.crc901.proseco.commons.controller.ProcessController;
 import de.upb.crc901.proseco.commons.controller.ProcessIdDoesNotExistException;
-import de.upb.crc901.proseco.commons.util.PROSECOProcessEnvironment;
-import de.upb.crc901.proseco.view.app.model.LogPair;
-import de.upb.crc901.proseco.view.app.model.LogResponseBody;
 import de.upb.crc901.proseco.commons.processstatus.InvalidStateTransitionException;
 import de.upb.crc901.proseco.commons.processstatus.ProcessStateProvider;
 import de.upb.crc901.proseco.commons.util.FileUtil;
-import de.upb.crc901.proseco.view.util.LogLine;
-import de.upb.crc901.proseco.view.util.LogLineTracker;
+import de.upb.crc901.proseco.commons.util.PROSECOProcessEnvironment;
 import de.upb.crc901.proseco.commons.util.ToJSONStringUtil;
 import de.upb.crc901.proseco.core.composition.FileBasedConfigurationProcess;
+import de.upb.crc901.proseco.view.app.model.LogPair;
+import de.upb.crc901.proseco.view.app.model.LogResponseBody;
+import de.upb.crc901.proseco.view.util.LogLine;
+import de.upb.crc901.proseco.view.util.LogLineTracker;
 
 /**
  * API End Point for web service calls
@@ -66,8 +61,8 @@ public class APIController {
 	 * @return
 	 * @throws Exception
 	 */
-	@RequestMapping(value="/api/strategyLogs/{id}", method = RequestMethod.GET)
-	public ResponseEntity<Object> getStrategyLogs(@PathVariable("id") final String id) throws Exception {
+	@GetMapping(value = "/api/strategyLogs/{id}")
+	public ResponseEntity<Object> getStrategyLogs(@PathVariable("id") final String id) {
 		LogResponseBody result = new LogResponseBody();
 		result.setLogList(this.findLogById(id));
 		return new ResponseEntity<>(result, HttpStatus.OK);
@@ -86,8 +81,8 @@ public class APIController {
 	public ResponseEntity<Object> getLog(@PathVariable("id") final String id) {
 		LogResponseBody result = new LogResponseBody();
 		result.setLogList(this.findLogById(id));
-		return new ResponseEntity<Object>(
-				Arrays.asList(ToJSONStringUtil.parseObjectToJsonNode(result, new ObjectMapper())), HttpStatus.OK);
+		return new ResponseEntity<>(Arrays.asList(ToJSONStringUtil.parseObjectToJsonNode(result, new ObjectMapper())),
+				HttpStatus.OK);
 	}
 
 	/**
@@ -96,15 +91,16 @@ public class APIController {
 	 *
 	 * @param id id of the session
 	 * @return success if task is killed, failure if exception occured
-	 * @throws InvalidStateTransitionException 
-	 * @throws ProcessIdDoesNotExistException 
+	 * @throws InvalidStateTransitionException
+	 * @throws ProcessIdDoesNotExistException
 	 */
 	@GetMapping("/api/stopService/{id}")
-	public String stopService(@PathVariable("id") final String id) throws ProcessIdDoesNotExistException, InvalidStateTransitionException {
+	public String stopService(@PathVariable("id") final String id)
+			throws ProcessIdDoesNotExistException, InvalidStateTransitionException {
 		String result = "success";
-		String PID = this.findServicePID(id);
+		String pid = this.findServicePID(id);
 		try {
-			String cmd = "tskill " + PID;
+			String cmd = "tskill " + pid;
 			Runtime.getRuntime().exec(cmd);
 		} catch (IOException e) {
 			return "failure";
@@ -118,15 +114,15 @@ public class APIController {
 	 *
 	 * @param id
 	 * @return
-	 * @throws InvalidStateTransitionException 
-	 * @throws ProcessIdDoesNotExistException 
+	 * @throws InvalidStateTransitionException
+	 * @throws ProcessIdDoesNotExistException
 	 */
-	private String getServiceLog(final String id) throws ProcessIdDoesNotExistException, InvalidStateTransitionException {
+	private String getServiceLog(final String id)
+			throws ProcessIdDoesNotExistException, InvalidStateTransitionException {
 		processController.attach(id);
 		PROSECOProcessEnvironment env = this.processController.getProcessEnvironment();
 		String serviceLogFile = env.getGroundingDirectory() + File.separator + this.config.getNameOfServiceLogFile();
-		String serviceLog = FileUtil.readFile(serviceLogFile);
-		return serviceLog;
+		return FileUtil.readFile(serviceLogFile);
 	}
 
 	/**
@@ -134,11 +130,12 @@ public class APIController {
 	 *
 	 * @param id
 	 * @return
-	 * @throws InvalidStateTransitionException 
-	 * @throws ProcessIdDoesNotExistException 
+	 * @throws InvalidStateTransitionException
+	 * @throws ProcessIdDoesNotExistException
 	 */
-	private String findServicePID(final String id) throws ProcessIdDoesNotExistException, InvalidStateTransitionException {
-		String PID = null;
+	private String findServicePID(final String id)
+			throws ProcessIdDoesNotExistException, InvalidStateTransitionException {
+		String pid = null;
 		String serviceLog = this.getServiceLog(id);
 
 		if (serviceLog != null) {
@@ -146,22 +143,21 @@ public class APIController {
 			String searchEndString = " ";
 			int startIndex = serviceLog.indexOf(searchStartString);
 			if (startIndex < 0) {
-				return PID;
+				return pid;
 			}
 
 			startIndex += searchStartString.length();
 
 			int endIndex = serviceLog.indexOf(searchEndString, startIndex);
 			if (endIndex < 0) {
-				return PID;
+				return pid;
 			}
-			PID = serviceLog.substring(startIndex, endIndex).trim();
+			pid = serviceLog.substring(startIndex, endIndex).trim();
 		}
 
-		return PID;
+		return pid;
 
 	}
-
 
 	/**
 	 * returns list of log pairs(SystemOut, SystemErr) of strategies of prototype

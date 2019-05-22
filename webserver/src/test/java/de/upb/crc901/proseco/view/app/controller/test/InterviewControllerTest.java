@@ -61,7 +61,6 @@ public class InterviewControllerTest {
 			MultipartFile file = new CommonsMultipartFile(fileItem);
 			controller.nextPost("test-default", interviewDTO, null, file);
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 

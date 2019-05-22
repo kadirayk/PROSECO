@@ -24,8 +24,6 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
@@ -128,7 +126,7 @@ public class InterviewController {
 		} catch (Exception e) {
 			logger.error("Error in creating a construction process for domain " + domainName
 					+ ". The exception is as follows:");
-			e.printStackTrace();
+			logger.error(e.getMessage());
 		}
 		this.saveInterviewState(interviewDTO);
 		return RESULT_TEMPLATE;
@@ -198,7 +196,7 @@ public class InterviewController {
 							+ 1000 * Long.parseLong(memorizedInterviewFillout.getAnswer(TIMEOUT))));
 					processController.startComposition(Integer.parseInt(memorizedInterviewFillout.getAnswer(TIMEOUT)));
 				} catch (Exception e) {
-					e.printStackTrace();
+					logger.error(e.getMessage());
 				}
 			};
 			ProcessStateProvider.setProcessStatus(env.getProcessId(), EProcessState.STRATEGY_CHOSEN);
@@ -275,7 +273,7 @@ public class InterviewController {
 			}
 
 		} catch (IOException e) {
-			e.printStackTrace();
+			logger.error(e.getMessage());
 		}
 	}
 
@@ -308,7 +306,7 @@ public class InterviewController {
 		SerializationUtil.writeAsJSON(env.getInterviewStateFile(), interviewDTO.getInterviewFillout());
 	}
 
-	@RequestMapping(method = RequestMethod.POST, value = "/api/strategy/candidateEval/{id}")
+	@PostMapping(value = "/api/strategy/candidateEval/{id}")
 	@ResponseBody
 	public ResponseEntity<Object> postCandidateFoundEvent(@PathVariable("id") final String id,
 			@RequestBody final StrategyCandidateFoundEvent e) {
@@ -320,7 +318,7 @@ public class InterviewController {
 		return new ResponseEntity<>(result, HttpStatus.OK);
 	}
 
-	@RequestMapping(method = RequestMethod.GET, value = "/api/strategy/EvaluationsByTimestamp/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+	@GetMapping(value = "/api/strategy/EvaluationsByTimestamp/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
 	public ResponseEntity<Object> getEvaluationsSortedByTimestamp(@PathVariable("id") final String id) {
 		Map<String, Object> result = new HashMap<>();
@@ -362,7 +360,7 @@ public class InterviewController {
 	 * @return
 	 * @throws Exception
 	 */
-	@RequestMapping(value = "/api/result/{id}", method = RequestMethod.GET)
+	@GetMapping(value = "/api/result/{id}")
 	@ResponseBody
 	public ResponseEntity<Object> pushResult(@PathVariable("id") final String id) {
 		PROSECOProcessEnvironment env = ProcessStateProvider.getProcessEnvironment(id);
