@@ -99,7 +99,7 @@ public class InterviewController {
 	 * 
 	 * @param interviewDTO
 	 * @return
-	 * @throws InvalidStateTransitionException 
+	 * @throws InvalidStateTransitionException
 	 * @throws Exception
 	 */
 	@PostMapping("/")
@@ -141,11 +141,12 @@ public class InterviewController {
 	 * @param id
 	 * @param interviewDTO
 	 * @return
-	 * @throws InvalidStateTransitionException 
+	 * @throws InvalidStateTransitionException
 	 * @throws Exception
 	 */
 	@GetMapping("/interview/{id}")
-	public String next(@PathVariable("id") final String id, @ModelAttribute final InterviewDTO interviewDTO) throws InvalidStateTransitionException {
+	public String next(@PathVariable("id") final String id, @ModelAttribute final InterviewDTO interviewDTO)
+			throws InvalidStateTransitionException {
 		this.populateInterviewDTO(interviewDTO, id);
 		return RESULT_TEMPLATE;
 	}
@@ -163,13 +164,14 @@ public class InterviewController {
 	 * @param response     is any string value that is filled in the form
 	 * @param file         is any file that is uploaded via the form
 	 * @return
-	 * @throws InvalidStateTransitionException 
+	 * @throws InvalidStateTransitionException
 	 * @throws NextStateNotFoundException
 	 */
 	@PostMapping("/interview/{id}")
 	public String nextPost(@PathVariable("id") final String id, @ModelAttribute final InterviewDTO interviewDTO,
 			@RequestParam(required = false, name = "response") final String response,
-			@RequestParam(required = false, name = "file") final MultipartFile file) throws InvalidStateTransitionException {
+			@RequestParam(required = false, name = "file") final MultipartFile file)
+			throws InvalidStateTransitionException {
 
 		/* retrieve the interview state */
 		logger.info("Receiving response {} and file {} for process id {}. Interview: {}", response, file, id,
@@ -188,14 +190,13 @@ public class InterviewController {
 			Runnable task = () -> {
 				try {
 					if (memorizedInterviewFillout.getAnswer(TIMEOUT) == null) {
-						System.err.println(
+						logger.error(
 								"No question with id 'timeout' has been answered, which is mandatory in PROSECO. The timeout must be an integer and will be interpreted in seconds!");
 						return;
 					}
 					deadlineCache.put(id, (System.currentTimeMillis()
 							+ 1000 * Long.parseLong(memorizedInterviewFillout.getAnswer(TIMEOUT))));
-					processController
-							.startComposition(Integer.parseInt(memorizedInterviewFillout.getAnswer(TIMEOUT)));
+					processController.startComposition(Integer.parseInt(memorizedInterviewFillout.getAnswer(TIMEOUT)));
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
@@ -242,7 +243,7 @@ public class InterviewController {
 				}
 				String answerToThisQuestion = answers.get(i);
 				logger.info("Processing answer {} to question {}", answerToThisQuestion, q);
-				if (q.getUiElement()!=null && "file".equals(q.getUiElement().getAttributes().get("type"))) {
+				if (q.getUiElement() != null && "file".equals(q.getUiElement().getAttributes().get("type"))) {
 					logger.warn("Cannot process file fields in standard process");
 					continue;
 				}
@@ -283,10 +284,11 @@ public class InterviewController {
 	 *
 	 * @param id
 	 * @return
-	 * @throws InvalidStateTransitionException 
+	 * @throws InvalidStateTransitionException
 	 * @throws Exception
 	 */
-	private void populateInterviewDTO(final InterviewDTO interviewDTO, final String id) throws InvalidStateTransitionException {
+	private void populateInterviewDTO(final InterviewDTO interviewDTO, final String id)
+			throws InvalidStateTransitionException {
 		PROSECOProcessEnvironment env = this.processController.getProcessEnvironment();
 		InterviewFillout interview = SerializationUtil.readAsJSON(env.getInterviewStateFile());
 		interviewDTO.setInterviewFillout(interview);
@@ -298,7 +300,7 @@ public class InterviewController {
 	 * saves interview state on current prototype instance's directory
 	 *
 	 * @param interviewDTO
-	 * @throws InvalidStateTransitionException 
+	 * @throws InvalidStateTransitionException
 	 * @throws Exception
 	 */
 	private void saveInterviewState(final InterviewDTO interviewDTO) throws InvalidStateTransitionException {
@@ -311,8 +313,8 @@ public class InterviewController {
 	public ResponseEntity<Object> postCandidateFoundEvent(@PathVariable("id") final String id,
 			@RequestBody final StrategyCandidateFoundEvent e) {
 		Map<String, Object> result = new HashMap<>();
-		if(logger.isDebugEnabled()) {
-			logger.debug(String.format("Received candidate from strategy %s:%n %s",id,e));	
+		if (logger.isDebugEnabled()) {
+			logger.debug(String.format("Received candidate from strategy %s:%n %s", id, e));
 		}
 		result.put(STATUS, this.datastore.put(id, e));
 		return new ResponseEntity<>(result, HttpStatus.OK);
@@ -360,7 +362,7 @@ public class InterviewController {
 	 * @return
 	 * @throws Exception
 	 */
-	@RequestMapping(value="/api/result/{id}", method = RequestMethod.GET)
+	@RequestMapping(value = "/api/result/{id}", method = RequestMethod.GET)
 	@ResponseBody
 	public ResponseEntity<Object> pushResult(@PathVariable("id") final String id) {
 		PROSECOProcessEnvironment env = ProcessStateProvider.getProcessEnvironment(id);

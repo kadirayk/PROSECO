@@ -8,6 +8,8 @@ import java.util.Properties;
 
 import org.aeonbits.owner.ConfigFactory;
 import org.aeonbits.owner.Mutable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Unified class for configuration values
@@ -80,13 +82,15 @@ public interface PrototypeConfig extends Mutable {
 
 	public static PrototypeConfig get(final File file) {
 		Properties props = new Properties();
+		final Logger logger = LoggerFactory.getLogger(PrototypeConfig.class);
 		try {
 			props.load(new FileInputStream(file));
 		} catch (FileNotFoundException e) {
-			System.err.println("Could not find config file " + file + ". Assuming default configuration");
+			logger.error(String.format("Could not find config file %s. Assuming default configuration", file));
 		} catch (IOException e) {
-			System.err.println("Encountered problem with config file " + file
-					+ ". Assuming default configuration. Problem:" + e.getMessage());
+			logger.error(String.format(
+					"Encountered problem with config file %s. Assuming default configuration. Problem: %s", file,
+					e.getMessage()));
 		}
 
 		return ConfigFactory.create(PrototypeConfig.class, props);

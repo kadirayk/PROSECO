@@ -26,12 +26,6 @@ public class ExpressionEvaluator {
 		convertToPostfix(expression);
 	}
 
-	public void postFixToString() {
-		for (Node n : postfixQueue) {
-			System.out.print(n.getValue() + " ");
-		}
-		System.out.println("");
-	}
 
 	/**
 	 * Evaluates the postfix expression

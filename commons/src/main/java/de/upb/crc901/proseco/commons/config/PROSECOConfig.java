@@ -9,6 +9,8 @@ import java.util.Properties;
 import org.aeonbits.owner.Accessible;
 import org.aeonbits.owner.ConfigFactory;
 import org.aeonbits.owner.Mutable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public interface PROSECOConfig extends Mutable, Accessible {
 
@@ -50,14 +52,15 @@ public interface PROSECOConfig extends Mutable, Accessible {
 
 	public static PROSECOConfig get(File file) {
 		Properties props = new Properties();
+		final Logger logger = LoggerFactory.getLogger(PROSECOConfig.class);
 		try {
 			props.load(new FileInputStream(file));
 		} catch (FileNotFoundException e) {
-			System.err.println(
-					"Could not find config file " + file.getAbsolutePath() + ". Assuming default configuration");
+			logger.error(String.format("Could not find config file %s. Assuming default configuration", file));
 		} catch (IOException e) {
-			System.err.println("Encountered problem with config file " + file
-					+ ". Assuming default configuration. Problem:" + e.getMessage());
+			logger.error(String.format(
+					"Encountered problem with config file %s. Assuming default configuration. Problem: %s", file,
+					e.getMessage()));
 		}
 		return ConfigFactory.create(PROSECOConfig.class, props);
 	}

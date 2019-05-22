@@ -2,6 +2,10 @@ package de.upb.crc901.proseco.view.app.model;
 
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import de.upb.crc901.proseco.commons.config.DomainConfig;
 import de.upb.crc901.proseco.commons.html.HTMLConstants;
 import de.upb.crc901.proseco.commons.interview.InterviewFillout;
 import de.upb.crc901.proseco.commons.interview.Question;
@@ -16,6 +20,8 @@ import de.upb.crc901.proseco.commons.util.ListUtil;
  *
  */
 public class InterviewDTO {
+
+	private static final Logger logger = LoggerFactory.getLogger(DomainConfig.class);
 
 	private String processId; // the PROSECO service construction process id to which this interview belongs
 
@@ -99,7 +105,9 @@ public class InterviewDTO {
 
 	public void setInterviewFillout(final InterviewFillout interviewFillout) {
 		this.interviewFillout = interviewFillout;
-		System.out.println("Appending HTML for current state: " + interviewFillout.getCurrentState());
+		if (logger.isInfoEnabled()) {
+			logger.info(String.format("Appending HTML for current state: %s", interviewFillout.getCurrentState()));
+		}
 		this.interviewHTML = interviewFillout.getHTMLOfOpenQuestionsInCurrentState();
 		this.setShowSubmitValue();
 		this.createDebugHtmlTable(interviewFillout);
