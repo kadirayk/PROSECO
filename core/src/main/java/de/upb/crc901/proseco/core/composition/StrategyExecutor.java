@@ -21,6 +21,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import de.upb.crc901.proseco.commons.config.GlobalConfig;
+import de.upb.crc901.proseco.commons.controller.PROSECORuntimeException;
 import de.upb.crc901.proseco.commons.util.PROSECOProcessEnvironment;
 
 /**
@@ -85,7 +86,7 @@ public class StrategyExecutor {
 		File[] strategyDirectories = this.executionEnvironment.getStrategyDirectory().listFiles((f) -> f.isDirectory());
 
 		if (strategyDirectories == null) {
-			throw new RuntimeException("Could not find any search strategy!! Canceling request.");
+			throw new PROSECORuntimeException("Could not find any search strategy!! Canceling request.");
 		}
 
 		if (L.isDebugEnabled()) {
@@ -94,7 +95,7 @@ public class StrategyExecutor {
 		
 		strategyDirectories = filterDisabledStrategies(strategyDirectories);
 		if(strategyDirectories.length==0) {
-			throw new RuntimeException("Could not find any enabled strategy!! Canceling request.");
+			throw new PROSECORuntimeException("Could not find any enabled strategy!! Canceling request.");
 		}
 
 		/* Setup a thread pool for observing the strategies. */

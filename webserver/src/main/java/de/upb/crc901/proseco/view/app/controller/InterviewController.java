@@ -340,7 +340,7 @@ public class InterviewController {
 
 	@GetMapping("/api/process/{id}/status")
 	@ResponseBody
-	public Map<String, String> processStatus(@PathVariable("id") final String processID) throws Exception {
+	public Map<String, String> processStatus(@PathVariable("id") final String processID) {
 		logger.trace("Get status of process {}: {}", processID, ProcessStateProvider.getProcessStatus(processID));
 		Map<String, String> result = new HashMap<>();
 		result.put(STATUS, ProcessStateProvider.getProcessStatus(processID));
