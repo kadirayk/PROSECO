@@ -3,9 +3,6 @@ package de.upb.crc901.proseco.commons.html;
 import java.util.List;
 import java.util.Map;
 
-import de.upb.crc901.proseco.commons.html.Option;
-import de.upb.crc901.proseco.commons.html.UIElement;
-
 /**
  * HTML Select element &lt;select\&gt;
  * 
@@ -13,7 +10,7 @@ import de.upb.crc901.proseco.commons.html.UIElement;
  *
  */
 public class Select extends UIElement {
-	List<Option> options;
+	private List<Option> options;
 	private static final String TAG = "select";
 
 	public Select() {
@@ -55,6 +52,23 @@ public class Select extends UIElement {
 		}
 		html.append("\n</").append(getTag()).append(">");
 		return html.toString();
+	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((options == null) ? 0 : options.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (!super.equals(obj)) {
+			return false;
+		}
+		Select mObj = (Select) obj;
+		return options.equals(mObj.getOptions());
 	}
 
 }

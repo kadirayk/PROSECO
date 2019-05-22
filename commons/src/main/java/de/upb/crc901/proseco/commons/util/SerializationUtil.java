@@ -41,7 +41,7 @@ public class SerializationUtil {
 			}
 			mapper.writeValue(file.getAbsoluteFile(), interview);
 		} catch (IOException e) {
-			e.printStackTrace();
+			logger.error(e.getMessage());
 		}
 		if (logger.isInfoEnabled()) {
 			logger.info(String.format("File exists: %s", file.getAbsoluteFile().exists()));
@@ -65,7 +65,7 @@ public class SerializationUtil {
 				ObjectOutputStream o = new ObjectOutputStream(f)) {
 			o.writeObject(interview);
 		} catch (IOException e) {
-			e.printStackTrace();
+			logger.error(e.getMessage());
 		}
 	}
 
@@ -76,7 +76,7 @@ public class SerializationUtil {
 				ObjectInputStream o = new ObjectInputStream(f)) {
 			interview = (Interview) o.readObject();
 		} catch (IOException | ClassNotFoundException e) {
-			e.printStackTrace();
+			logger.error(e.getMessage());
 		}
 		return interview;
 	}

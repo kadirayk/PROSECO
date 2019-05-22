@@ -7,6 +7,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 
@@ -24,6 +27,8 @@ import de.upb.crc901.proseco.commons.interview.State;
  */
 public class Parser {
 
+	private static final Logger logger = LoggerFactory.getLogger(Parser.class);
+
 	/**
 	 * Parses question repository with the given path
 	 * 
@@ -36,7 +41,7 @@ public class Parser {
 		try {
 			qCollection = mapper.readValue(new File(filePath), QuestionCollection.class);
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.error(e.getMessage());
 		}
 		return qCollection;
 

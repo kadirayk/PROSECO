@@ -1,14 +1,14 @@
 package de.upb.crc901.proseco.commons.processstatus;
 
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
 
 public class ProcessStateTransitionController {
 
 	// currentState, possible next states
-	private static Map<EProcessState, List<EProcessState>> transitionMap = new HashMap<>();
+	private static Map<EProcessState, List<EProcessState>> transitionMap = new EnumMap<>(EProcessState.class);
 
 	static {
 		List<EProcessState> initStates = new ArrayList<>();
@@ -48,10 +48,13 @@ public class ProcessStateTransitionController {
 		List<EProcessState> deploymentStates = new ArrayList<>();
 		deploymentStates.add(EProcessState.DONE);
 		transitionMap.put(EProcessState.DEPLOYMENT, deploymentStates);
-		
+
 		List<EProcessState> doneStates = new ArrayList<>();
 		transitionMap.put(EProcessState.DONE, doneStates);
-		
+
+	}
+
+	private ProcessStateTransitionController() {
 	}
 
 	public static EProcessState moveToNextState(EProcessState currentState, EProcessState nextState)
@@ -59,7 +62,8 @@ public class ProcessStateTransitionController {
 		if (transitionMap.get(currentState).contains(nextState)) {
 			return nextState;
 		} else {
-			throw new InvalidStateTransitionException(String.format("CurrentState: %s, NextState: %s", currentState, nextState));
+			throw new InvalidStateTransitionException(
+					String.format("CurrentState: %s, NextState: %s", currentState, nextState));
 		}
 	}
 

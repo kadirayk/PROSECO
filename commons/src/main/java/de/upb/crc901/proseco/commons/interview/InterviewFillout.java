@@ -85,16 +85,19 @@ public class InterviewFillout implements Serializable {
 		for (Entry<String, String> e : questionAnswerMap.entrySet()) {
 			if (e.getValue() != null) {
 				for (State s : this.interview.getStates()) {
-					List<Question> questions = s.getQuestions();
-					if (ListUtil.isNotEmpty(questions)) {
-						for (Question q : questions) {
-							if (q.getContent() != null && q.getContent().equals(e.getKey())) {
-								answers.put(q.getId(), e.getValue());
-							} else if (q.getId().equals(e.getKey())) {
-								answers.put(q.getId(), e.getValue());
-							}
-						}
-					}
+					handleQuestions(e, s);
+				}
+			}
+		}
+	}
+
+	private void handleQuestions(Entry<String, String> e, State s) {
+		List<Question> questions = s.getQuestions();
+		if (ListUtil.isNotEmpty(questions)) {
+			for (Question q : questions) {
+				if ((q.getContent() != null && q.getContent().equals(e.getKey()))
+						|| (q.getId().equals(e.getKey()))) {
+					answers.put(q.getId(), e.getValue());
 				}
 			}
 		}
@@ -133,23 +136,6 @@ public class InterviewFillout implements Serializable {
 		}
 		return true;
 	}
-
-	// public void nextState() throws NextStateNotFoundException {
-	// String nextStateName = AnswerInterpreter.findNextState(this, currentState);
-	// if (nextStateName != null) {
-	// assert states.contains(stateMap.get(nextStateName)) : "Switching to state " +
-	// nextStateName + " that is not in the list of states!";
-	// currentState = stateMap.get(nextStateName);
-	// } // else there is no next step i.e. last step
-	// }
-	//
-	// public void prevState() {
-	// String nextStateName =
-	// stateMap.get(currentState.getName()).getTransition().get("prev");
-	// if (nextStateName != null) {
-	// currentState = stateMap.get(nextStateName);
-	// } // else there is no next step i.e. last step
-	// }
 
 	/**
 	 * Generates concrete HTML element from the UI Elements of the questions to make
