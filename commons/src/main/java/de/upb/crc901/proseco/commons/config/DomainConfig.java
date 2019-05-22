@@ -17,25 +17,19 @@ import org.aeonbits.owner.Mutable;
  */
 public interface DomainConfig extends Mutable {
 
-	/* Interview */
-	public static final String INTERVIEW = "domain.interview.path";
-	public static final String INTERVIEW_STATE_FILE = "domain.interview.statefile";
-	public static final String INTERVIEW_RESOURCES = "domain.interview.resources.path";
-	public static final String PROTOTYPE_FOLDER = "domain.prototypes";
-
-	@Key(INTERVIEW)
+	@Key(ConfigConstants.INTERVIEW)
 	@DefaultValue("interview")
 	public String getNameOfInterviewFolder();
 
-	@Key(INTERVIEW_RESOURCES)
+	@Key(ConfigConstants.INTERVIEW_RESOURCES)
 	@DefaultValue("res")
 	public String getNameOfInterviewResourceFolder();
 	
-	@Key(PROTOTYPE_FOLDER)
+	@Key(ConfigConstants.PROTOTYPE_FOLDER)
 	@DefaultValue("prototypes")
 	public String getPrototypeFolder();
 	
-	@Key(INTERVIEW_STATE_FILE)
+	@Key(ConfigConstants.INTERVIEW_STATE_FILE)
 	@DefaultValue("interview_state.json")
 	public String getNameOfInterviewStateFile();
 	

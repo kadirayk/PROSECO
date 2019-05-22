@@ -17,88 +17,61 @@ import org.aeonbits.owner.Mutable;
  */
 public interface PrototypeConfig extends Mutable {
 
-	/* search */
-	public static final String STRATEGIES = "pbc.strategies_path";
-	public static final String STRATEGY_RUNNABLE = "pbc.strategy.runnable";
-	public static final String DISABLED_STRATEGIES = "proseco.disabled.strategies";
-
-	/* pre-grounding filter */
-	public static final String PRE_GROUNDING_HOOK = "pbc.hook.preground";
-
-	/* grounding */
-	public static final String GROUNDING_FOLDER = "proseco.grounding.folder";
-	public static final String GROUNDING_EXEC = "proseco.grounding.executable";
-	public static final String GROUNDING_RESERVEDSECONDS = "proseco.grounding.reservedseconds";
-
-	/* deployment */
-	public static final String DEPLOYMENT_EXEC = "proseco.deployment.executable";
-	public static final String DEPLOYMENT_HOST = "proseco.deployment.host";
-	public static final String DEPLOYMENT_PORT_MIN = "proseco.deployment.minport";
-	public static final String DEPLOYMENT_PORT_MAX = "proseco.deployment.maxport";
-	public static final String DEPLOYMENT_ENTRYPOINT = "proseco.deployment.entrypoint";
-	public static final String DEPLOYMENT_RESERVEDSECONDS = "proseco.deployment.reservedseconds";
-
-	/* benchmarking */
-	public static final String BENCHMARK_SERVICE = "benchmarkService.bat";
-	public static final String BENCHMARK_PATH = "pbc.benchmarks_path";
-	public static final String INTERNAL_BENCHMARK_FOLDER = "benchmarks/";
-
-	public static final String EXEC_FINAL_TEST = "src/test.bat";
-
-	@Key(BENCHMARK_PATH)
+	@Key(ConfigConstants.BENCHMARK_PATH)
 	@DefaultValue("5")
 	public String getBenchmarkPath();
 
-	@Key(STRATEGIES)
+	@Key(ConfigConstants.STRATEGIES)
 	@DefaultValue("strategies")
 	public String getNameOfStrategyFolder();
-	
-	@Key(DISABLED_STRATEGIES)
+
+	@Key(ConfigConstants.DISABLED_STRATEGIES)
 	@DefaultValue("")
 	public String getDisabledStrategies();
 
-	@Key(GROUNDING_FOLDER)
+	@Key(ConfigConstants.GROUNDING_FOLDER)
 	@DefaultValue("")
 	public String getNameOfGroundingFolder();
 
-	@Key(GROUNDING_EXEC)
+	@Key(ConfigConstants.GROUNDING_EXEC)
 	@DefaultValue("grounding")
 	public String getGroundingCommand();
-	
-	@Key(GROUNDING_RESERVEDSECONDS)
+
+	@Key(ConfigConstants.GROUNDING_RESERVEDSECONDS)
 	@DefaultValue("5")
 	public int getSecondsReservedForGrounding();
 
-	@Key(DEPLOYMENT_EXEC)
+	@Key(ConfigConstants.DEPLOYMENT_EXEC)
 	@DefaultValue("deployment")
 	public String getDeploymentCommand();
 
-	@Key(DEPLOYMENT_HOST)
+	@Key(ConfigConstants.DEPLOYMENT_HOST)
 	@DefaultValue("localhost")
 	public String getDeploymentHost();
 
-	@Key(DEPLOYMENT_PORT_MIN)
+	@Key(ConfigConstants.DEPLOYMENT_PORT_MIN)
 	@DefaultValue("8100")
 	public int getDeploymentMinPort();
 
-	@Key(DEPLOYMENT_PORT_MAX)
+	@Key(ConfigConstants.DEPLOYMENT_PORT_MAX)
 	@DefaultValue("8200")
 	public int getDeploymentMaxPort();
 
-	@Key(DEPLOYMENT_ENTRYPOINT)
+	@Key(ConfigConstants.DEPLOYMENT_ENTRYPOINT)
 	@DefaultValue("")
 	public String getDeploymentEntryPoint();
-	
-	@Key(DEPLOYMENT_RESERVEDSECONDS)
+
+	@Key(ConfigConstants.DEPLOYMENT_RESERVEDSECONDS)
 	@DefaultValue("5")
 	public int getSecondsReservedForDeployment();
 
-	@Key(STRATEGY_RUNNABLE)
+	@Key(ConfigConstants.STRATEGY_RUNNABLE)
 	@DefaultValue("run")
 	public String getSearchRunnable();
 
 	public static PrototypeConfig get(final PROSECOConfig prosecoConfig, final String prototypeName) {
-		return get(new File(prosecoConfig.getDirectoryForDomains() + File.separator + prototypeName + File.separator + "prototype.conf"));
+		return get(new File(prosecoConfig.getDirectoryForDomains() + File.separator + prototypeName + File.separator
+				+ "prototype.conf"));
 	}
 
 	public static PrototypeConfig get(final String file) {
@@ -112,13 +85,14 @@ public interface PrototypeConfig extends Mutable {
 		} catch (FileNotFoundException e) {
 			System.err.println("Could not find config file " + file + ". Assuming default configuration");
 		} catch (IOException e) {
-			System.err.println("Encountered problem with config file " + file + ". Assuming default configuration. Problem:" + e.getMessage());
+			System.err.println("Encountered problem with config file " + file
+					+ ". Assuming default configuration. Problem:" + e.getMessage());
 		}
 
 		return ConfigFactory.create(PrototypeConfig.class, props);
 	}
 
-	@Key(PRE_GROUNDING_HOOK)
+	@Key(ConfigConstants.PRE_GROUNDING_HOOK)
 	@DefaultValue("analysis")
 	public File getHookForPreGrounding();
 }
