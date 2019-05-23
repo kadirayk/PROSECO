@@ -91,7 +91,7 @@ public class StrategyExecutor {
 
 		/* Collect all directories for strategies */
 		L.debug("Executing strategies in {}", this.executionEnvironment.getStrategyDirectory());
-		File[] strategyDirectories = this.executionEnvironment.getStrategyDirectory().listFiles(f -> f.isDirectory());
+		File[] strategyDirectories = this.executionEnvironment.getStrategyDirectory().listFiles(File::isDirectory);
 
 		if (strategyDirectories == null) {
 			throw new PROSECORuntimeException("Could not find any search strategy!! Canceling request.");

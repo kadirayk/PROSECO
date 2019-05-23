@@ -5,6 +5,7 @@ import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -21,7 +22,7 @@ public class ParserTest {
 	}
 
 	@Test
-	public void parseInterviewTest() throws Exception {
+	public void parseInterviewTest() throws IOException {
 		String filePath = "testdata/interview/interview.yaml";
 		File file = new File(filePath);
 		Interview interview = parser.initializeInterviewFromConfig(file);
@@ -34,7 +35,7 @@ public class ParserTest {
 	}
 
 	@Test(expected = FileNotFoundException.class)
-	public void testExceptionCase() throws Exception {
+	public void testExceptionCase() throws IOException {
 		String filePath = "wrongpath";
 		File file = new File(filePath);
 		parser.initializeInterviewFromConfig(file);

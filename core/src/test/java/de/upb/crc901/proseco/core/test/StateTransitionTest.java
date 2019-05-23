@@ -8,6 +8,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import de.upb.crc901.proseco.commons.controller.CannotFixDomainInThisProcessException;
 import de.upb.crc901.proseco.commons.controller.GroundingNotSuccessfulForAnyStrategyException;
@@ -15,6 +17,7 @@ import de.upb.crc901.proseco.commons.controller.NoStrategyFoundASolutionExceptio
 import de.upb.crc901.proseco.commons.controller.PROSECOSolution;
 import de.upb.crc901.proseco.commons.controller.ProcessController;
 import de.upb.crc901.proseco.commons.controller.ProcessIdAlreadyExistsException;
+import de.upb.crc901.proseco.commons.controller.ProcessIdDoesNotExistException;
 import de.upb.crc901.proseco.commons.controller.PrototypeCouldNotBeExtractedException;
 import de.upb.crc901.proseco.commons.interview.InterviewFillout;
 import de.upb.crc901.proseco.commons.processstatus.EProcessState;
@@ -54,6 +57,11 @@ public class StateTransitionTest {
 	static String processId;
 	static PROSECOProcessEnvironment env;
 	static String output;
+	static final Logger logger = LoggerFactory.getLogger(StateTransitionTest.class);
+	private static final String PROTOTYPE_QUESTION = "Please select prototype";
+	private static final String STATE_INACCESSIBLE_MSG = "This State is inaccessible from outside";
+	private static final String INTERVIEW_YAML = "interview.yaml";
+	private static final String TEST1 = "test1";
 
 	/*
 	 * Tests for state = INIT
@@ -61,48 +69,84 @@ public class StateTransitionTest {
 
 	/**
 	 * INIT -> CREATED [CORRECT]
+	 * 
+	 * @throws GroundingNotSuccessfulForAnyStrategyException
+	 * @throws PrototypeCouldNotBeExtractedException
+	 * @throws NoStrategyFoundASolutionException
+	 * @throws CannotFixDomainInThisProcessException
+	 * @throws InvalidStateTransitionException
+	 * @throws ProcessIdAlreadyExistsException
+	 * @throws IOException
 	 */
 	@Test
-	public void testInitToCreated() throws Exception {
+	public void testInitToCreated() throws ProcessIdAlreadyExistsException, InvalidStateTransitionException,
+			CannotFixDomainInThisProcessException, NoStrategyFoundASolutionException,
+			PrototypeCouldNotBeExtractedException, GroundingNotSuccessfulForAnyStrategyException, IOException {
 		ProcessController process = getProcessForState(EProcessState.INIT);
-		process.createNew(null);
-		assertEquals(EProcessState.CREATED, process.getProcessState());
+		if (process != null) {
+			process.createNew(null);
+			assertEquals(EProcessState.CREATED, process.getProcessState());
+		}
 	}
 
 	/**
 	 * INIT -> DOMAIN_DEFINITON [INCORRECT]
+	 * 
+	 * @throws IOException
 	 */
 	@Test(expected = InvalidStateTransitionException.class)
-	public void testInitToDomain() throws Exception {
+	public void testInitToDomain() throws ProcessIdAlreadyExistsException, InvalidStateTransitionException,
+			CannotFixDomainInThisProcessException, NoStrategyFoundASolutionException,
+			PrototypeCouldNotBeExtractedException, GroundingNotSuccessfulForAnyStrategyException, IOException {
 		ProcessController process = getProcessForState(EProcessState.INIT);
-		process.fixDomain("test");
+		if (process != null) {
+			process.fixDomain("test");
+		}
 	}
 
 	/**
 	 * INIT -> INTERVIEW [INCORRECT]
+	 * 
+	 * @throws IOException
 	 */
 	@Test(expected = InvalidStateTransitionException.class)
-	public void testInitToInterview() throws Exception {
+	public void testInitToInterview() throws ProcessIdAlreadyExistsException, InvalidStateTransitionException,
+			CannotFixDomainInThisProcessException, NoStrategyFoundASolutionException,
+			PrototypeCouldNotBeExtractedException, GroundingNotSuccessfulForAnyStrategyException, IOException {
 		ProcessController process = getProcessForState(EProcessState.INIT);
-		process.updateInterview(new HashMap<>());
+		if (process != null) {
+			process.updateInterview(new HashMap<>());
+		}
 	}
 
 	/**
 	 * INIT -> COMPOSITION [INCORRECT]
+	 * 
+	 * @throws IOException
 	 */
 	@Test(expected = InvalidStateTransitionException.class)
-	public void testInitToComposition() throws Exception {
+	public void testInitToComposition() throws ProcessIdAlreadyExistsException, InvalidStateTransitionException,
+			CannotFixDomainInThisProcessException, NoStrategyFoundASolutionException,
+			PrototypeCouldNotBeExtractedException, GroundingNotSuccessfulForAnyStrategyException, IOException {
 		ProcessController process = getProcessForState(EProcessState.INIT);
-		process.startComposition(1000);
+		if (process != null) {
+			process.startComposition(1000);
+		}
 	}
 
 	/**
 	 * INIT -> GROUNDING [INCORRECT]
+	 * 
+	 * @throws IOException
 	 */
 	@Test(expected = InvalidStateTransitionException.class)
-	public void testInitToGrounding() throws Exception {
+	public void testInitToGrounding() throws ProcessIdAlreadyExistsException, InvalidStateTransitionException,
+			CannotFixDomainInThisProcessException, NoStrategyFoundASolutionException,
+			PrototypeCouldNotBeExtractedException, GroundingNotSuccessfulForAnyStrategyException, IOException {
 		ProcessController process = getProcessForState(EProcessState.INIT);
-		process.chooseAndDeploySolution(null);
+		if (process != null) {
+			process.chooseAndDeploySolution(null);
+		}
 	}
 
 	/*
@@ -111,252 +155,403 @@ public class StateTransitionTest {
 
 	/**
 	 * CREATED -> CREATED [INCORRECT]
+	 * 
+	 * @throws IOException
 	 */
 	@Test(expected = InvalidStateTransitionException.class)
-	public void testCreatedToCreated() throws Exception {
+	public void testCreatedToCreated() throws ProcessIdAlreadyExistsException, InvalidStateTransitionException,
+			CannotFixDomainInThisProcessException, NoStrategyFoundASolutionException,
+			PrototypeCouldNotBeExtractedException, GroundingNotSuccessfulForAnyStrategyException, IOException {
 		ProcessController process = getProcessForState(EProcessState.CREATED);
-		process.createNew(null);
+		if (process != null) {
+			process.createNew(null);
+		}
 	}
 
 	/**
 	 * CREATED -> DOMAIN_DEFINITON [CORRECT]
+	 * 
+	 * @throws IOException
 	 */
 	@Test
-	public void testCreatedToDomain() throws Exception {
+	public void testCreatedToDomain() throws ProcessIdAlreadyExistsException, InvalidStateTransitionException,
+			CannotFixDomainInThisProcessException, NoStrategyFoundASolutionException,
+			PrototypeCouldNotBeExtractedException, GroundingNotSuccessfulForAnyStrategyException, IOException {
 		ProcessController process = getProcessForState(EProcessState.CREATED);
-		process.fixDomain("test");
-		assertEquals(EProcessState.DOMAIN_DEFINITION, process.getProcessState());
+		if (process != null) {
+			process.fixDomain("test");
+			assertEquals(EProcessState.DOMAIN_DEFINITION, process.getProcessState());
+		}
 	}
 
 	/**
 	 * CREATED -> INTERVIEW [CORRECT]
+	 * 
+	 * @throws IOException
 	 */
 	@Test(expected = InvalidStateTransitionException.class)
-	public void testCreatedToInterview() throws Exception {
+	public void testCreatedToInterview() throws ProcessIdAlreadyExistsException, InvalidStateTransitionException,
+			CannotFixDomainInThisProcessException, NoStrategyFoundASolutionException,
+			PrototypeCouldNotBeExtractedException, GroundingNotSuccessfulForAnyStrategyException, IOException {
 		ProcessController process = getProcessForState(EProcessState.CREATED);
-		process.updateInterview(new HashMap<>());
+		if (process != null) {
+			process.updateInterview(new HashMap<>());
+		}
 	}
-	
+
 	/**
 	 * CREATED -> COMPOSITON [INCORRECT]
+	 * 
+	 * @throws IOException
 	 */
 	@Test(expected = InvalidStateTransitionException.class)
-	public void testCreatedToComposition() throws Exception {
+	public void testCreatedToComposition() throws ProcessIdAlreadyExistsException, InvalidStateTransitionException,
+			CannotFixDomainInThisProcessException, NoStrategyFoundASolutionException,
+			PrototypeCouldNotBeExtractedException, GroundingNotSuccessfulForAnyStrategyException, IOException {
 		ProcessController process = getProcessForState(EProcessState.CREATED);
-		process.startComposition(1000);
+		if (process != null) {
+			process.startComposition(1000);
+		}
 	}
-	
+
 	/**
 	 * CREATED -> GROUNDING [INCORRECT]
+	 * 
+	 * @throws IOException
 	 */
 	@Test(expected = InvalidStateTransitionException.class)
-	public void testCreatedToGrounding() throws Exception {
+	public void testCreatedToGrounding() throws ProcessIdAlreadyExistsException, InvalidStateTransitionException,
+			CannotFixDomainInThisProcessException, NoStrategyFoundASolutionException,
+			PrototypeCouldNotBeExtractedException, GroundingNotSuccessfulForAnyStrategyException, IOException {
 		ProcessController process = getProcessForState(EProcessState.CREATED);
-		process.chooseAndDeploySolution(null);
+		if (process != null) {
+			process.chooseAndDeploySolution(null);
+		}
 	}
-	
+
 	/*
 	 * Tests for state = DOMAIN_DEFINITON
 	 */
-	
+
 	/**
 	 * DOMAIN_DEFINITON -> CREATED [INCORRECT]
+	 * 
+	 * @throws IOException
 	 */
 	@Test(expected = InvalidStateTransitionException.class)
-	public void testDomainToCreated() throws Exception {
+	public void testDomainToCreated() throws ProcessIdAlreadyExistsException, InvalidStateTransitionException,
+			CannotFixDomainInThisProcessException, NoStrategyFoundASolutionException,
+			PrototypeCouldNotBeExtractedException, GroundingNotSuccessfulForAnyStrategyException, IOException {
 		ProcessController process = getProcessForState(EProcessState.DOMAIN_DEFINITION);
-		process.createNew(null);
+		if (process != null) {
+			process.createNew(null);
+		}
 	}
-	
+
 	/**
 	 * DOMAIN_DEFINITON -> DOMAIN_DEFINITON [INCORRECT]
+	 * 
+	 * @throws IOException
 	 */
 	@Test(expected = InvalidStateTransitionException.class)
-	public void testDomainToDomain() throws Exception {
+	public void testDomainToDomain() throws ProcessIdAlreadyExistsException, InvalidStateTransitionException,
+			CannotFixDomainInThisProcessException, NoStrategyFoundASolutionException,
+			PrototypeCouldNotBeExtractedException, GroundingNotSuccessfulForAnyStrategyException, IOException {
 		ProcessController process = getProcessForState(EProcessState.DOMAIN_DEFINITION);
-		process.fixDomain("");
+		if (process != null) {
+			process.fixDomain("");
+		}
 	}
-	
+
 	/**
 	 * DOMAIN_DEFINITON -> INTERVIEW [CORRECT]
+	 * 
+	 * @throws IOException
 	 */
 	@Test
-	public void testDomainToInterview() throws Exception {
+	public void testDomainToInterview() throws ProcessIdAlreadyExistsException, InvalidStateTransitionException,
+			CannotFixDomainInThisProcessException, NoStrategyFoundASolutionException,
+			PrototypeCouldNotBeExtractedException, GroundingNotSuccessfulForAnyStrategyException, IOException {
 		ProcessController process = getProcessForState(EProcessState.DOMAIN_DEFINITION);
-		process.updateInterview(new HashMap<>());
+		if (process != null) {
+			process.updateInterview(new HashMap<>());
+		}
 	}
-	
+
 	/**
 	 * DOMAIN_DEFINITON -> COMPOSITION [INCORRECT]
+	 * 
+	 * @throws IOException
 	 */
 	@Test(expected = InvalidStateTransitionException.class)
-	public void testDomainToComposition() throws Exception {
+	public void testDomainToComposition() throws ProcessIdAlreadyExistsException, InvalidStateTransitionException,
+			CannotFixDomainInThisProcessException, NoStrategyFoundASolutionException,
+			PrototypeCouldNotBeExtractedException, GroundingNotSuccessfulForAnyStrategyException, IOException {
 		ProcessController process = getProcessForState(EProcessState.DOMAIN_DEFINITION);
-		process.startComposition(1000);
+		if (process != null) {
+			process.startComposition(1000);
+		}
 	}
-	
+
 	/**
 	 * DOMAIN_DEFINITON -> GROUNDING [INCORRECT]
+	 * 
+	 * @throws IOException
 	 */
 	@Test(expected = InvalidStateTransitionException.class)
-	public void testDomainToGrounding() throws Exception {
+	public void testDomainToGrounding() throws ProcessIdAlreadyExistsException, InvalidStateTransitionException,
+			CannotFixDomainInThisProcessException, NoStrategyFoundASolutionException,
+			PrototypeCouldNotBeExtractedException, GroundingNotSuccessfulForAnyStrategyException, IOException {
 		ProcessController process = getProcessForState(EProcessState.DOMAIN_DEFINITION);
-		process.chooseAndDeploySolution(null);
+		if (process != null) {
+			process.chooseAndDeploySolution(null);
+		}
 	}
-	
 
 	/*
 	 * Tests for state = INTERVIEW
 	 */
-	
+
 	/**
 	 * INTERVIEW -> CREATED [INCORRECT]
+	 * 
+	 * @throws IOException
 	 */
 	@Test(expected = InvalidStateTransitionException.class)
-	public void testInterviewToCreated() throws Exception {
+	public void testInterviewToCreated() throws ProcessIdAlreadyExistsException, InvalidStateTransitionException,
+			CannotFixDomainInThisProcessException, NoStrategyFoundASolutionException,
+			PrototypeCouldNotBeExtractedException, GroundingNotSuccessfulForAnyStrategyException, IOException {
 		ProcessController process = getProcessForState(EProcessState.INTERVIEW);
-		process.createNew(null);
+		if (process != null) {
+			process.createNew(null);
+		}
 	}
-	
+
 	/**
 	 * INTERVIEW -> DOMAIN_DEFINITION [INCORRECT]
+	 * 
+	 * @throws IOException
 	 */
 	@Test(expected = InvalidStateTransitionException.class)
-	public void testInterviewToDomain() throws Exception {
+	public void testInterviewToDomain() throws ProcessIdAlreadyExistsException, InvalidStateTransitionException,
+			CannotFixDomainInThisProcessException, NoStrategyFoundASolutionException,
+			PrototypeCouldNotBeExtractedException, GroundingNotSuccessfulForAnyStrategyException, IOException {
 		ProcessController process = getProcessForState(EProcessState.INTERVIEW);
-		process.fixDomain("test");
+		if (process != null) {
+			process.fixDomain("test");
+		}
 	}
-	
+
 	/**
 	 * INTERVIEW -> INTERVIEW [CORRECT]
+	 * 
+	 * @throws IOException
 	 */
 	@Test
-	public void testInterviewToInterview() throws Exception {
+	public void testInterviewToInterview() throws ProcessIdAlreadyExistsException, InvalidStateTransitionException,
+			CannotFixDomainInThisProcessException, NoStrategyFoundASolutionException,
+			PrototypeCouldNotBeExtractedException, GroundingNotSuccessfulForAnyStrategyException, IOException {
 		ProcessController process = getProcessForState(EProcessState.INTERVIEW);
-		process.updateInterview(new HashMap<>());
-		assertEquals(EProcessState.INTERVIEW, process.getProcessState());
+		if (process != null) {
+			process.updateInterview(new HashMap<>());
+			assertEquals(EProcessState.INTERVIEW, process.getProcessState());
+		}
 	}
-	
+
 	/**
 	 * INTERVIEW -> COMPOSITION [CORRECT]
+	 * 
+	 * @throws IOException
 	 */
 	@Test
-	public void testInterviewToComposition() throws Exception {
+	public void testInterviewToComposition() throws ProcessIdAlreadyExistsException, InvalidStateTransitionException,
+			CannotFixDomainInThisProcessException, NoStrategyFoundASolutionException,
+			PrototypeCouldNotBeExtractedException, GroundingNotSuccessfulForAnyStrategyException, IOException {
 		ProcessController process = getProcessForState(EProcessState.INTERVIEW);
-		process.startComposition(1000);
-		assertEquals(EProcessState.STRATEGY_CHOSEN, process.getProcessState());
+		if (process != null) {
+			process.startComposition(1000);
+			assertEquals(EProcessState.STRATEGY_CHOSEN, process.getProcessState());
+		}
 	}
-	
+
 	/**
 	 * INTERVIEW -> GROUNDING [INCORRECT]
+	 * 
+	 * @throws IOException
 	 */
 	@Test(expected = InvalidStateTransitionException.class)
-	public void testInterviewToGrounding() throws Exception {
+	public void testInterviewToGrounding() throws ProcessIdAlreadyExistsException, InvalidStateTransitionException,
+			CannotFixDomainInThisProcessException, NoStrategyFoundASolutionException,
+			PrototypeCouldNotBeExtractedException, GroundingNotSuccessfulForAnyStrategyException, IOException {
 		ProcessController process = getProcessForState(EProcessState.INTERVIEW);
-		process.chooseAndDeploySolution(null);
+		if (process != null) {
+			process.chooseAndDeploySolution(null);
+		}
 	}
-	
+
 	/*
 	 * Tests for state = STRATEGY_CHOSEN
 	 */
-	
+
 	/**
 	 * STRATEGY_CHOSEN -> CREATED [INCORRECT]
+	 * 
+	 * @throws IOException
 	 */
 	@Test(expected = InvalidStateTransitionException.class)
-	public void testChosenToCreated() throws Exception {
+	public void testChosenToCreated() throws ProcessIdAlreadyExistsException, InvalidStateTransitionException,
+			CannotFixDomainInThisProcessException, NoStrategyFoundASolutionException,
+			PrototypeCouldNotBeExtractedException, GroundingNotSuccessfulForAnyStrategyException, IOException {
 		ProcessController process = getProcessForState(EProcessState.STRATEGY_CHOSEN);
-		process.createNew(null);
+		if (process != null) {
+			process.createNew(null);
+		}
 	}
 
 	/**
 	 * STRATEGY_CHOSEN -> DOMAIN_DEFINITION [INCORRECT]
+	 * 
+	 * @throws IOException
 	 */
 	@Test(expected = InvalidStateTransitionException.class)
-	public void testChosenToDomain() throws Exception {
+	public void testChosenToDomain() throws ProcessIdAlreadyExistsException, InvalidStateTransitionException,
+			CannotFixDomainInThisProcessException, NoStrategyFoundASolutionException,
+			PrototypeCouldNotBeExtractedException, GroundingNotSuccessfulForAnyStrategyException, IOException {
 		ProcessController process = getProcessForState(EProcessState.STRATEGY_CHOSEN);
-		process.fixDomain("test");
+		if (process != null) {
+			process.fixDomain("test");
+		}
 	}
-	
+
 	/**
 	 * STRATEGY_CHOSEN -> INTERVIEW [INCORRECT]
+	 * 
+	 * @throws IOException
 	 */
 	@Test(expected = InvalidStateTransitionException.class)
-	public void testChosenToInterview() throws Exception {
+	public void testChosenToInterview() throws ProcessIdAlreadyExistsException, InvalidStateTransitionException,
+			CannotFixDomainInThisProcessException, NoStrategyFoundASolutionException,
+			PrototypeCouldNotBeExtractedException, GroundingNotSuccessfulForAnyStrategyException, IOException {
 		ProcessController process = getProcessForState(EProcessState.STRATEGY_CHOSEN);
-		process.updateInterview(new HashMap<>());
+		if (process != null) {
+			process.updateInterview(new HashMap<>());
+		}
 	}
-	
+
 	/**
 	 * STRATEGY_CHOSEN -> COMPOSITION [INCORRECT]
+	 * 
+	 * @throws IOException
 	 */
 	@Test(expected = InvalidStateTransitionException.class)
-	public void testChosenToComposition() throws Exception {
+	public void testChosenToComposition() throws ProcessIdAlreadyExistsException, InvalidStateTransitionException,
+			CannotFixDomainInThisProcessException, NoStrategyFoundASolutionException,
+			PrototypeCouldNotBeExtractedException, GroundingNotSuccessfulForAnyStrategyException, IOException {
 		ProcessController process = getProcessForState(EProcessState.STRATEGY_CHOSEN);
-		process.startComposition(1000);
+		if (process != null) {
+			process.startComposition(1000);
+		}
 	}
-	
+
 	/**
 	 * STRATEGY_CHOSEN -> GROUNDING [CORRECT]
+	 * 
+	 * @throws IOException
 	 */
 	@Test
-	public void testChosenToGrounding() throws Exception {
+	public void testChosenToGrounding() throws ProcessIdAlreadyExistsException, InvalidStateTransitionException,
+			CannotFixDomainInThisProcessException, NoStrategyFoundASolutionException,
+			PrototypeCouldNotBeExtractedException, GroundingNotSuccessfulForAnyStrategyException, IOException {
 		ProcessController process = getProcessForState(EProcessState.STRATEGY_CHOSEN);
-		process.chooseAndDeploySolution(null);
-		assertEquals(EProcessState.DONE, process.getProcessState());
+		if (process != null) {
+			process.chooseAndDeploySolution(null);
+			assertEquals(EProcessState.DONE, process.getProcessState());
+		}
 	}
-	
+
 	/*
 	 * Tests for state = DONE
 	 */
-	
+
 	/**
 	 * DONE -> CREATED [INCORRECT]
+	 * 
+	 * @throws IOException
 	 */
 	@Test(expected = InvalidStateTransitionException.class)
-	public void testDoneToCreated() throws Exception {
+	public void testDoneToCreated() throws ProcessIdAlreadyExistsException, InvalidStateTransitionException,
+			CannotFixDomainInThisProcessException, NoStrategyFoundASolutionException,
+			PrototypeCouldNotBeExtractedException, GroundingNotSuccessfulForAnyStrategyException, IOException {
 		ProcessController process = getProcessForState(EProcessState.DONE);
-		process.createNew(null);
+		if (process != null) {
+			process.createNew(null);
+		}
 	}
-	
+
 	/**
 	 * DONE -> DOMAIN_DEFINITION [INCORRECT]
+	 * 
+	 * @throws IOException
 	 */
 	@Test(expected = InvalidStateTransitionException.class)
-	public void testDoneToDomain() throws Exception {
+	public void testDoneToDomain() throws ProcessIdAlreadyExistsException, InvalidStateTransitionException,
+			CannotFixDomainInThisProcessException, NoStrategyFoundASolutionException,
+			PrototypeCouldNotBeExtractedException, GroundingNotSuccessfulForAnyStrategyException, IOException {
 		ProcessController process = getProcessForState(EProcessState.DONE);
-		process.fixDomain("test");
+		if (process != null) {
+			process.fixDomain("test");
+		}
 	}
-	
+
 	/**
 	 * DONE -> INTERVIEW [INCORRECT]
+	 * 
+	 * @throws IOException
 	 */
 	@Test(expected = InvalidStateTransitionException.class)
-	public void testDoneToInterview() throws Exception {
+	public void testDoneToInterview() throws ProcessIdAlreadyExistsException, InvalidStateTransitionException,
+			CannotFixDomainInThisProcessException, NoStrategyFoundASolutionException,
+			PrototypeCouldNotBeExtractedException, GroundingNotSuccessfulForAnyStrategyException, IOException {
 		ProcessController process = getProcessForState(EProcessState.DONE);
-		process.updateInterview(new HashMap<>());
+		if (process != null) {
+			process.updateInterview(new HashMap<>());
+		}
 	}
-	
+
 	/**
 	 * DONE -> COMPOSITION [INCORRECT]
+	 * 
+	 * @throws IOException
 	 */
 	@Test(expected = InvalidStateTransitionException.class)
-	public void testDoneToComposition() throws Exception {
+	public void testDoneToComposition() throws ProcessIdAlreadyExistsException, InvalidStateTransitionException,
+			CannotFixDomainInThisProcessException, NoStrategyFoundASolutionException,
+			PrototypeCouldNotBeExtractedException, GroundingNotSuccessfulForAnyStrategyException, IOException {
 		ProcessController process = getProcessForState(EProcessState.DONE);
-		process.startComposition(1000);
+		if (process != null) {
+			process.startComposition(1000);
+		}
 	}
-	
+
 	/**
 	 * DONE -> GROUNDING [INCORRECT]
+	 * 
+	 * @throws IOException
 	 */
 	@Test(expected = InvalidStateTransitionException.class)
-	public void testDoneToGrounding() throws Exception {
+	public void testDoneToGrounding() throws ProcessIdAlreadyExistsException, InvalidStateTransitionException,
+			CannotFixDomainInThisProcessException, NoStrategyFoundASolutionException,
+			PrototypeCouldNotBeExtractedException, GroundingNotSuccessfulForAnyStrategyException, IOException {
 		ProcessController process = getProcessForState(EProcessState.DONE);
-		process.chooseAndDeploySolution(null);
+		if (process != null) {
+			process.chooseAndDeploySolution(null);
+		}
 	}
-	
+
 	@Test
-	public void testWholeTransition() throws Exception {
+	public void testWholeTransition() throws ProcessIdAlreadyExistsException, InvalidStateTransitionException,
+			CannotFixDomainInThisProcessException, NoStrategyFoundASolutionException,
+			PrototypeCouldNotBeExtractedException, GroundingNotSuccessfulForAnyStrategyException, IOException {
 		ProcessController processController = new FileBasedConfigurationProcess(new File(""));
 		assertEquals(EProcessState.INIT, processController.getProcessState());
 
@@ -366,14 +561,13 @@ public class StateTransitionTest {
 		processController.fixDomain("test");
 		assertEquals(EProcessState.DOMAIN_DEFINITION, processController.getProcessState());
 
-		env = processController.getProcessEnvironment();
-		processId = env.getProcessId();
+		PROSECOProcessEnvironment environment = processController.getProcessEnvironment();
 		File interviewFile = new File(
-				env.getInterviewDirectory().getAbsolutePath() + File.separator + "interview.yaml");
+				environment.getInterviewDirectory().getAbsolutePath() + File.separator + INTERVIEW_YAML);
 		Parser parser = new Parser();
 		InterviewFillout fillout = new InterviewFillout(parser.initializeInterviewFromConfig(interviewFile));
 		Map<String, String> answers = fillout.retrieveQuestionAnswerMap();
-		answers.put("Please select prototype", "test1");
+		answers.put(PROTOTYPE_QUESTION, TEST1);
 		processController.updateInterview(answers);
 		assertEquals(EProcessState.INTERVIEW, processController.getProcessState());
 
@@ -385,23 +579,26 @@ public class StateTransitionTest {
 	}
 
 	@Test
-	public void testWholeTransitionWithAttached() throws Exception {
+	public void testWholeTransitionWithAttached() throws ProcessIdAlreadyExistsException,
+			InvalidStateTransitionException, CannotFixDomainInThisProcessException, NoStrategyFoundASolutionException,
+			PrototypeCouldNotBeExtractedException, GroundingNotSuccessfulForAnyStrategyException,
+			ProcessIdDoesNotExistException, IOException {
 		ProcessController processController = new FileBasedConfigurationProcess(new File(""));
 		processController.createNew(null);
 		processController.fixDomain("test");
-		env = processController.getProcessEnvironment();
-		processId = env.getProcessId();
-		
+		PROSECOProcessEnvironment environment = processController.getProcessEnvironment();
+		String mProcessId = environment.getProcessId();
+
 		processController = new FileBasedConfigurationProcess(new File(""));
-		processController.attach(processId);
-		env = processController.getProcessEnvironment();
-		
+		processController.attach(mProcessId);
+		environment = processController.getProcessEnvironment();
+
 		File interviewFile = new File(
-				env.getInterviewDirectory().getAbsolutePath() + File.separator + "interview.yaml");
+				environment.getInterviewDirectory().getAbsolutePath() + File.separator + INTERVIEW_YAML);
 		Parser parser = new Parser();
 		InterviewFillout fillout = new InterviewFillout(parser.initializeInterviewFromConfig(interviewFile));
 		Map<String, String> answers = fillout.retrieveQuestionAnswerMap();
-		answers.put("Please select prototype", "test1");
+		answers.put(PROTOTYPE_QUESTION, TEST1);
 		processController.updateInterview(answers);
 		assertEquals(EProcessState.INTERVIEW, processController.getProcessState());
 
@@ -411,11 +608,11 @@ public class StateTransitionTest {
 		processController.chooseAndDeploySolution(solution);
 		assertEquals(EProcessState.DONE, processController.getProcessState());
 	}
-	
 
-	private ProcessController getProcessForState(EProcessState requestedState) throws ProcessIdAlreadyExistsException,
-			InvalidStateTransitionException, CannotFixDomainInThisProcessException, NoStrategyFoundASolutionException,
-			PrototypeCouldNotBeExtractedException, GroundingNotSuccessfulForAnyStrategyException {
+	private static ProcessController getProcessForState(EProcessState requestedState)
+			throws ProcessIdAlreadyExistsException, InvalidStateTransitionException,
+			CannotFixDomainInThisProcessException, NoStrategyFoundASolutionException,
+			PrototypeCouldNotBeExtractedException, GroundingNotSuccessfulForAnyStrategyException, IOException {
 		ProcessController process = null;
 		switch (requestedState) {
 		case INIT:
@@ -437,21 +634,16 @@ public class StateTransitionTest {
 			env = process.getProcessEnvironment();
 			processId = env.getProcessId();
 			File interviewFile = new File(
-					env.getInterviewDirectory().getAbsolutePath() + File.separator + "interview.yaml");
+					env.getInterviewDirectory().getAbsolutePath() + File.separator + INTERVIEW_YAML);
 			Parser parser = new Parser();
 			InterviewFillout fillout = null;
-			try {
-				fillout = new InterviewFillout(parser.initializeInterviewFromConfig(interviewFile));
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+			fillout = new InterviewFillout(parser.initializeInterviewFromConfig(interviewFile));
 			Map<String, String> answers = fillout.retrieveQuestionAnswerMap();
-			answers.put("Please select prototype", "test1");
+			answers.put(PROTOTYPE_QUESTION, TEST1);
 			process.updateInterview(answers);
 			break;
 		case COMPOSITION:
-			System.err.println("This State is inaccessible from outside");
+			logger.error(STATE_INACCESSIBLE_MSG);
 			break;
 		case STRATEGY_CHOSEN:
 			process = new FileBasedConfigurationProcess(new File(""));
@@ -459,22 +651,16 @@ public class StateTransitionTest {
 			process.fixDomain("test");
 			env = process.getProcessEnvironment();
 			processId = env.getProcessId();
-			interviewFile = new File(env.getInterviewDirectory().getAbsolutePath() + File.separator + "interview.yaml");
+			interviewFile = new File(env.getInterviewDirectory().getAbsolutePath() + File.separator + INTERVIEW_YAML);
 			parser = new Parser();
-			fillout = null;
-			try {
-				fillout = new InterviewFillout(parser.initializeInterviewFromConfig(interviewFile));
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+			fillout = new InterviewFillout(parser.initializeInterviewFromConfig(interviewFile));
 			answers = fillout.retrieveQuestionAnswerMap();
-			answers.put("Please select prototype", "test1");
+			answers.put(PROTOTYPE_QUESTION, TEST1);
 			process.updateInterview(answers);
-			PROSECOSolution solution = process.startComposition(1000);
+			process.startComposition(1000);
 			break;
 		case DEPLOYMENT:
-			System.err.println("This State is inaccessible from outside");
+			logger.error(STATE_INACCESSIBLE_MSG);
 			break;
 		case DONE:
 			process = new FileBasedConfigurationProcess(new File(""));
@@ -482,26 +668,20 @@ public class StateTransitionTest {
 			process.fixDomain("test");
 			env = process.getProcessEnvironment();
 			processId = env.getProcessId();
-			interviewFile = new File(env.getInterviewDirectory().getAbsolutePath() + File.separator + "interview.yaml");
+			interviewFile = new File(env.getInterviewDirectory().getAbsolutePath() + File.separator + INTERVIEW_YAML);
 			parser = new Parser();
-			fillout = null;
-			try {
-				fillout = new InterviewFillout(parser.initializeInterviewFromConfig(interviewFile));
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+			fillout = new InterviewFillout(parser.initializeInterviewFromConfig(interviewFile));
 			answers = fillout.retrieveQuestionAnswerMap();
-			answers.put("Please select prototype", "test1");
+			answers.put(PROTOTYPE_QUESTION, TEST1);
 			process.updateInterview(answers);
-			solution = process.startComposition(1000);
+			PROSECOSolution solution = process.startComposition(1000);
 			process.chooseAndDeploySolution(solution);
 			break;
 		case GROUNDING:
-			System.err.println("This State is inaccessible from outside");
+			logger.error(STATE_INACCESSIBLE_MSG);
 			break;
 		case PROTOTYPE_EXTRACTED:
-			System.err.println("This State is inaccessible from outside");
+			logger.error(STATE_INACCESSIBLE_MSG);
 			break;
 		default:
 			process = new FileBasedConfigurationProcess(new File(""));
