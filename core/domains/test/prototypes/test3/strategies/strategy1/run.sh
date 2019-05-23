@@ -6,4 +6,4 @@ echo param3:$3 >> $1/strategy1.out
 echo param4:$4 >> $1/strategy1.out
 cd $0
 javac --release 8 ExhaustCPU.java
-java ExhaustCPU 30 $1 $2 $3 $4
+java ExhaustCPU 30 $2 $3 $4
