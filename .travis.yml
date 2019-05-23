@@ -18,7 +18,8 @@ jdk:
 before_script: 
   - chmod +x gradlew
   - javac core/domains/test/prototypes/test3/strategies/strategy2/FScoreNoFiles.java
-  - java FScoreNoFiles
+  - java core/domains/test/prototypes/test3/strategies/strategy2/FScoreNoFiles
+  - ./core/domains/test/prototypes/test3/strategies/strategy2/FScoreNoFiles/run.sh
   
 addons:
   sonarcloud:
