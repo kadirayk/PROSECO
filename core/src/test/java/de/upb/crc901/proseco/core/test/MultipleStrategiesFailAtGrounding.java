@@ -27,7 +27,6 @@ import de.upb.crc901.proseco.commons.util.PROSECOProcessEnvironment;
 import de.upb.crc901.proseco.commons.util.Parser;
 import de.upb.crc901.proseco.core.composition.FileBasedConfigurationProcess;
 
-@Ignore
 public class MultipleStrategiesFailAtGrounding {
 	static String processId;
 	static PROSECOProcessEnvironment env;
