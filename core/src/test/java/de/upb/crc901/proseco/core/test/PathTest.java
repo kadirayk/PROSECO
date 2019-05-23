@@ -29,8 +29,8 @@ public class PathTest {
 	static String processId;
 	static PROSECOProcessEnvironment env;
 	static String output;
-	static String strategy;
-	static String file;
+	static String strategy = "Strategy";
+	static String file = "file:";
 
 	@BeforeClass
 	public static void initialize() throws ProcessIdAlreadyExistsException, InvalidStateTransitionException,

@@ -549,7 +549,7 @@ public class StateTransitionTest {
 	}
 
 	@Test
-	public static void testWholeTransition() throws ProcessIdAlreadyExistsException, InvalidStateTransitionException,
+	public void testWholeTransition() throws ProcessIdAlreadyExistsException, InvalidStateTransitionException,
 			CannotFixDomainInThisProcessException, NoStrategyFoundASolutionException,
 			PrototypeCouldNotBeExtractedException, GroundingNotSuccessfulForAnyStrategyException, IOException {
 		ProcessController processController = new FileBasedConfigurationProcess(new File(""));
@@ -561,9 +561,9 @@ public class StateTransitionTest {
 		processController.fixDomain("test");
 		assertEquals(EProcessState.DOMAIN_DEFINITION, processController.getProcessState());
 
-		env = processController.getProcessEnvironment();
-		processId = env.getProcessId();
-		File interviewFile = new File(env.getInterviewDirectory().getAbsolutePath() + File.separator + INTERVIEW_YAML);
+		PROSECOProcessEnvironment environment = processController.getProcessEnvironment();
+		File interviewFile = new File(
+				environment.getInterviewDirectory().getAbsolutePath() + File.separator + INTERVIEW_YAML);
 		Parser parser = new Parser();
 		InterviewFillout fillout = new InterviewFillout(parser.initializeInterviewFromConfig(interviewFile));
 		Map<String, String> answers = fillout.retrieveQuestionAnswerMap();
@@ -579,21 +579,22 @@ public class StateTransitionTest {
 	}
 
 	@Test
-	public static void testWholeTransitionWithAttached() throws ProcessIdAlreadyExistsException,
+	public void testWholeTransitionWithAttached() throws ProcessIdAlreadyExistsException,
 			InvalidStateTransitionException, CannotFixDomainInThisProcessException, NoStrategyFoundASolutionException,
 			PrototypeCouldNotBeExtractedException, GroundingNotSuccessfulForAnyStrategyException,
 			ProcessIdDoesNotExistException, IOException {
 		ProcessController processController = new FileBasedConfigurationProcess(new File(""));
 		processController.createNew(null);
 		processController.fixDomain("test");
-		env = processController.getProcessEnvironment();
-		processId = env.getProcessId();
+		PROSECOProcessEnvironment environment = processController.getProcessEnvironment();
+		String mProcessId = environment.getProcessId();
 
 		processController = new FileBasedConfigurationProcess(new File(""));
-		processController.attach(processId);
-		env = processController.getProcessEnvironment();
+		processController.attach(mProcessId);
+		environment = processController.getProcessEnvironment();
 
-		File interviewFile = new File(env.getInterviewDirectory().getAbsolutePath() + File.separator + INTERVIEW_YAML);
+		File interviewFile = new File(
+				environment.getInterviewDirectory().getAbsolutePath() + File.separator + INTERVIEW_YAML);
 		Parser parser = new Parser();
 		InterviewFillout fillout = new InterviewFillout(parser.initializeInterviewFromConfig(interviewFile));
 		Map<String, String> answers = fillout.retrieveQuestionAnswerMap();
