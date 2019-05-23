@@ -5,5 +5,5 @@ echo param2:%2 >> %1/strategy1.out
 echo param3:%3 >> %1/strategy1.out
 echo param4:%4 >> %1/strategy1.out
 cd %~dp0
-javac --release 8 ExhaustCPU.java
+javac ExhaustCPU.java
 java ExhaustCPU 30 %2 %3 %4 
