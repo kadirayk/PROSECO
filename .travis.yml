@@ -17,6 +17,7 @@ jdk:
 
 before_script: 
   - chmod +x gradlew
+  - chmod -R +x core/domains/test/prototypes
   
 addons:
   sonarcloud:
