@@ -4,16 +4,24 @@ import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertTrue;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.Map;
 
 import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import de.upb.crc901.proseco.commons.controller.CannotFixDomainInThisProcessException;
 import de.upb.crc901.proseco.commons.controller.GroundingNotSuccessfulForAnyStrategyException;
+import de.upb.crc901.proseco.commons.controller.NoStrategyFoundASolutionException;
 import de.upb.crc901.proseco.commons.controller.PROSECOSolution;
 import de.upb.crc901.proseco.commons.controller.ProcessController;
+import de.upb.crc901.proseco.commons.controller.ProcessIdAlreadyExistsException;
+import de.upb.crc901.proseco.commons.controller.PrototypeCouldNotBeExtractedException;
 import de.upb.crc901.proseco.commons.interview.InterviewFillout;
+import de.upb.crc901.proseco.commons.processstatus.InvalidStateTransitionException;
 import de.upb.crc901.proseco.commons.util.FileUtil;
 import de.upb.crc901.proseco.commons.util.PROSECOProcessEnvironment;
 import de.upb.crc901.proseco.commons.util.Parser;
@@ -24,9 +32,12 @@ public class MultipleStrategiesFailAtGrounding {
 	static String processId;
 	static PROSECOProcessEnvironment env;
 	static String output;
+	static final Logger logger = LoggerFactory.getLogger(MultipleStrategiesFailAtGrounding.class);
 
 	@BeforeClass
-	public static void initialize() throws Exception {
+	public static void initialize() throws ProcessIdAlreadyExistsException, InvalidStateTransitionException,
+			CannotFixDomainInThisProcessException, IOException, NoStrategyFoundASolutionException,
+			PrototypeCouldNotBeExtractedException, GroundingNotSuccessfulForAnyStrategyException {
 		ProcessController processController = new FileBasedConfigurationProcess(new File(""));
 		processController.createNew(null);
 		processController.fixDomain("test");
@@ -44,7 +55,7 @@ public class MultipleStrategiesFailAtGrounding {
 			PROSECOSolution solution = processController.startComposition(1000);
 			processController.chooseAndDeploySolution(solution);
 		} catch (GroundingNotSuccessfulForAnyStrategyException e) {
-
+			logger.error(e.getMessage());
 		}
 
 		output = FileUtil.readFile("processes/" + processId + "/test.out");
@@ -55,19 +66,21 @@ public class MultipleStrategiesFailAtGrounding {
 	 */
 	@Test
 	public void testWinningAndBackupStrategy() {
-		int startGrounding = output.indexOf("Grounding");
-		int startWinningStrategyDir = output.indexOf("param2:", startGrounding) + "param2:".length();
-		int lineEnd = output.indexOf("\n", startWinningStrategyDir);
+		String grounding = "Grounding";
+		String param2 = "param2:";
+		int startGrounding = output.indexOf(grounding);
+		int startWinningStrategyDir = output.indexOf(param2, startGrounding) + param2.length();
+		int lineEnd = output.indexOf('\n', startWinningStrategyDir);
 		String winningStrategy = output.substring(startWinningStrategyDir, lineEnd).trim();
 
-		startGrounding = output.indexOf("Grounding", lineEnd);
-		startWinningStrategyDir = output.indexOf("param2:", startGrounding) + "param2:".length();
-		lineEnd = output.indexOf("\n", startWinningStrategyDir);
+		startGrounding = output.indexOf(grounding, lineEnd);
+		startWinningStrategyDir = output.indexOf(param2, startGrounding) + param2.length();
+		lineEnd = output.indexOf('\n', startWinningStrategyDir);
 		String backupStrategy1 = output.substring(startWinningStrategyDir, lineEnd).trim();
 
-		startGrounding = output.indexOf("Grounding", lineEnd);
-		startWinningStrategyDir = output.indexOf("param2:", startGrounding) + "param2:".length();
-		lineEnd = output.indexOf("\n", startWinningStrategyDir);
+		startGrounding = output.indexOf(grounding, lineEnd);
+		startWinningStrategyDir = output.indexOf(param2, startGrounding) + param2.length();
+		lineEnd = output.indexOf('\n', startWinningStrategyDir);
 		String backupStrategy2 = output.substring(startWinningStrategyDir, lineEnd).trim();
 
 		assertTrue(winningStrategy.endsWith("strategy2")); // first attempt of grounding with strategy2
