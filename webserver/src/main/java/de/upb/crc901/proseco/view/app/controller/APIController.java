@@ -1,7 +1,6 @@
 package de.upb.crc901.proseco.view.app.controller;
 
 import java.io.File;
-import java.io.FileFilter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -177,12 +176,7 @@ public class APIController {
 		}
 		File strategyDirectory = env.getStrategyDirectory();
 
-		final File[] strategySubFolders = strategyDirectory.listFiles(new FileFilter() {
-			@Override
-			public boolean accept(final File file) {
-				return file.isDirectory();
-			}
-		});
+		final File[] strategySubFolders = strategyDirectory.listFiles(File::isDirectory);
 
 		String outputPath = env.getSearchOutputDirectory().getAbsolutePath();
 		for (final File strategyFolder : strategySubFolders) {
