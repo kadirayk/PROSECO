@@ -10,49 +10,49 @@ import de.upb.crc901.proseco.view.core.ExpressionEvaluator;
 public class ExpressionTest {
 
 	@Test
-	public void Test1() {
+	public void test1() {
 		String exp = "a=a & (b=c|(c=c))";
 		ExpressionEvaluator ev = new ExpressionEvaluator(exp);
 		assertTrue(ev.evaluateExpression());
 	}
 
 	@Test
-	public void Test2() {
+	public void test2() {
 		String exp = "a=b | (b=c | (c=c & d=d)))";
 		ExpressionEvaluator ev = new ExpressionEvaluator(exp);
 		assertTrue(ev.evaluateExpression());
 	}
 
 	@Test
-	public void TestFalse() {
+	public void testFalse() {
 		String exp = "a=a & (b=c | (c=c & d=d)) & f=f & g=h )";
 		ExpressionEvaluator ev = new ExpressionEvaluator(exp);
 		assertFalse(ev.evaluateExpression());
 	}
 
 	@Test
-	public void TestTrue3() {
+	public void testTrue3() {
 		String exp = "a=a & (b=c | (c=c & d=d)) & f=f & g=g )";
 		ExpressionEvaluator ev = new ExpressionEvaluator(exp);
 		assertTrue(ev.evaluateExpression());
 	}
 
 	@Test
-	public void TestNumericOperationTrue() {
+	public void testNumericOperationTrue() {
 		String exp = "3>1 & (!(4>=4) | 2=2 | !(3<=1))";
 		ExpressionEvaluator ev = new ExpressionEvaluator(exp);
 		assertTrue(ev.evaluateExpression());
 	}
 	
 	@Test
-	public void TestNumericOperationFalse() {
+	public void testNumericOperationFalse() {
 		String exp = "3>1 & (!(4>=4) | 2!=2 | !(3>=1))";
 		ExpressionEvaluator ev = new ExpressionEvaluator(exp);
 		assertFalse(ev.evaluateExpression());
 	}
 	
 	@Test
-	public void TestStringEquals(){
+	public void testStringEquals(){
 		String exp = "a=b";
 		ExpressionEvaluator ev = new ExpressionEvaluator(exp);
 		assertFalse(ev.evaluateExpression());
