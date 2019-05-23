@@ -18,7 +18,6 @@ jdk:
 before_script: 
   - chmod +x gradlew
   - chmod -R +x core/domains/test/prototypes
-  - ./core/domains/test/prototypes/test3/strategies/strategy2/run.sh
   
 addons:
   sonarcloud:
