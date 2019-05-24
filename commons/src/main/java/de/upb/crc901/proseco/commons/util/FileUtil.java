@@ -38,6 +38,10 @@ public class FileUtil {
 		}
 	}
 	
+	public static void f() {
+		System.out.println("test");
+	}
+	
 	public static String readFile(String filePath) {
 		byte[] encoded = null;
 		String content = null;
