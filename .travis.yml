@@ -26,7 +26,8 @@ addons:
    
 script:
   - ./gradlew build
-  - ./gradlew generateJavadoc
+  #- ./gradlew generateJavadoc
+  - git fetch --no-tags +refs/heads/dev:refs/remotes/origin/dev
   - 'if [ "$TRAVIS_PULL_REQUEST_SLUG" = "$TRAVIS_REPO_SLUG" ]; then sonar-scanner; fi' # sonar only on internal PR
 
 branches:
