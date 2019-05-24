@@ -27,7 +27,7 @@ addons:
 script:
   - ./gradlew build
   #- ./gradlew generateJavadoc
-  - git fetch --no-tags +refs/heads/dev:refs/remotes/origin/dev
+  - git fetch --no-tags https://github.com/fmohr/PROSECO.git dev
   - 'if [ "$TRAVIS_PULL_REQUEST_SLUG" = "$TRAVIS_REPO_SLUG" ]; then sonar-scanner; fi' # sonar only on internal PR
 
 branches:
