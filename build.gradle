@@ -6,9 +6,11 @@ plugins {
 	id "org.sonarqube" version "2.6.2"
 }
 
+
 allprojects {
-	buildscript { 
-		repositories {
+        
+	buildscript {
+ 		repositories {
 			mavenLocal()
 			mavenCentral()
 			maven { url "https://plugins.gradle.org/m2/" }
@@ -68,4 +70,13 @@ allprojects {
        	destinationDir = file("docs/javadoc")
 		failOnError = true
 	}
+
+	jacocoTestReport {
+    		reports {
+	        	xml.enabled = true
+	        	html.enabled = true
+	    	}
+	}
+
+	check.dependsOn jacocoTestReport
 }
