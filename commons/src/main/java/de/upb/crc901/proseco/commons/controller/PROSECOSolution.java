@@ -4,12 +4,12 @@ import java.io.File;
 import java.util.SortedMap;
 
 public class PROSECOSolution {
-	String processId;
-	String winningStrategyId;
-	Double winningScore;
-	SortedMap<Double, String> backupStrategies; // keep an ordered list of backup Strategies by their score
-	File winningStrategyFolder;
-	SortedMap<Double, File> backupStrategyFolders;
+	private String processId;
+	private String winningStrategyId;
+	private Double winningScore;
+	private SortedMap<Double, String> backupStrategies; // keep an ordered list of backup Strategies by their score
+	private File winningStrategyFolder;
+	private SortedMap<Double, File> backupStrategyFolders;
 
 	public Double getWinningScore() {
 		return winningScore;
