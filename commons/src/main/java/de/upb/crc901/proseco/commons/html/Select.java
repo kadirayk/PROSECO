@@ -21,7 +21,7 @@ public class Select extends UIElement {
 		this.setTag(TAG);
 	}
 
-	public Select(String content, Map<String, String> attributes, List<Option> options) {
+	public Select(final String content, final Map<String, String> attributes, final List<Option> options) {
 		this.setTag(TAG);
 		this.setContent(content);
 		this.setAttributes(attributes);
@@ -32,16 +32,16 @@ public class Select extends UIElement {
 		return this.options;
 	}
 
-	public void setOptions(List<Option> options) {
+	public void setOptions(final List<Option> options) {
 		this.options = options;
 	}
 
 	@Override
 	public String toHTML() {
-		StringBuilder html = new StringBuilder("<");
+		final StringBuilder html = new StringBuilder("<");
 		html.append(this.getTag());
 		if (this.getAttributes() != null) {
-			for (Map.Entry<String, String> entry : this.getAttributes().entrySet()) {
+			for (final Map.Entry<String, String> entry : this.getAttributes().entrySet()) {
 				if (entry.getKey().equals("name")) {
 					entry.setValue("response");
 				}
@@ -50,7 +50,7 @@ public class Select extends UIElement {
 		}
 		html.append(">");
 		if (this.options != null) {
-			for (Option o : this.options) {
+			for (final Option o : this.options) {
 				html.append("\n\t").append(o.toHTML());
 			}
 		}
@@ -67,12 +67,17 @@ public class Select extends UIElement {
 	}
 
 	@Override
-	public boolean equals(Object obj) {
+	public boolean equals(final Object obj) {
 		if (!super.equals(obj)) {
 			return false;
 		}
-		Select mObj = (Select) obj;
-		return this.options.equals(mObj.getOptions());
+
+		if (obj == null) {
+			return false;
+		} else {
+			final Select mObj = (Select) obj;
+			return this.options.equals(mObj.getOptions());
+		}
 	}
 
 }
