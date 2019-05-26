@@ -115,8 +115,13 @@ public class NaturalLanguageSupportingConfigurationProcess extends AProsecoConfi
 	}
 
 	@Override
-	public void fixDomain(String domain) throws CannotFixDomainInThisProcessException {
+	public void fixDomain(String domain) {
 		throw new CannotFixDomainInThisProcessException();
+	}
+
+	@Override
+	public void createNew() throws ProcessIdAlreadyExistsException, InvalidStateTransitionException {
+		super.updateProcessState(EProcessState.CREATED);
 	}
 
 	@Override

@@ -12,7 +12,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import de.upb.crc901.proseco.commons.config.PROSECOConfig;
 import de.upb.crc901.proseco.commons.config.ProcessConfig;
-import de.upb.crc901.proseco.commons.controller.CannotFixDomainInThisProcessException;
 import de.upb.crc901.proseco.commons.controller.ProcessIdAlreadyExistsException;
 import de.upb.crc901.proseco.commons.controller.ProcessIdDoesNotExistException;
 import de.upb.crc901.proseco.commons.controller.PrototypeCouldNotBeExtractedException;
@@ -36,6 +35,11 @@ public class FileBasedConfigurationProcess extends AProsecoConfigurationProcess 
 		}
 		this.prosecoConfigFile = prosecoConfigFile;
 		config = PROSECOConfig.get(prosecoConfigFile);
+	}
+
+	@Override
+	public void createNew() throws ProcessIdAlreadyExistsException, InvalidStateTransitionException {
+		super.updateProcessState(EProcessState.CREATED);
 	}
 
 	@Override
@@ -81,7 +85,7 @@ public class FileBasedConfigurationProcess extends AProsecoConfigurationProcess 
 	}
 
 	@Override
-	public void fixDomain(String domain) throws CannotFixDomainInThisProcessException, InvalidStateTransitionException {
+	public void fixDomain(String domain) throws InvalidStateTransitionException {
 		super.fixDomain(domain);
 		createEnvironment(domain);
 

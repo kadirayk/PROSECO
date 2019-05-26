@@ -15,8 +15,9 @@ public interface ProcessController {
 	 * @param processId
 	 * @throws InvalidStateTransitionException
 	 */
-	// TODO createNew with empty params
 	public void createNew(String processId) throws ProcessIdAlreadyExistsException, InvalidStateTransitionException;
+
+	public void createNew() throws ProcessIdAlreadyExistsException, InvalidStateTransitionException;
 
 	/**
 	 * Attach to an existing process
@@ -31,7 +32,7 @@ public interface ProcessController {
 	 * @param domain
 	 * @throws InvalidStateTransitionException
 	 */
-	public void fixDomain(String domain) throws CannotFixDomainInThisProcessException, InvalidStateTransitionException;
+	public void fixDomain(String domain) throws InvalidStateTransitionException;
 
 	/**
 	 * 
