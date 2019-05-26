@@ -18,7 +18,7 @@ import de.upb.crc901.proseco.commons.interview.InterviewFillout;
 
 /**
  * Serialization utility class
- * 
+ *
  * @author kadirayk
  *
  */

@@ -114,7 +114,7 @@ public class APIController {
 	 * @throws ProcessIdDoesNotExistException
 	 */
 	private String getServiceLog(final String id) throws ProcessIdDoesNotExistException, InvalidStateTransitionException {
-		processController.attach(id);
+		this.processController.attach(id);
 		PROSECOProcessEnvironment env = this.processController.getProcessEnvironment();
 		String serviceLogFile = env.getGroundingDirectory() + File.separator + this.config.getNameOfServiceLogFile();
 		return FileUtil.readFile(serviceLogFile);

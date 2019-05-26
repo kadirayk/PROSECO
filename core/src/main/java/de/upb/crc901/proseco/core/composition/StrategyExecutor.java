@@ -61,7 +61,7 @@ public class StrategyExecutor {
 			if (disabledStrategies != null && disabledStrategies.length != 0) {
 				List<File> filteredStrategies = new ArrayList<>();
 				for (int i = 0; i < strategyDirs.size(); i++) {
-					addToFilteredStrategies(strategyDirs, disabledStrategies, filteredStrategies, i);
+					this.addToFilteredStrategies(strategyDirs, disabledStrategies, filteredStrategies, i);
 				}
 				strategyDirectories = filteredStrategies.toArray(new File[filteredStrategies.size()]);
 			}
@@ -99,7 +99,7 @@ public class StrategyExecutor {
 			L.debug("Found {} strategies: {}", strategyDirectories.length, Arrays.toString(strategyDirectories));
 		}
 
-		strategyDirectories = filterDisabledStrategies(strategyDirectories);
+		strategyDirectories = this.filterDisabledStrategies(strategyDirectories);
 		if (strategyDirectories.length == 0) {
 			throw new PROSECORuntimeException("Could not find any enabled strategy!! Canceling request.");
 		}

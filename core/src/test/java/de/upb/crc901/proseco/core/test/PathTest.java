@@ -34,19 +34,19 @@ public class PathTest {
 	@BeforeClass
 	public static void initialize()
 			throws ProcessIdAlreadyExistsException, InvalidStateTransitionException, IOException, NoStrategyFoundASolutionException, PrototypeCouldNotBeExtractedException, GroundingNotSuccessfulForAnyStrategyException {
-		ProcessController processController = new FileBasedConfigurationProcess(new File(""));
+		final ProcessController processController = new FileBasedConfigurationProcess(new File(""));
 		processController.createNew(null);
 		processController.fixDomain("test");
 		env = processController.getProcessEnvironment();
 		processId = env.getProcessId();
-		File interviewFile = new File(env.getInterviewDirectory().getAbsolutePath() + File.separator + "interview.yaml");
-		Parser parser = new Parser();
-		InterviewFillout fillout = new InterviewFillout(parser.initializeInterviewFromConfig(interviewFile));
-		Map<String, String> answers = fillout.retrieveQuestionAnswerMap();
+		final File interviewFile = new File(env.getInterviewDirectory().getAbsolutePath() + File.separator + "interview.yaml");
+		final Parser parser = new Parser();
+		final InterviewFillout fillout = new InterviewFillout(parser.initializeInterviewFromConfig(interviewFile));
+		final Map<String, String> answers = fillout.retrieveQuestionAnswerMap();
 		answers.put("Please select prototype", "test");
 		processController.updateInterview(answers);
 
-		PROSECOSolution solution = processController.startComposition(1000);
+		final PROSECOSolution solution = processController.startComposition(1000);
 		processController.chooseAndDeploySolution(solution);
 		env = processController.getProcessEnvironment();
 		output = FileUtil.readFile("processes/" + processId + "/test.out");
@@ -54,50 +54,50 @@ public class PathTest {
 
 	@Test
 	public void testStrategyDirectory() {
-		int startStrategy = output.indexOf(strategy);
-		int startStrategyFile = output.indexOf(file, startStrategy) + file.length();
-		int lineEnd = output.indexOf('\n', startStrategyFile);
-		String strategyFile = output.substring(startStrategyFile, lineEnd);
-		int fileIndex = strategyFile.indexOf("strategy1") - 1;
-		String strategyDir = strategyFile.substring(0, fileIndex);
+		final int startStrategy = output.indexOf(strategy);
+		final int startStrategyFile = output.indexOf(file, startStrategy) + file.length();
+		final int lineEnd = output.indexOf('\n', startStrategyFile);
+		final String strategyFile = output.substring(startStrategyFile, lineEnd);
+		final int fileIndex = strategyFile.indexOf("strategy1") - 1;
+		final String strategyDir = strategyFile.substring(0, fileIndex);
 		assertEquals(env.getStrategyDirectory().getAbsolutePath(), strategyDir);
 	}
 
 	@Test
 	public void testProcessDirectory() {
-		int startStrategy = output.indexOf(strategy);
+		final int startStrategy = output.indexOf(strategy);
 
-		int startProcessDir = output.indexOf("param1:", startStrategy) + "param1:".length();
-		int lineEnd = output.indexOf('\n', startProcessDir);
-		String processDir = output.substring(startProcessDir, lineEnd).trim();
+		final int startProcessDir = output.indexOf("param1:", startStrategy) + "param1:".length();
+		final int lineEnd = output.indexOf('\n', startProcessDir);
+		final String processDir = output.substring(startProcessDir, lineEnd).trim();
 		assertEquals(env.getProcessDirectory().getAbsolutePath(), processDir);
 	}
 
 	@Test
 	public void testGroundingFile() {
-		int startGrounding = output.indexOf("Grounding");
-		int startGroundingFile = output.indexOf(file, startGrounding) + file.length();
-		int lineEnd = output.indexOf('\n', startGroundingFile);
-		String groundingFile = output.substring(startGroundingFile, lineEnd).trim();
+		final int startGrounding = output.indexOf("Grounding");
+		final int startGroundingFile = output.indexOf(file, startGrounding) + file.length();
+		final int lineEnd = output.indexOf('\n', startGroundingFile);
+		final String groundingFile = output.substring(startGroundingFile, lineEnd).trim();
 		assertEquals(env.groundingExecutable().getAbsolutePath(), groundingFile);
 	}
 
 	@Test
 	public void testDeploymentFile() {
-		int startDeployment = output.indexOf("Deployment");
-		int startDeploymentFile = output.indexOf(file, startDeployment) + file.length();
-		int lineEnd = output.indexOf('\n', startDeploymentFile);
-		String deploymentFile = output.substring(startDeploymentFile, lineEnd).trim();
+		final int startDeployment = output.indexOf("Deployment");
+		final int startDeploymentFile = output.indexOf(file, startDeployment) + file.length();
+		final int lineEnd = output.indexOf('\n', startDeploymentFile);
+		final String deploymentFile = output.substring(startDeploymentFile, lineEnd).trim();
 		assertEquals(env.deploymentExecutable().getAbsolutePath(), deploymentFile);
 	}
 
 	@Test
 	public void testSearchDirectory() {
 
-		int startStrategy = output.indexOf(strategy);
-		int startSearchDir = output.indexOf("param2:", startStrategy) + "param2:".length();
-		int lineEnd = output.indexOf('\n', startSearchDir);
-		String searchDir = output.substring(startSearchDir, lineEnd - ("//inputs ").length());
+		final int startStrategy = output.indexOf(strategy);
+		final int startSearchDir = output.indexOf("param2:", startStrategy) + "param2:".length();
+		final int lineEnd = output.indexOf('\n', startSearchDir);
+		final String searchDir = output.substring(startSearchDir, lineEnd - ("//inputs ").length());
 		assertTrue(env.getSearchDirectory().getAbsolutePath().contains(searchDir));
 
 	}

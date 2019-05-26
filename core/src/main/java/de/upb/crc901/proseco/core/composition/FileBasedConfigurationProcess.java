@@ -34,7 +34,7 @@ public class FileBasedConfigurationProcess extends AProsecoConfigurationProcess 
 			logger.error(e.getMessage());
 		}
 		this.prosecoConfigFile = prosecoConfigFile;
-		config = PROSECOConfig.get(prosecoConfigFile);
+		this.config = PROSECOConfig.get(prosecoConfigFile);
 	}
 
 	@Override
@@ -45,7 +45,7 @@ public class FileBasedConfigurationProcess extends AProsecoConfigurationProcess 
 	@Override
 	public void createNew(String processId) throws ProcessIdAlreadyExistsException, InvalidStateTransitionException {
 		if (processId != null) {
-			File processFolder = new File(config.getDirectoryForProcesses() + File.separator + processId);
+			File processFolder = new File(this.config.getDirectoryForProcesses() + File.separator + processId);
 			if (processFolder.exists()) {
 				throw new ProcessIdAlreadyExistsException();
 			}
@@ -61,7 +61,7 @@ public class FileBasedConfigurationProcess extends AProsecoConfigurationProcess 
 			String id = domain + "-" + UUID.randomUUID().toString().replace("-", "").substring(0, 10).toLowerCase();
 			this.processId = id;
 		}
-		File processFolder = new File(config.getDirectoryForProcesses() + File.separator + this.processId);
+		File processFolder = new File(this.config.getDirectoryForProcesses() + File.separator + this.processId);
 
 		try {
 			FileUtils.forceMkdir(processFolder);
@@ -70,14 +70,14 @@ public class FileBasedConfigurationProcess extends AProsecoConfigurationProcess 
 			logger.error(e.getMessage());
 		}
 
-		ProcessConfig pc = new ProcessConfig(processId, domain, prosecoConfigFile);
+		ProcessConfig pc = new ProcessConfig(this.processId, domain, this.prosecoConfigFile);
 		try {
 			new ObjectMapper().writeValue(new File(processFolder + File.separator + "process.json"), pc);
 		} catch (IOException e1) {
 			logger.error(e1.getMessage());
 		}
 		try {
-			processEnvironment = new PROSECOProcessEnvironment(processFolder);
+			this.processEnvironment = new PROSECOProcessEnvironment(processFolder);
 		} catch (IOException e) {
 			logger.error(e.getMessage());
 		}
@@ -87,7 +87,7 @@ public class FileBasedConfigurationProcess extends AProsecoConfigurationProcess 
 	@Override
 	public void fixDomain(String domain) throws InvalidStateTransitionException {
 		super.fixDomain(domain);
-		createEnvironment(domain);
+		this.createEnvironment(domain);
 
 	}
 
@@ -96,24 +96,24 @@ public class FileBasedConfigurationProcess extends AProsecoConfigurationProcess 
 		if (super.getProcessState() == EProcessState.INIT || super.getProcessState() == EProcessState.CREATED) {
 			throw new InvalidStateTransitionException();
 		}
-		return processEnvironment;
+		return this.processEnvironment;
 	}
 
 	@Override
 	public void attach(String processId) throws ProcessIdDoesNotExistException, InvalidStateTransitionException {
-		File processFolder = new File(config.getDirectoryForProcesses() + File.separator + processId);
+		File processFolder = new File(this.config.getDirectoryForProcesses() + File.separator + processId);
 		if (!processFolder.exists()) {
 			throw new ProcessIdDoesNotExistException();
 		}
 		this.processId = processId;
 
 		try {
-			processEnvironment = new PROSECOProcessEnvironment(processFolder);
+			this.processEnvironment = new PROSECOProcessEnvironment(processFolder);
 		} catch (IOException e) {
 			logger.error(e.getMessage());
 		}
 
-		if (getProcessState() != EProcessState.DOMAIN_DEFINITION) { // no need to update state
+		if (this.getProcessState() != EProcessState.DOMAIN_DEFINITION) { // no need to update state
 			super.updateProcessState(EProcessState.CREATED);
 			// domain is already known after attaching
 			super.updateProcessState(EProcessState.DOMAIN_DEFINITION);
@@ -147,7 +147,7 @@ public class FileBasedConfigurationProcess extends AProsecoConfigurationProcess 
 	@Override
 	protected void extractPrototype() throws PrototypeCouldNotBeExtractedException, InvalidStateTransitionException {
 		super.extractPrototype();
-		File processFolder = new File(config.getDirectoryForProcesses() + File.separator + processId);
+		File processFolder = new File(this.config.getDirectoryForProcesses() + File.separator + this.processId);
 
 		// update environment with prototype info
 		try {

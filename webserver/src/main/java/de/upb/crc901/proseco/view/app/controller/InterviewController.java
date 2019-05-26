@@ -94,7 +94,7 @@ public class InterviewController {
 	/**
 	 * Initiates interview process and decides prototype according to given
 	 * information
-	 * 
+	 *
 	 * @param interviewDTO
 	 * @return
 	 * @throws InvalidStateTransitionException
@@ -111,10 +111,10 @@ public class InterviewController {
 		 */
 		try {
 			logger.info("Initializing new process folder for domain {}.", domainName);
-			processController = new FileBasedConfigurationProcess(new File("conf/proseco.conf"));
-			processController.createNew(null);
-			processController.fixDomain(domainName);
-			PROSECOProcessEnvironment env = processController.getProcessEnvironment();
+			this.processController = new FileBasedConfigurationProcess(new File("conf/proseco.conf"));
+			this.processController.createNew(null);
+			this.processController.fixDomain(domainName);
+			PROSECOProcessEnvironment env = this.processController.getProcessEnvironment();
 			File interviewFile = new File(env.getInterviewDirectory().getAbsolutePath() + File.separator + "interview.yaml");
 			logger.info("Reading interview file {}", interviewFile);
 			Parser parser = new Parser();
@@ -184,7 +184,7 @@ public class InterviewController {
 						return;
 					}
 					deadlineCache.put(id, (System.currentTimeMillis() + 1000 * Long.parseLong(memorizedInterviewFillout.getAnswer(TIMEOUT))));
-					processController.startComposition(Integer.parseInt(memorizedInterviewFillout.getAnswer(TIMEOUT)));
+					this.processController.startComposition(Integer.parseInt(memorizedInterviewFillout.getAnswer(TIMEOUT)));
 				} catch (Exception e) {
 					logger.error(e.getMessage());
 				}
@@ -200,18 +200,18 @@ public class InterviewController {
 		// the reference of file (file path) as answer to the respected question in the
 		// interview
 		if (file != null && !file.isEmpty()) {
-			handleFileUpload(file, memorizedInterviewFillout, env, updatedAnswers);
+			this.handleFileUpload(file, memorizedInterviewFillout, env, updatedAnswers);
 		}
 
 		// if any string response is given set the responses as answer to the respected
 		// interview question
 		if (response != null && !StringUtils.isEmpty(response)) {
-			handleStringResponse(response, memorizedInterviewFillout, updatedAnswers);
+			this.handleStringResponse(response, memorizedInterviewFillout, updatedAnswers);
 		}
 		// update current interview state (to the first state with an unanswered
 		// question) and save it
 		interviewDTO.setInterviewFillout(new InterviewFillout(memorizedInterviewFillout.getInterview(), updatedAnswers));
-		processController.updateInterview(updatedAnswers);
+		this.processController.updateInterview(updatedAnswers);
 		this.saveInterviewState(interviewDTO);
 		logger.info("Interview is now in state {}", interviewDTO.getInterviewFillout().getCurrentState());
 		return RESULT_TEMPLATE;

@@ -18,14 +18,14 @@ public class ParserTest {
 
 	@Before
 	public void init() {
-		parser = new Parser();
+		this.parser = new Parser();
 	}
 
 	@Test
 	public void parseInterviewTest() throws IOException {
 		String filePath = "testdata/interview/interview.yaml";
 		File file = new File(filePath);
-		Interview interview = parser.initializeInterviewFromConfig(file);
+		Interview interview = this.parser.initializeInterviewFromConfig(file);
 		assertTrue(interview != null);
 
 		assertEquals("step0", interview.getStates().get(0).getName());
@@ -38,7 +38,7 @@ public class ParserTest {
 	public void testExceptionCase() throws IOException {
 		String filePath = "wrongpath";
 		File file = new File(filePath);
-		parser.initializeInterviewFromConfig(file);
+		this.parser.initializeInterviewFromConfig(file);
 	}
 
 }

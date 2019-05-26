@@ -5,27 +5,31 @@ import java.util.Map;
 
 /**
  * HTML Select element &lt;select\&gt;
- * 
+ *
  * @author kadirayk
  *
  */
 public class Select extends UIElement {
+	/**
+	 *
+	 */
+	private static final long serialVersionUID = 9213037056898530411L;
 	private List<Option> options;
 	private static final String TAG = "select";
 
 	public Select() {
-		setTag(TAG);
+		this.setTag(TAG);
 	}
 
 	public Select(String content, Map<String, String> attributes, List<Option> options) {
-		setTag(TAG);
-		setContent(content);
-		setAttributes(attributes);
-		setOptions(options);
+		this.setTag(TAG);
+		this.setContent(content);
+		this.setAttributes(attributes);
+		this.setOptions(options);
 	}
 
 	public List<Option> getOptions() {
-		return options;
+		return this.options;
 	}
 
 	public void setOptions(List<Option> options) {
@@ -35,9 +39,9 @@ public class Select extends UIElement {
 	@Override
 	public String toHTML() {
 		StringBuilder html = new StringBuilder("<");
-		html.append(getTag());
-		if (getAttributes() != null) {
-			for (Map.Entry<String, String> entry : getAttributes().entrySet()) {
+		html.append(this.getTag());
+		if (this.getAttributes() != null) {
+			for (Map.Entry<String, String> entry : this.getAttributes().entrySet()) {
 				if (entry.getKey().equals("name")) {
 					entry.setValue("response");
 				}
@@ -45,12 +49,12 @@ public class Select extends UIElement {
 			}
 		}
 		html.append(">");
-		if (options != null) {
-			for (Option o : options) {
+		if (this.options != null) {
+			for (Option o : this.options) {
 				html.append("\n\t").append(o.toHTML());
 			}
 		}
-		html.append("\n</").append(getTag()).append(">");
+		html.append("\n</").append(this.getTag()).append(">");
 		return html.toString();
 	}
 
@@ -58,7 +62,7 @@ public class Select extends UIElement {
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + ((options == null) ? 0 : options.hashCode());
+		result = prime * result + ((this.options == null) ? 0 : this.options.hashCode());
 		return result;
 	}
 
@@ -68,7 +72,7 @@ public class Select extends UIElement {
 			return false;
 		}
 		Select mObj = (Select) obj;
-		return options.equals(mObj.getOptions());
+		return this.options.equals(mObj.getOptions());
 	}
 
 }

@@ -14,6 +14,10 @@ import de.upb.crc901.proseco.commons.util.ListUtil;
 
 @SuppressWarnings("serial")
 public class InterviewFillout implements Serializable {
+	/**
+	 *
+	 */
+	private static final long serialVersionUID = 3224230481272935314L;
 	private Interview interview;
 	private Map<String, String> answers; // this is a map from question IDs to answers. Using String instead of Question
 											// is ON PURPOSE to ease serialization with Jackson!
@@ -72,8 +76,8 @@ public class InterviewFillout implements Serializable {
 			if (ListUtil.isNotEmpty(questions)) {
 				for (Question q : questions) {
 					questionAnswerMap.put(q.getContent(), null);
-					if (answers.containsKey(q.getId())) {
-						questionAnswerMap.put(q.getContent(), answers.get(q.getId()));
+					if (this.answers.containsKey(q.getId())) {
+						questionAnswerMap.put(q.getContent(), this.answers.get(q.getId()));
 					}
 				}
 			}
@@ -85,7 +89,7 @@ public class InterviewFillout implements Serializable {
 		for (Entry<String, String> e : questionAnswerMap.entrySet()) {
 			if (e.getValue() != null) {
 				for (State s : this.interview.getStates()) {
-					handleQuestions(e, s);
+					this.handleQuestions(e, s);
 				}
 			}
 		}
@@ -96,7 +100,7 @@ public class InterviewFillout implements Serializable {
 		if (ListUtil.isNotEmpty(questions)) {
 			for (Question q : questions) {
 				if ((q.getContent() != null && q.getContent().equals(e.getKey())) || (q.getId().equals(e.getKey()))) {
-					answers.put(q.getId(), e.getValue());
+					this.answers.put(q.getId(), e.getValue());
 				}
 			}
 		}

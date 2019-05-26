@@ -13,7 +13,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Unified class for configuration values
- * 
+ *
  * @author kadirayk, fmohr
  *
  */

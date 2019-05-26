@@ -19,15 +19,15 @@ public class ProcessConfig {
 	}
 
 	public String getProcessId() {
-		return processId;
+		return this.processId;
 	}
 
 	public String getDomain() {
-		return domain;
+		return this.domain;
 	}
 
 	public File getProsecoConfigFile() {
-		return prosecoConfigFile;
+		return this.prosecoConfigFile;
 	}
 
 	public void setProsecoConfigFile(File prosecoConfigFile) {

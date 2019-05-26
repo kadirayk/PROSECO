@@ -20,7 +20,7 @@ public class DefaultPrototypeExtractor implements IPrototypeExtractor {
 		}
 		return prototype;
 	}
-	
+
 	private static boolean prototypeExists(String domain, String prototype) {
 		boolean exists = false;
 		File prototypesFolder = new File("domains/" + domain + "/prototypes");

@@ -124,7 +124,7 @@ public class InterviewDTO {
 		htmlElement.append(HTMLConstants.LINE_BREAK).append("Debug: ");
 		htmlElement.append("<table style=\"width: 100%\" border=\"1\">").append(HTMLConstants.TR_OPEN).append(HTMLConstants.TH_OPEN).append("State").append(HTMLConstants.TH_CLOSE).append(HTMLConstants.TH_OPEN).append("qId")
 				.append(HTMLConstants.TH_CLOSE).append(HTMLConstants.TH_OPEN).append("Question").append(HTMLConstants.TH_CLOSE).append(HTMLConstants.TH_OPEN).append("answer").append(HTMLConstants.TH_CLOSE).append(HTMLConstants.TR_CLOSE);
-		createStatesHTML(interviewFillout, htmlElement);
+		this.createStatesHTML(interviewFillout, htmlElement);
 		htmlElement.append("</table>").append("</div>");
 		this.debugHTML = htmlElement.toString();
 	}
@@ -140,7 +140,7 @@ public class InterviewDTO {
 			}
 			htmlElement.append("><td rowspan=\"").append(state.getQuestions().size()).append("\">").append(state.getName()).append(HTMLConstants.TD_CLOSE);
 
-			createQuestionsHTML(interviewFillout, htmlElement, state);
+			this.createQuestionsHTML(interviewFillout, htmlElement, state);
 
 		}
 	}

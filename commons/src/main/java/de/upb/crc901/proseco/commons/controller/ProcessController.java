@@ -11,7 +11,7 @@ public interface ProcessController {
 	/**
 	 * Create a new prototype with the given ID if available, Create a new prototype
 	 * if the given ID is null
-	 * 
+	 *
 	 * @param processId
 	 * @throws InvalidStateTransitionException
 	 */
@@ -21,33 +21,33 @@ public interface ProcessController {
 
 	/**
 	 * Attach to an existing process
-	 * 
+	 *
 	 * @param processId
 	 * @throws InvalidStateTransitionException
 	 */
 	public void attach(String processId) throws ProcessIdDoesNotExistException, InvalidStateTransitionException;
 
 	/**
-	 * 
+	 *
 	 * @param domain
 	 * @throws InvalidStateTransitionException
 	 */
 	public void fixDomain(String domain) throws InvalidStateTransitionException;
 
 	/**
-	 * 
+	 *
 	 */
 	public PROSECOSolution startComposition(int timeoutInSeconds) throws NoStrategyFoundASolutionException, InvalidStateTransitionException, PrototypeCouldNotBeExtractedException;
 
 	/**
-	 * 
+	 *
 	 * @return
 	 */
 	public String getProcessId();
 
 	/**
 	 * @throws GroundingNotSuccessfulForAnyStrategyException
-	 * 
+	 *
 	 */
 	public void chooseAndDeploySolution(PROSECOSolution solution) throws InvalidStateTransitionException, GroundingNotSuccessfulForAnyStrategyException;
 

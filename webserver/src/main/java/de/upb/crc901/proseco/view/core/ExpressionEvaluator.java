@@ -11,7 +11,7 @@ import org.apache.commons.lang3.StringUtils;
  * ExpressionEvaluator, parses infix expression and converts to postfix
  * expression using Shunting-yard algorithm then operates over postfix
  * expression to evaluate given expression
- * 
+ *
  * @author kadirayk
  *
  */
@@ -21,40 +21,40 @@ public class ExpressionEvaluator {
 	Deque<Node> evaluationStack;
 
 	public ExpressionEvaluator(String expression) {
-		operatorStack = new ArrayDeque<>();
-		postfixQueue = new LinkedList<>();
-		convertToPostfix(expression);
+		this.operatorStack = new ArrayDeque<>();
+		this.postfixQueue = new LinkedList<>();
+		this.convertToPostfix(expression);
 	}
 
 	/**
 	 * Evaluates the postfix expression
-	 * 
+	 *
 	 * @return
 	 */
 	public boolean evaluateExpression() {
-		evaluationStack = new ArrayDeque<>();
-		for (Node n : postfixQueue) {
+		this.evaluationStack = new ArrayDeque<>();
+		for (Node n : this.postfixQueue) {
 			if (n instanceof Operand) {
-				evaluationStack.push(n);
+				this.evaluationStack.push(n);
 			} else if (n instanceof Operator && n.getValue().equals(OperatorEnum.NOT.value())) {
-				Node node = evaluationStack.pop();
+				Node node = this.evaluationStack.pop();
 				boolean evaluation = !Boolean.valueOf(node.getValue());
 				Node result = new Operand(String.valueOf(evaluation));
-				evaluationStack.push(result);
+				this.evaluationStack.push(result);
 			} else if (n instanceof Operator) {
-				Node nodeLast = evaluationStack.pop();
-				Node nodeFirst = evaluationStack.pop();
-				Node result = operate(nodeFirst, nodeLast, n);
-				evaluationStack.push(result);
+				Node nodeLast = this.evaluationStack.pop();
+				Node nodeFirst = this.evaluationStack.pop();
+				Node result = this.operate(nodeFirst, nodeLast, n);
+				this.evaluationStack.push(result);
 			}
 		}
-		Node node = evaluationStack.pop();
+		Node node = this.evaluationStack.pop();
 		return Boolean.valueOf(node.getValue());
 	}
 
 	/**
 	 * Executes the actual operation and returns the result
-	 * 
+	 *
 	 * @param nodeFirst first operand
 	 * @param nodeLast last operand
 	 * @param operation operation to be applied to the operands
@@ -70,15 +70,15 @@ public class ExpressionEvaluator {
 		} else if (operation.getValue().equals(OperatorEnum.OR.value())) {
 			evaluation = Boolean.valueOf(nodeFirst.getValue()) || Boolean.valueOf(nodeLast.getValue());
 		} else {
-			evaluation = operateNumeric(nodeFirst, nodeLast, operation);
+			evaluation = this.operateNumeric(nodeFirst, nodeLast, operation);
 		}
 		return new Operand(String.valueOf(evaluation));
 	}
 
 	private boolean operateNumeric(Node nodeFirst, Node nodeLast, Node operation) {
 		boolean evaluation = false;
-		NumericOperand op1 = getNumericOperand(nodeFirst);
-		NumericOperand op2 = getNumericOperand(nodeLast);
+		NumericOperand op1 = this.getNumericOperand(nodeFirst);
+		NumericOperand op2 = this.getNumericOperand(nodeLast);
 		if (operation.getValue().equals(OperatorEnum.GREATER.value())) {
 			evaluation = op1.getNumericValue() > op2.getNumericValue();
 		} else if (operation.getValue().equals(OperatorEnum.GREATER_EQUAL.value())) {
@@ -102,7 +102,7 @@ public class ExpressionEvaluator {
 	/**
 	 * Parses String infix expression and converts to postfix expression using
 	 * Shunting-yard algorithm
-	 * 
+	 *
 	 * @param expression
 	 */
 	private void convertToPostfix(String expression) {
@@ -119,14 +119,15 @@ public class ExpressionEvaluator {
 				isOperand = true;
 			}
 			if (isOperand) {
-				handleOperand(str);
+				this.handleOperand(str);
 			} else {
-				cursor = handleOperator(expression, cursor);
+				cursor = this.handleOperator(expression, cursor);
 			}
 		}
 
-		while (!operatorStack.isEmpty())
-			postfixQueue.add(operatorStack.pop());
+		while (!this.operatorStack.isEmpty()) {
+			this.postfixQueue.add(this.operatorStack.pop());
+		}
 	}
 
 	private int handleOperator(String expression, int cursor) {
@@ -138,7 +139,7 @@ public class ExpressionEvaluator {
 				cursor++;
 			}
 		}
-		handleParanthesis(opString);
+		this.handleParanthesis(opString);
 
 		cursor++;
 		return cursor;
@@ -146,21 +147,21 @@ public class ExpressionEvaluator {
 
 	private void handleParanthesis(String opString) {
 		if (!opString.equals(OperatorEnum.LEFT_P.value()) && !opString.equals(OperatorEnum.RIGHT_P.value())) {
-			while (!operatorStack.isEmpty() && !operatorStack.peek().getValue().equals(OperatorEnum.LEFT_P.value()) && !operatorStack.peek().getValue().equals(OperatorEnum.RIGHT_P.value())
-					&& isHigerPrec(opString, operatorStack.peek().getValue())) {
-				postfixQueue.add(operatorStack.pop());
+			while (!this.operatorStack.isEmpty() && !this.operatorStack.peek().getValue().equals(OperatorEnum.LEFT_P.value()) && !this.operatorStack.peek().getValue().equals(OperatorEnum.RIGHT_P.value())
+					&& this.isHigerPrec(opString, this.operatorStack.peek().getValue())) {
+				this.postfixQueue.add(this.operatorStack.pop());
 			}
 			Node operator = new Operator(opString);
-			operatorStack.push(operator);
+			this.operatorStack.push(operator);
 		} else if (opString.equals(OperatorEnum.LEFT_P.value())) {
 			Node operator = new Operator(opString);
-			operatorStack.push(operator);
+			this.operatorStack.push(operator);
 		} else if (opString.equals(OperatorEnum.RIGHT_P.value())) {
-			while (!operatorStack.isEmpty() && !operatorStack.peek().getValue().equals(OperatorEnum.LEFT_P.value())) {
-				postfixQueue.add(operatorStack.pop());
+			while (!this.operatorStack.isEmpty() && !this.operatorStack.peek().getValue().equals(OperatorEnum.LEFT_P.value())) {
+				this.postfixQueue.add(this.operatorStack.pop());
 			}
-			if (!operatorStack.isEmpty()) {
-				operatorStack.pop();
+			if (!this.operatorStack.isEmpty()) {
+				this.operatorStack.pop();
 			}
 
 		}
@@ -170,12 +171,12 @@ public class ExpressionEvaluator {
 		String value = str.toString().trim();
 		if (!value.isEmpty()) {
 			Node operand = null;
-			if (isNumericOperand(value)) {
+			if (this.isNumericOperand(value)) {
 				operand = new NumericOperand(value);
 			} else {
 				operand = new Operand(value);
 			}
-			postfixQueue.add(operand);
+			this.postfixQueue.add(operand);
 		}
 	}
 

@@ -8,7 +8,7 @@ import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 /**
- * 
+ *
  * @author kadirayk
  *
  */
@@ -26,7 +26,7 @@ public abstract class UIElement implements Serializable {
 	private Map<String, String> attributes;
 
 	public String getTag() {
-		return tag;
+		return this.tag;
 	}
 
 	protected void setTag(String tag) {
@@ -34,7 +34,7 @@ public abstract class UIElement implements Serializable {
 	}
 
 	public String getContent() {
-		return content;
+		return this.content;
 	}
 
 	public void setContent(String content) {
@@ -42,7 +42,7 @@ public abstract class UIElement implements Serializable {
 	}
 
 	public Map<String, String> getAttributes() {
-		return attributes;
+		return this.attributes;
 	}
 
 	public void setAttributes(Map<String, String> attributes) {
@@ -54,13 +54,13 @@ public abstract class UIElement implements Serializable {
 
 	public String toHTML() {
 		StringBuilder html = new StringBuilder("<");
-		html.append(tag);
-		if (attributes != null) {
+		html.append(this.tag);
+		if (this.attributes != null) {
 			boolean isFile = false;
-			if ("file".equals(attributes.get("type"))) {
+			if ("file".equals(this.attributes.get("type"))) {
 				isFile = true;
 			}
-			for (Map.Entry<String, String> entry : attributes.entrySet()) {
+			for (Map.Entry<String, String> entry : this.attributes.entrySet()) {
 				if (!isFile && entry.getKey().equals("name")) {
 					entry.setValue("response");
 				} else if (isFile && entry.getKey().equals("name")) {
@@ -70,10 +70,10 @@ public abstract class UIElement implements Serializable {
 			}
 		}
 		html.append(">");
-		if (content != null) {
-			html.append(content);
+		if (this.content != null) {
+			html.append(this.content);
 		}
-		html.append("</").append(tag).append(">");
+		html.append("</").append(this.tag).append(">");
 		return html.toString();
 	}
 
@@ -81,37 +81,43 @@ public abstract class UIElement implements Serializable {
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + ((attributes == null) ? 0 : attributes.hashCode());
-		result = prime * result + ((content == null) ? 0 : content.hashCode());
-		result = prime * result + ((tag == null) ? 0 : tag.hashCode());
+		result = prime * result + ((this.attributes == null) ? 0 : this.attributes.hashCode());
+		result = prime * result + ((this.content == null) ? 0 : this.content.hashCode());
+		result = prime * result + ((this.tag == null) ? 0 : this.tag.hashCode());
 		return result;
 	}
 
 	@Override
 	public boolean equals(Object obj) {
-		if (this == obj)
+		if (this == obj) {
 			return true;
-		if (obj == null)
+		}
+		if (obj == null) {
 			return false;
-		if (getClass() != obj.getClass())
+		}
+		if (this.getClass() != obj.getClass()) {
 			return false;
+		}
 		UIElement other = (UIElement) obj;
-		if (attributes == null) {
-			if (other.attributes != null)
+		if (this.attributes == null) {
+			if (other.attributes != null) {
 				return false;
-		} else if (!attributes.equals(other.attributes)) {
+			}
+		} else if (!this.attributes.equals(other.attributes)) {
 			return false;
 		}
-		if (content == null) {
-			if (other.content != null)
+		if (this.content == null) {
+			if (other.content != null) {
 				return false;
-		} else if (!content.equals(other.content)) {
+			}
+		} else if (!this.content.equals(other.content)) {
 			return false;
 		}
-		if (tag == null) {
-			if (other.tag != null)
+		if (this.tag == null) {
+			if (other.tag != null) {
 				return false;
-		} else if (!tag.equals(other.tag)) {
+			}
+		} else if (!this.tag.equals(other.tag)) {
 			return false;
 		}
 		return true;

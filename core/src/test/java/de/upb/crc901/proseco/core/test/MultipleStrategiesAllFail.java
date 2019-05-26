@@ -42,7 +42,7 @@ public class MultipleStrategiesAllFail {
 
 	/**
 	 * No winning strategy, process should not move to grounding step
-	 * 
+	 *
 	 * @throws PrototypeCouldNotBeExtractedException
 	 * @throws InvalidStateTransitionException
 	 * @throws NoStrategyFoundASolutionException

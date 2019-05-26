@@ -38,14 +38,14 @@ public class NaturalLanguageSupportingConfigurationProcess extends AProsecoConfi
 			logger.error(e.getMessage());
 		}
 		this.prosecoConfigFile = prosecoConfigFile;
-		config = PROSECOConfig.get(prosecoConfigFile);
+		this.config = PROSECOConfig.get(prosecoConfigFile);
 	}
 
 	public <T> void receiveGeneralTaskDescription(T description) throws DomainCouldNotBeDetectedException, InvalidStateTransitionException {
 		if (description instanceof String) {
 			String descriptionString = (String) description;
 			DefaultDomainScoreComputer domainScoreComputer = new DefaultDomainScoreComputer();
-			List<String> avilableDomains = domainScoreComputer.getAvailableDomains(config);
+			List<String> avilableDomains = domainScoreComputer.getAvailableDomains(this.config);
 
 			Double bestScore = 0.0;
 			String detectedDomain = null;
@@ -57,14 +57,14 @@ public class NaturalLanguageSupportingConfigurationProcess extends AProsecoConfi
 				}
 			}
 			super.fixDomain(detectedDomain);
-			createEnvironment(detectedDomain);
-			answerInterview();
+			this.createEnvironment(detectedDomain);
+			this.answerInterview();
 		}
 	}
 
 	private void answerInterview() throws InvalidStateTransitionException {
-		updateProcessState(EProcessState.INTERVIEW);
-		File interviewFile = new File(processEnvironment.getInterviewDirectory().getAbsolutePath() + File.separator + "interview.yaml");
+		this.updateProcessState(EProcessState.INTERVIEW);
+		File interviewFile = new File(this.processEnvironment.getInterviewDirectory().getAbsolutePath() + File.separator + "interview.yaml");
 		Parser parser = new Parser();
 		InterviewFillout fillout = null;
 		try {
@@ -75,10 +75,10 @@ public class NaturalLanguageSupportingConfigurationProcess extends AProsecoConfi
 		if (fillout != null) {
 			Map<String, String> answers = fillout.retrieveQuestionAnswerMap();
 			for (String question : answers.keySet()) {
-				String answer = askOracle(question);
+				String answer = this.askOracle(question);
 				answers.put(question, answer);
 			}
-			updateInterview(answers);
+			this.updateInterview(answers);
 		}
 	}
 
@@ -127,7 +127,7 @@ public class NaturalLanguageSupportingConfigurationProcess extends AProsecoConfi
 	@Override
 	public void createNew(String processId) throws ProcessIdAlreadyExistsException, InvalidStateTransitionException {
 		if (processId != null) {
-			File processFolder = new File(config.getDirectoryForProcesses() + File.separator + processId);
+			File processFolder = new File(this.config.getDirectoryForProcesses() + File.separator + processId);
 			if (processFolder.exists()) {
 				throw new ProcessIdAlreadyExistsException();
 			}
@@ -140,7 +140,7 @@ public class NaturalLanguageSupportingConfigurationProcess extends AProsecoConfi
 
 	@Override
 	public void attach(String processId) throws ProcessIdDoesNotExistException, InvalidStateTransitionException {
-		File processFolder = new File(config.getDirectoryForProcesses() + File.separator + processId);
+		File processFolder = new File(this.config.getDirectoryForProcesses() + File.separator + processId);
 		if (!processFolder.exists()) {
 			throw new ProcessIdDoesNotExistException();
 		}
@@ -148,7 +148,7 @@ public class NaturalLanguageSupportingConfigurationProcess extends AProsecoConfi
 		super.updateProcessState(EProcessState.CREATED);
 
 		try {
-			processEnvironment = new PROSECOProcessEnvironment(processFolder);
+			this.processEnvironment = new PROSECOProcessEnvironment(processFolder);
 		} catch (IOException e) {
 			logger.error(e.getMessage());
 		}
@@ -163,7 +163,7 @@ public class NaturalLanguageSupportingConfigurationProcess extends AProsecoConfi
 			String id = domain + "-" + UUID.randomUUID().toString().replace("-", "").substring(0, 10).toLowerCase();
 			this.processId = id;
 		}
-		File processFolder = new File(config.getDirectoryForProcesses() + File.separator + this.processId);
+		File processFolder = new File(this.config.getDirectoryForProcesses() + File.separator + this.processId);
 
 		try {
 			FileUtils.forceMkdir(processFolder);
@@ -172,14 +172,14 @@ public class NaturalLanguageSupportingConfigurationProcess extends AProsecoConfi
 			logger.error(e.getMessage());
 		}
 
-		ProcessConfig pc = new ProcessConfig(processId, domain, prosecoConfigFile);
+		ProcessConfig pc = new ProcessConfig(this.processId, domain, this.prosecoConfigFile);
 		try {
 			new ObjectMapper().writeValue(new File(processFolder + File.separator + "process.json"), pc);
 		} catch (IOException e1) {
 			logger.error(e1.getMessage());
 		}
 		try {
-			processEnvironment = new PROSECOProcessEnvironment(processFolder);
+			this.processEnvironment = new PROSECOProcessEnvironment(processFolder);
 		} catch (IOException e) {
 			logger.error(e.getMessage());
 		}
@@ -189,7 +189,7 @@ public class NaturalLanguageSupportingConfigurationProcess extends AProsecoConfi
 	@Override
 	protected void extractPrototype() throws PrototypeCouldNotBeExtractedException, InvalidStateTransitionException {
 		super.extractPrototype();
-		File processFolder = new File(config.getDirectoryForProcesses() + File.separator + processId);
+		File processFolder = new File(this.config.getDirectoryForProcesses() + File.separator + this.processId);
 
 		// update environment with prototype info
 		try {
@@ -201,7 +201,7 @@ public class NaturalLanguageSupportingConfigurationProcess extends AProsecoConfi
 
 	@Override
 	public PROSECOProcessEnvironment getProcessEnvironment() {
-		return processEnvironment;
+		return this.processEnvironment;
 	}
 
 }

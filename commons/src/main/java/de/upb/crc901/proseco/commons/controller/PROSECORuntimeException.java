@@ -10,7 +10,7 @@ public class PROSECORuntimeException extends RuntimeException {
 	}
 
 	/**
-	 * 
+	 *
 	 */
 	private static final long serialVersionUID = -1170425841486603201L;
 

@@ -21,7 +21,7 @@ import de.upb.crc901.proseco.commons.interview.State;
 
 /**
  * Interview Parser utility
- * 
+ *
  * @author kadirayk
  *
  */
@@ -31,7 +31,7 @@ public class Parser {
 
 	/**
 	 * Parses question repository with the given path
-	 * 
+	 *
 	 * @param filePath
 	 * @return
 	 */
@@ -61,20 +61,21 @@ public class Parser {
 		Interview interview = null;
 		ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
 		interview = mapper.readValue(interviewFile, Interview.class);
-		if (interview == null)
+		if (interview == null) {
 			throw new IllegalStateException("Interview parser returned NULL");
+		}
 
 		/* retrieve questions specified in question repository (if any exists) */
 		String questionPath = interview.getQuestionRepo();
 		File questionFile = new File(interviewFolder + File.separator + questionPath);
-		QuestionCollection qCollection = parseQuestion(questionFile.getAbsolutePath());
+		QuestionCollection qCollection = this.parseQuestion(questionFile.getAbsolutePath());
 
 		/*
 		 * check whether questions of the interview file must be overwritten by those in
 		 * the question file (iff the content is undefined)
 		 */
-		checkAndOverwriteQuestions(interview, qCollection);
-		setTimeOutQuestion(interview);
+		this.checkAndOverwriteQuestions(interview, qCollection);
+		this.setTimeOutQuestion(interview);
 		return interview;
 	}
 
