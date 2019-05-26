@@ -18,20 +18,24 @@ import org.slf4j.LoggerFactory;
  *
  */
 public interface DomainConfig extends Mutable {
+	public static final String INTERVIEW = "domain.interview.path";
+	public static final String INTERVIEW_STATE_FILE = "domain.interview.statefile";
+	public static final String INTERVIEW_RESOURCES = "domain.interview.resources.path";
+	public static final String PROTOTYPE_FOLDER = "domain.prototypes";
 
-	@Key(ConfigConstants.INTERVIEW)
+	@Key(INTERVIEW)
 	@DefaultValue("interview")
 	public String getNameOfInterviewFolder();
 
-	@Key(ConfigConstants.INTERVIEW_RESOURCES)
+	@Key(INTERVIEW_RESOURCES)
 	@DefaultValue("res")
 	public String getNameOfInterviewResourceFolder();
 
-	@Key(ConfigConstants.PROTOTYPE_FOLDER)
+	@Key(PROTOTYPE_FOLDER)
 	@DefaultValue("prototypes")
 	public String getPrototypeFolder();
 
-	@Key(ConfigConstants.INTERVIEW_STATE_FILE)
+	@Key(INTERVIEW_STATE_FILE)
 	@DefaultValue("interview_state.json")
 	public String getNameOfInterviewStateFile();
 
