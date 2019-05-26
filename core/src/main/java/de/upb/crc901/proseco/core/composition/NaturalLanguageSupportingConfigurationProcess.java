@@ -56,12 +56,8 @@ public class NaturalLanguageSupportingConfigurationProcess extends AProsecoConfi
 					detectedDomain = domain;
 				}
 			}
-			try {
-				super.fixDomain(detectedDomain);
-				createEnvironment(detectedDomain);
-			} catch (CannotFixDomainInThisProcessException e) {
-				logger.error(e.getMessage());
-			}
+			super.fixDomain(detectedDomain);
+			createEnvironment(detectedDomain);
 			answerInterview();
 		}
 	}

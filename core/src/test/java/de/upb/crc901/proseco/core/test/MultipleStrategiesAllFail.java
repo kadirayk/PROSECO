@@ -9,7 +9,6 @@ import java.util.Map;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import de.upb.crc901.proseco.commons.controller.CannotFixDomainInThisProcessException;
 import de.upb.crc901.proseco.commons.controller.NoStrategyFoundASolutionException;
 import de.upb.crc901.proseco.commons.controller.ProcessController;
 import de.upb.crc901.proseco.commons.controller.ProcessIdAlreadyExistsException;
@@ -27,7 +26,7 @@ public class MultipleStrategiesAllFail {
 	static ProcessController processController;
 
 	@BeforeClass
-	public static void initialize() throws ProcessIdAlreadyExistsException, InvalidStateTransitionException, CannotFixDomainInThisProcessException, IOException {
+	public static void initialize() throws ProcessIdAlreadyExistsException, InvalidStateTransitionException, IOException {
 		processController = new FileBasedConfigurationProcess(new File(""));
 		processController.createNew(null);
 		processController.fixDomain("test");

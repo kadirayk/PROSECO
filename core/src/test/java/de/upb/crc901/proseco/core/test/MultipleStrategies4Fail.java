@@ -11,7 +11,6 @@ import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
 
-import de.upb.crc901.proseco.commons.controller.CannotFixDomainInThisProcessException;
 import de.upb.crc901.proseco.commons.controller.GroundingNotSuccessfulForAnyStrategyException;
 import de.upb.crc901.proseco.commons.controller.NoStrategyFoundASolutionException;
 import de.upb.crc901.proseco.commons.controller.PROSECOSolution;
@@ -31,8 +30,8 @@ public class MultipleStrategies4Fail {
 	static String output;
 
 	@BeforeClass
-	public static void initialize() throws ProcessIdAlreadyExistsException, InvalidStateTransitionException, CannotFixDomainInThisProcessException, IOException, NoStrategyFoundASolutionException, PrototypeCouldNotBeExtractedException,
-			GroundingNotSuccessfulForAnyStrategyException {
+	public static void initialize()
+			throws ProcessIdAlreadyExistsException, InvalidStateTransitionException, IOException, NoStrategyFoundASolutionException, PrototypeCouldNotBeExtractedException, GroundingNotSuccessfulForAnyStrategyException {
 		ProcessController processController = new FileBasedConfigurationProcess(new File(""));
 		processController.createNew(null);
 		processController.fixDomain("test");

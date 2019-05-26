@@ -10,7 +10,6 @@ import java.util.Map;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import de.upb.crc901.proseco.commons.controller.CannotFixDomainInThisProcessException;
 import de.upb.crc901.proseco.commons.controller.ProcessController;
 import de.upb.crc901.proseco.commons.controller.ProcessIdAlreadyExistsException;
 import de.upb.crc901.proseco.commons.interview.InterviewFillout;
@@ -29,7 +28,7 @@ public class PartialInterviewTest {
 	static String dummyAnswer = "dummy answer";
 
 	@BeforeClass
-	public static void initialize() throws ProcessIdAlreadyExistsException, InvalidStateTransitionException, CannotFixDomainInThisProcessException {
+	public static void initialize() throws ProcessIdAlreadyExistsException, InvalidStateTransitionException {
 		ProcessController processController = new FileBasedConfigurationProcess(new File(""));
 		processController.createNew(null);
 		processController.fixDomain("test");
