@@ -10,5 +10,5 @@ public interface IDomainScoreComputer<T> {
 	 * @throws DomainCouldNotBeDetectedException
 	 */
 	Double getDomainScore(T description, String domain) throws DomainCouldNotBeDetectedException;
-	
+
 }

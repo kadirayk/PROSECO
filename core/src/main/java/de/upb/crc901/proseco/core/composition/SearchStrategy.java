@@ -56,7 +56,7 @@ public abstract class SearchStrategy implements Runnable {
 	public String getStrategyName() {
 		return this.strategyName;
 	}
-	
+
 	public InterviewFillout getInterview() {
 		return SerializationUtil.readAsJSON(getEnvironment().getInterviewStateFile());
 	}

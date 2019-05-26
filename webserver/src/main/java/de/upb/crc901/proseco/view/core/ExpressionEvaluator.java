@@ -26,7 +26,6 @@ public class ExpressionEvaluator {
 		convertToPostfix(expression);
 	}
 
-
 	/**
 	 * Evaluates the postfix expression
 	 * 
@@ -57,7 +56,7 @@ public class ExpressionEvaluator {
 	 * Executes the actual operation and returns the result
 	 * 
 	 * @param nodeFirst first operand
-	 * @param nodeLast  last operand
+	 * @param nodeLast last operand
 	 * @param operation operation to be applied to the operands
 	 * @return the result of the operation
 	 * @see Node
@@ -111,15 +110,10 @@ public class ExpressionEvaluator {
 		while (cursor < expression.length()) {
 			StringBuilder str = new StringBuilder();
 			boolean isOperand = false;
-			while (cursor < expression.length()
-					&& !expression.substring(cursor, cursor + 1).equals(OperatorEnum.AND.value())
-					&& !expression.substring(cursor, cursor + 1).equals(OperatorEnum.EQUAL.value())
-					&& !expression.substring(cursor, cursor + 1).equals(OperatorEnum.OR.value())
-					&& !expression.substring(cursor, cursor + 1).equals(OperatorEnum.NOT.value())
-					&& !expression.substring(cursor, cursor + 1).equals(OperatorEnum.LEFT_P.value())
-					&& !expression.substring(cursor, cursor + 1).equals(OperatorEnum.RIGHT_P.value())
-					&& !expression.substring(cursor, cursor + 1).equals(OperatorEnum.GREATER.value())
-					&& !expression.substring(cursor, cursor + 1).equals(OperatorEnum.LESS.value())) {
+			while (cursor < expression.length() && !expression.substring(cursor, cursor + 1).equals(OperatorEnum.AND.value()) && !expression.substring(cursor, cursor + 1).equals(OperatorEnum.EQUAL.value())
+					&& !expression.substring(cursor, cursor + 1).equals(OperatorEnum.OR.value()) && !expression.substring(cursor, cursor + 1).equals(OperatorEnum.NOT.value())
+					&& !expression.substring(cursor, cursor + 1).equals(OperatorEnum.LEFT_P.value()) && !expression.substring(cursor, cursor + 1).equals(OperatorEnum.RIGHT_P.value())
+					&& !expression.substring(cursor, cursor + 1).equals(OperatorEnum.GREATER.value()) && !expression.substring(cursor, cursor + 1).equals(OperatorEnum.LESS.value())) {
 				str.append(expression.substring(cursor, cursor + 1));
 				cursor++;
 				isOperand = true;
@@ -137,11 +131,9 @@ public class ExpressionEvaluator {
 
 	private int handleOperator(String expression, int cursor) {
 		String opString = expression.substring(cursor, cursor + 1);
-		if ((opString.equals(OperatorEnum.GREATER.value()) || opString.equals(OperatorEnum.LESS.value()))
-				&& cursor < expression.length()) {
+		if ((opString.equals(OperatorEnum.GREATER.value()) || opString.equals(OperatorEnum.LESS.value())) && cursor < expression.length()) {
 			String operator = expression.substring(cursor, cursor + 2);
-			if (operator.equals(OperatorEnum.GREATER_EQUAL.value())
-					|| operator.equals(OperatorEnum.LESS_EQUAL.value())) {
+			if (operator.equals(OperatorEnum.GREATER_EQUAL.value()) || operator.equals(OperatorEnum.LESS_EQUAL.value())) {
 				opString = operator;
 				cursor++;
 			}
@@ -154,8 +146,7 @@ public class ExpressionEvaluator {
 
 	private void handleParanthesis(String opString) {
 		if (!opString.equals(OperatorEnum.LEFT_P.value()) && !opString.equals(OperatorEnum.RIGHT_P.value())) {
-			while (!operatorStack.isEmpty() && !operatorStack.peek().getValue().equals(OperatorEnum.LEFT_P.value())
-					&& !operatorStack.peek().getValue().equals(OperatorEnum.RIGHT_P.value())
+			while (!operatorStack.isEmpty() && !operatorStack.peek().getValue().equals(OperatorEnum.LEFT_P.value()) && !operatorStack.peek().getValue().equals(OperatorEnum.RIGHT_P.value())
 					&& isHigerPrec(opString, operatorStack.peek().getValue())) {
 				postfixQueue.add(operatorStack.pop());
 			}

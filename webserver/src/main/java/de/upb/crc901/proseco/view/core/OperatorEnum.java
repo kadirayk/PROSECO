@@ -8,8 +8,7 @@ package de.upb.crc901.proseco.view.core;
  */
 public enum OperatorEnum {
 
-	EQUAL("="), GREATER(">"), LESS("<"), GREATER_EQUAL(">="), LESS_EQUAL("<="), AND("&"), OR("|"), NOT("!"), LEFT_P(
-			"("), RIGHT_P(")");
+	EQUAL("="), GREATER(">"), LESS("<"), GREATER_EQUAL(">="), LESS_EQUAL("<="), AND("&"), OR("|"), NOT("!"), LEFT_P("("), RIGHT_P(")");
 
 	private String value;
 

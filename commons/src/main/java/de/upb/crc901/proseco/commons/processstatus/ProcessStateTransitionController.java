@@ -57,13 +57,11 @@ public class ProcessStateTransitionController {
 	private ProcessStateTransitionController() {
 	}
 
-	public static EProcessState moveToNextState(EProcessState currentState, EProcessState nextState)
-			throws InvalidStateTransitionException {
+	public static EProcessState moveToNextState(EProcessState currentState, EProcessState nextState) throws InvalidStateTransitionException {
 		if (transitionMap.get(currentState).contains(nextState)) {
 			return nextState;
 		} else {
-			throw new InvalidStateTransitionException(
-					String.format("CurrentState: %s, NextState: %s", currentState, nextState));
+			throw new InvalidStateTransitionException(String.format("CurrentState: %s, NextState: %s", currentState, nextState));
 		}
 	}
 

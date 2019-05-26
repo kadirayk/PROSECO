@@ -125,8 +125,7 @@ public class FileBasedConfigurationProcess extends AProsecoConfigurationProcess 
 		}
 		this.answers.putAll(answers);
 
-		File interviewFile = new File(
-				this.processEnvironment.getInterviewDirectory().getAbsolutePath() + File.separator + "interview.yaml");
+		File interviewFile = new File(this.processEnvironment.getInterviewDirectory().getAbsolutePath() + File.separator + "interview.yaml");
 		Parser parser = new Parser();
 		InterviewFillout fillout = null;
 		try {

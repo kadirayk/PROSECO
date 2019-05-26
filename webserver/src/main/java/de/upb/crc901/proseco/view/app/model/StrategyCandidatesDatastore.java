@@ -14,8 +14,7 @@ public class StrategyCandidatesDatastore {
 	}
 
 	public boolean put(final String strategyID, final StrategyCandidateFoundEvent e) {
-		List<StrategyCandidateFoundEvent> eventList = this.eventStore.computeIfAbsent(strategyID,
-				k -> new LinkedList<>());
+		List<StrategyCandidateFoundEvent> eventList = this.eventStore.computeIfAbsent(strategyID, k -> new LinkedList<>());
 		this.eventStore.put(strategyID, eventList);
 		return eventList.add(e);
 	}
@@ -25,8 +24,7 @@ public class StrategyCandidatesDatastore {
 			return new double[0];
 		}
 
-		return new LinkedList<>(this.eventStore.get(strategyID)).stream().sorted(
-				(arg0, arg1) -> Long.compare(arg0.getCandidateFoundTimestamp(), arg1.getCandidateFoundTimestamp()))
+		return new LinkedList<>(this.eventStore.get(strategyID)).stream().sorted((arg0, arg1) -> Long.compare(arg0.getCandidateFoundTimestamp(), arg1.getCandidateFoundTimestamp()))
 				.mapToDouble(StrategyCandidateFoundEvent::getCandidateEvaluation).toArray();
 
 	}

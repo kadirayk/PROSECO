@@ -25,23 +25,20 @@ import de.upb.crc901.proseco.commons.util.PROSECOProcessEnvironment;
 import de.upb.crc901.proseco.commons.util.Parser;
 import de.upb.crc901.proseco.core.composition.FileBasedConfigurationProcess;
 
-
 public class MultipleStrategies4Fail {
 	static String processId;
 	static PROSECOProcessEnvironment env;
 	static String output;
 
 	@BeforeClass
-	public static void initialize() throws ProcessIdAlreadyExistsException, InvalidStateTransitionException,
-			CannotFixDomainInThisProcessException, IOException, NoStrategyFoundASolutionException,
-			PrototypeCouldNotBeExtractedException, GroundingNotSuccessfulForAnyStrategyException {
+	public static void initialize() throws ProcessIdAlreadyExistsException, InvalidStateTransitionException, CannotFixDomainInThisProcessException, IOException, NoStrategyFoundASolutionException, PrototypeCouldNotBeExtractedException,
+			GroundingNotSuccessfulForAnyStrategyException {
 		ProcessController processController = new FileBasedConfigurationProcess(new File(""));
 		processController.createNew(null);
 		processController.fixDomain("test");
 		env = processController.getProcessEnvironment();
 		processId = env.getProcessId();
-		File interviewFile = new File(
-				env.getInterviewDirectory().getAbsolutePath() + File.separator + "interview.yaml");
+		File interviewFile = new File(env.getInterviewDirectory().getAbsolutePath() + File.separator + "interview.yaml");
 		Parser parser = new Parser();
 		InterviewFillout fillout = new InterviewFillout(parser.initializeInterviewFromConfig(interviewFile));
 		Map<String, String> answers = fillout.retrieveQuestionAnswerMap();

@@ -9,7 +9,7 @@ public class ProcessIdAlreadyExistsException extends Exception {
 	public ProcessIdAlreadyExistsException(String errorMessage) {
 		super(errorMessage);
 	}
-	
+
 	public ProcessIdAlreadyExistsException() {
 		super();
 	}

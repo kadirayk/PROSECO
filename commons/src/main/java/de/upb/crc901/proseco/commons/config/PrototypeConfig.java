@@ -100,8 +100,7 @@ public interface PrototypeConfig extends Mutable {
 	public String getSearchRunnable();
 
 	public static PrototypeConfig get(final PROSECOConfig prosecoConfig, final String prototypeName) {
-		return get(new File(prosecoConfig.getDirectoryForDomains() + File.separator + prototypeName + File.separator
-				+ "prototype.conf"));
+		return get(new File(prosecoConfig.getDirectoryForDomains() + File.separator + prototypeName + File.separator + "prototype.conf"));
 	}
 
 	public static PrototypeConfig get(final String file) {
@@ -116,9 +115,7 @@ public interface PrototypeConfig extends Mutable {
 		} catch (FileNotFoundException e) {
 			logger.error(String.format("Could not find config file %s. Assuming default configuration", file));
 		} catch (IOException e) {
-			logger.error(String.format(
-					"Encountered problem with config file %s. Assuming default configuration. Problem: %s", file,
-					e.getMessage()));
+			logger.error(String.format("Encountered problem with config file %s. Assuming default configuration. Problem: %s", file, e.getMessage()));
 		}
 
 		return ConfigFactory.create(PrototypeConfig.class, props);

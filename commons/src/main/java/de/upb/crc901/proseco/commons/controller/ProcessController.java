@@ -13,23 +13,23 @@ public interface ProcessController {
 	 * if the given ID is null
 	 * 
 	 * @param processId
-	 * @throws InvalidStateTransitionException 
+	 * @throws InvalidStateTransitionException
 	 */
-	//TODO createNew with empty params
+	// TODO createNew with empty params
 	public void createNew(String processId) throws ProcessIdAlreadyExistsException, InvalidStateTransitionException;
 
 	/**
 	 * Attach to an existing process
 	 * 
 	 * @param processId
-	 * @throws InvalidStateTransitionException 
+	 * @throws InvalidStateTransitionException
 	 */
 	public void attach(String processId) throws ProcessIdDoesNotExistException, InvalidStateTransitionException;
 
 	/**
 	 * 
 	 * @param domain
-	 * @throws InvalidStateTransitionException 
+	 * @throws InvalidStateTransitionException
 	 */
 	public void fixDomain(String domain) throws CannotFixDomainInThisProcessException, InvalidStateTransitionException;
 
@@ -45,16 +45,15 @@ public interface ProcessController {
 	public String getProcessId();
 
 	/**
-	 * @throws GroundingNotSuccessfulForAnyStrategyException 
+	 * @throws GroundingNotSuccessfulForAnyStrategyException
 	 * 
 	 */
 	public void chooseAndDeploySolution(PROSECOSolution solution) throws InvalidStateTransitionException, GroundingNotSuccessfulForAnyStrategyException;
 
 	public void updateInterview(Map<String, String> answers) throws InvalidStateTransitionException;
-	
+
 	public PROSECOProcessEnvironment getProcessEnvironment() throws InvalidStateTransitionException;
 
 	public EProcessState getProcessState();
-
 
 }

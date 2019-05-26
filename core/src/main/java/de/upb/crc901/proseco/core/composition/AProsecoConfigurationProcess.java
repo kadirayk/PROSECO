@@ -71,19 +71,16 @@ public abstract class AProsecoConfigurationProcess implements ProcessController 
 	}
 
 	@Override
-	public PROSECOSolution startComposition(int timeoutInSeconds) throws NoStrategyFoundASolutionException,
-			InvalidStateTransitionException, PrototypeCouldNotBeExtractedException {
+	public PROSECOSolution startComposition(int timeoutInSeconds) throws NoStrategyFoundASolutionException, InvalidStateTransitionException, PrototypeCouldNotBeExtractedException {
 		updateProcessState(EProcessState.COMPOSITION);
 
 		extractPrototype();
 
 		int secondsReservedForGrounding = this.processEnvironment.getPrototypeConfig().getSecondsReservedForGrounding();
-		int secondsReservedForDeployment = this.processEnvironment.getPrototypeConfig()
-				.getSecondsReservedForDeployment();
+		int secondsReservedForDeployment = this.processEnvironment.getPrototypeConfig().getSecondsReservedForDeployment();
 		int timeout = Math.max(1, this.timeoutInSeconds - (secondsReservedForGrounding + secondsReservedForDeployment));
-		logger.debug(
-				"Create command for executing strategies and execute them with a timeout of {} = max(1, specifiedTimeout - (secondsForGrounding + secondsForDeployment)) = max(1, {} - ({} + {})) ...",
-				timeout, this.timeoutInSeconds, secondsReservedForGrounding, secondsReservedForDeployment);
+		logger.debug("Create command for executing strategies and execute them with a timeout of {} = max(1, specifiedTimeout - (secondsForGrounding + secondsForDeployment)) = max(1, {} - ({} + {})) ...", timeout, this.timeoutInSeconds,
+				secondsReservedForGrounding, secondsReservedForDeployment);
 		StrategyExecutor executeStrategiesCommand = new StrategyExecutor(this.processEnvironment);
 		try {
 			updateProcessState(EProcessState.STRATEGY_CHOSEN);
@@ -103,11 +100,9 @@ public abstract class AProsecoConfigurationProcess implements ProcessController 
 			if (!strategy.isDirectory()) {
 				continue;
 			}
-			final File fValueFile = new File(this.processEnvironment.getSearchOutputDirectory() + File.separator
-					+ strategy.getName() + File.separator + "score");
+			final File fValueFile = new File(this.processEnvironment.getSearchOutputDirectory() + File.separator + strategy.getName() + File.separator + "score");
 			if (!fValueFile.exists()) {
-				logger.info("score file was not found in file {} for strategy {}", fValueFile.getAbsolutePath(),
-						strategy.getName());
+				logger.info("score file was not found in file {} for strategy {}", fValueFile.getAbsolutePath(), strategy.getName());
 				continue;
 			}
 			Double parsedValue = Double.MAX_VALUE;
@@ -140,8 +135,7 @@ public abstract class AProsecoConfigurationProcess implements ProcessController 
 	}
 
 	@Override
-	public void chooseAndDeploySolution(PROSECOSolution solution)
-			throws InvalidStateTransitionException, GroundingNotSuccessfulForAnyStrategyException {
+	public void chooseAndDeploySolution(PROSECOSolution solution) throws InvalidStateTransitionException, GroundingNotSuccessfulForAnyStrategyException {
 		updateProcessState(EProcessState.GROUNDING);
 		if (solution == null) {
 			if (this.solution != null) {
@@ -192,14 +186,11 @@ public abstract class AProsecoConfigurationProcess implements ProcessController 
 		logger.info("Deploying service {} to {}:{}", deploymentCommand[1], deploymentCommand[2], deploymentCommand[3]);
 		final ProcessBuilder pb = new ProcessBuilder(deploymentCommand);
 		pb.redirectOutput(Redirect.INHERIT).redirectError(Redirect.INHERIT);
-		if (GLOBAL_CONFIG.debugMode()
-				&& (GLOBAL_CONFIG.debugDisableDeployment() || GLOBAL_CONFIG.debugDisableGrounding())) {
+		if (GLOBAL_CONFIG.debugMode() && (GLOBAL_CONFIG.debugDisableDeployment() || GLOBAL_CONFIG.debugDisableGrounding())) {
 			if (GLOBAL_CONFIG.debugDisableGrounding()) {
-				logger.warn(
-						"Deployment has been disabled as grounding routine was disabled for debugging. To enable both check");
+				logger.warn("Deployment has been disabled as grounding routine was disabled for debugging. To enable both check");
 			} else {
-				logger.warn(
-						"Deployment has been disabled for debugging! You can enable it in the GlobalConfig properties.");
+				logger.warn("Deployment has been disabled for debugging! You can enable it in the GlobalConfig properties.");
 			}
 		} else {
 			try {
@@ -213,10 +204,7 @@ public abstract class AProsecoConfigurationProcess implements ProcessController 
 
 		/* create handle file */
 		try {
-			FileUtils.writeStringToFile(this.processEnvironment.getServiceHandle(),
-					"http://" + deploymentCommand[2] + ":" + port + "/"
-							+ this.processEnvironment.getPrototypeConfig().getDeploymentEntryPoint(),
-					Charset.defaultCharset());
+			FileUtils.writeStringToFile(this.processEnvironment.getServiceHandle(), "http://" + deploymentCommand[2] + ":" + port + "/" + this.processEnvironment.getPrototypeConfig().getDeploymentEntryPoint(), Charset.defaultCharset());
 		} catch (IOException e) {
 			logger.error(e.getMessage());
 		}
@@ -227,19 +215,15 @@ public abstract class AProsecoConfigurationProcess implements ProcessController 
 		String[] groundingCommand = new String[4];
 		groundingCommand[0] = this.processEnvironment.groundingExecutable().getAbsolutePath();
 		groundingCommand[1] = this.processEnvironment.getProcessId();
-		groundingCommand[2] = this.processEnvironment.getSearchOutputDirectory().getAbsolutePath() + File.separator
-				+ solution.getWinningStrategyFolder().getName();
-		groundingCommand[3] = this.processEnvironment.getSearchOutputDirectory().getAbsolutePath() + File.separator
-				+ "final";
+		groundingCommand[2] = this.processEnvironment.getSearchOutputDirectory().getAbsolutePath() + File.separator + solution.getWinningStrategyFolder().getName();
+		groundingCommand[3] = this.processEnvironment.getSearchOutputDirectory().getAbsolutePath() + File.separator + "final";
 		if (!new File(groundingCommand[0]).setExecutable(true)) {
 			logger.error("cannot set groundingCommand as executable");
 		}
-		final ProcessBuilder pb = new ProcessBuilder(groundingCommand)
-				.directory(this.processEnvironment.getGroundingDirectory());
+		final ProcessBuilder pb = new ProcessBuilder(groundingCommand).directory(this.processEnvironment.getGroundingDirectory());
 		pb.redirectOutput(Redirect.INHERIT).redirectError(Redirect.INHERIT);
 		if (logger.isInfoEnabled()) {
-			logger.info("Execute grounding command {}. Working directory is set to {}",
-					Arrays.toString(groundingCommand), this.processEnvironment.getGroundingDirectory());
+			logger.info("Execute grounding command {}. Working directory is set to {}", Arrays.toString(groundingCommand), this.processEnvironment.getGroundingDirectory());
 		}
 		if (GLOBAL_CONFIG.debugMode() && GLOBAL_CONFIG.debugDisableGrounding()) {
 			logger.warn("Grounding has been disabled for debugging! You can enable it in the GlobalConfig properties.");
@@ -262,8 +246,7 @@ public abstract class AProsecoConfigurationProcess implements ProcessController 
 		logger.info("Grounding completed.");
 	}
 
-	private void executeGroundingForBackupStrategy(double bestScoreSeen)
-			throws GroundingNotSuccessfulForAnyStrategyException, IOException {
+	private void executeGroundingForBackupStrategy(double bestScoreSeen) throws GroundingNotSuccessfulForAnyStrategyException, IOException {
 		Entry<Double, File> secondBestStrategy = findSecondBestStrategy(bestScoreSeen);
 		if (secondBestStrategy == null) {
 			logger.error("Grounding did not succeed for any of the strategies");
@@ -273,25 +256,20 @@ public abstract class AProsecoConfigurationProcess implements ProcessController 
 		handleGroundingForBackup(bestScoreSeen, secondBestStrategy);
 	}
 
-	private void handleGroundingForBackup(double bestScoreSeen, Entry<Double, File> secondBestStrategy)
-			throws IOException, GroundingNotSuccessfulForAnyStrategyException {
+	private void handleGroundingForBackup(double bestScoreSeen, Entry<Double, File> secondBestStrategy) throws IOException, GroundingNotSuccessfulForAnyStrategyException {
 		int groundingStatus = 0;
 		String[] groundingCommand = new String[4];
 		groundingCommand[0] = this.processEnvironment.groundingExecutable().getAbsolutePath();
 		groundingCommand[1] = this.processEnvironment.getProcessId();
-		groundingCommand[2] = this.processEnvironment.getSearchOutputDirectory().getAbsolutePath() + File.separator
-				+ secondBestStrategy.getValue().getName();
-		groundingCommand[3] = this.processEnvironment.getSearchOutputDirectory().getAbsolutePath() + File.separator
-				+ "final";
+		groundingCommand[2] = this.processEnvironment.getSearchOutputDirectory().getAbsolutePath() + File.separator + secondBestStrategy.getValue().getName();
+		groundingCommand[3] = this.processEnvironment.getSearchOutputDirectory().getAbsolutePath() + File.separator + "final";
 		if (!new File(groundingCommand[0]).setExecutable(true)) {
 			logger.error("cannot set groundingCommand as executable");
 		}
-		final ProcessBuilder pb = new ProcessBuilder(groundingCommand)
-				.directory(this.processEnvironment.getGroundingDirectory());
+		final ProcessBuilder pb = new ProcessBuilder(groundingCommand).directory(this.processEnvironment.getGroundingDirectory());
 		pb.redirectOutput(Redirect.INHERIT).redirectError(Redirect.INHERIT);
 		if (logger.isInfoEnabled()) {
-			logger.info("Execute grounding command {}. Working directory is set to {}",
-					Arrays.toString(groundingCommand), this.processEnvironment.getGroundingDirectory());
+			logger.info("Execute grounding command {}. Working directory is set to {}", Arrays.toString(groundingCommand), this.processEnvironment.getGroundingDirectory());
 		}
 		if (GLOBAL_CONFIG.debugMode() && GLOBAL_CONFIG.debugDisableGrounding()) {
 			logger.warn("Grounding has been disabled for debugging! You can enable it in the GlobalConfig properties.");
@@ -319,11 +297,9 @@ public abstract class AProsecoConfigurationProcess implements ProcessController 
 			if (!strategy.isDirectory()) {
 				continue;
 			}
-			final File fValueFile = new File(this.processEnvironment.getSearchOutputDirectory() + File.separator
-					+ strategy.getName() + File.separator + "score");
+			final File fValueFile = new File(this.processEnvironment.getSearchOutputDirectory() + File.separator + strategy.getName() + File.separator + "score");
 			if (!fValueFile.exists()) {
-				logger.info("score file was not found in file {} for strategy {}", fValueFile.getAbsolutePath(),
-						strategy.getName());
+				logger.info("score file was not found in file {} for strategy {}", fValueFile.getAbsolutePath(), strategy.getName());
 				continue;
 			}
 			Double parsedValue = Double.MAX_VALUE;

@@ -34,16 +34,14 @@ public class MultipleStrategiesFailAtGrounding {
 	static final Logger logger = LoggerFactory.getLogger(MultipleStrategiesFailAtGrounding.class);
 
 	@BeforeClass
-	public static void initialize() throws ProcessIdAlreadyExistsException, InvalidStateTransitionException,
-			CannotFixDomainInThisProcessException, IOException, NoStrategyFoundASolutionException,
-			PrototypeCouldNotBeExtractedException, GroundingNotSuccessfulForAnyStrategyException {
+	public static void initialize() throws ProcessIdAlreadyExistsException, InvalidStateTransitionException, CannotFixDomainInThisProcessException, IOException, NoStrategyFoundASolutionException, PrototypeCouldNotBeExtractedException,
+			GroundingNotSuccessfulForAnyStrategyException {
 		ProcessController processController = new FileBasedConfigurationProcess(new File(""));
 		processController.createNew(null);
 		processController.fixDomain("test");
 		env = processController.getProcessEnvironment();
 		processId = env.getProcessId();
-		File interviewFile = new File(
-				env.getInterviewDirectory().getAbsolutePath() + File.separator + "interview.yaml");
+		File interviewFile = new File(env.getInterviewDirectory().getAbsolutePath() + File.separator + "interview.yaml");
 		Parser parser = new Parser();
 		InterviewFillout fillout = new InterviewFillout(parser.initializeInterviewFromConfig(interviewFile));
 		Map<String, String> answers = fillout.retrieveQuestionAnswerMap();

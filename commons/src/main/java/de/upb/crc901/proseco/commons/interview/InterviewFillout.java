@@ -95,8 +95,7 @@ public class InterviewFillout implements Serializable {
 		List<Question> questions = s.getQuestions();
 		if (ListUtil.isNotEmpty(questions)) {
 			for (Question q : questions) {
-				if ((q.getContent() != null && q.getContent().equals(e.getKey()))
-						|| (q.getId().equals(e.getKey()))) {
+				if ((q.getContent() != null && q.getContent().equals(e.getKey())) || (q.getId().equals(e.getKey()))) {
 					answers.put(q.getId(), e.getValue());
 				}
 			}
@@ -150,8 +149,7 @@ public class InterviewFillout implements Serializable {
 			if (!this.answers.containsKey(q.getId())) {
 				String formQuestion = q.getContent();
 				if (formQuestion != null) {
-					htmlElement.append(HTMLConstants.LINE_BREAK).append("<h1>" + formQuestion + "</h1>")
-							.append(HTMLConstants.LINE_BREAK);
+					htmlElement.append(HTMLConstants.LINE_BREAK).append("<h1>" + formQuestion + "</h1>").append(HTMLConstants.LINE_BREAK);
 				}
 				UIElement formUiElement = q.getUiElement();
 				if (formUiElement != null) {

@@ -51,9 +51,7 @@ public interface DomainConfig extends Mutable {
 		} catch (FileNotFoundException e) {
 			logger.error(String.format("Could not find config file %s. Assuming default configuration", file));
 		} catch (IOException e) {
-			logger.error(String.format(
-					"Encountered problem with config file %s. Assuming default configuration. Problem: %s", file,
-					e.getMessage()));
+			logger.error(String.format("Encountered problem with config file %s. Assuming default configuration. Problem: %s", file, e.getMessage()));
 		}
 
 		return ConfigFactory.create(DomainConfig.class, props);

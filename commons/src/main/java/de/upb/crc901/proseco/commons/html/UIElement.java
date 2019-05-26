@@ -14,9 +14,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY)
-@JsonSubTypes({ @JsonSubTypes.Type(value = Input.class, name = "Input"),
-		@JsonSubTypes.Type(value = Select.class, name = "Select"),
-		@JsonSubTypes.Type(value = Option.class, name = "Option"),
+@JsonSubTypes({ @JsonSubTypes.Type(value = Input.class, name = "Input"), @JsonSubTypes.Type(value = Select.class, name = "Select"), @JsonSubTypes.Type(value = Option.class, name = "Option"),
 		@JsonSubTypes.Type(value = Script.class, name = "Script") })
 public abstract class UIElement implements Serializable {
 	/**

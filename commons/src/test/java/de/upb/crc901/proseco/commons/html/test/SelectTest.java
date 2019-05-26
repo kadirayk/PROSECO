@@ -32,10 +32,7 @@ public class SelectTest {
 		Select select = new Select(null, attributes, options);
 
 		String actual = select.toHTML();
-		String expected = "<select name=\"response\">"
-				+ "\n\t<option value=\"option1\">Value1</option>"
-				+ "\n\t<option value=\"option2\">Value2</option>"
-				+ "\n</select>";
+		String expected = "<select name=\"response\">" + "\n\t<option value=\"option1\">Value1</option>" + "\n\t<option value=\"option2\">Value2</option>" + "\n</select>";
 
 		assertEquals(expected, actual);
 

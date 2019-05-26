@@ -41,8 +41,7 @@ public class NaturalLanguageSupportingConfigurationProcess extends AProsecoConfi
 		config = PROSECOConfig.get(prosecoConfigFile);
 	}
 
-	public <T> void receiveGeneralTaskDescription(T description)
-			throws DomainCouldNotBeDetectedException, InvalidStateTransitionException {
+	public <T> void receiveGeneralTaskDescription(T description) throws DomainCouldNotBeDetectedException, InvalidStateTransitionException {
 		if (description instanceof String) {
 			String descriptionString = (String) description;
 			DefaultDomainScoreComputer domainScoreComputer = new DefaultDomainScoreComputer();
@@ -69,8 +68,7 @@ public class NaturalLanguageSupportingConfigurationProcess extends AProsecoConfi
 
 	private void answerInterview() throws InvalidStateTransitionException {
 		updateProcessState(EProcessState.INTERVIEW);
-		File interviewFile = new File(
-				processEnvironment.getInterviewDirectory().getAbsolutePath() + File.separator + "interview.yaml");
+		File interviewFile = new File(processEnvironment.getInterviewDirectory().getAbsolutePath() + File.separator + "interview.yaml");
 		Parser parser = new Parser();
 		InterviewFillout fillout = null;
 		try {
@@ -103,8 +101,7 @@ public class NaturalLanguageSupportingConfigurationProcess extends AProsecoConfi
 		}
 		this.answers.putAll(answers);
 
-		File interviewFile = new File(
-				this.processEnvironment.getInterviewDirectory().getAbsolutePath() + File.separator + "interview.yaml");
+		File interviewFile = new File(this.processEnvironment.getInterviewDirectory().getAbsolutePath() + File.separator + "interview.yaml");
 		Parser parser = new Parser();
 		InterviewFillout fillout = null;
 		try {
