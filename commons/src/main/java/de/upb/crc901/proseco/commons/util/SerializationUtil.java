@@ -33,7 +33,7 @@ public class SerializationUtil {
 		ObjectMapper mapper = new ObjectMapper();
 		try {
 			if (logger.isInfoEnabled()) {
-				logger.info(String.format("Saving interview state %s to %s", interview, file.getAbsoluteFile().getAbsolutePath()));
+				logger.info("Saving interview state {} to {}", interview, file.getAbsoluteFile().getAbsolutePath());
 			}
 			if (!file.getParentFile().exists()) {
 				FileUtils.forceMkdir(file.getParentFile());
@@ -43,7 +43,7 @@ public class SerializationUtil {
 			logger.error(e.getMessage());
 		}
 		if (logger.isInfoEnabled()) {
-			logger.info(String.format("File exists: %s", file.getAbsoluteFile().exists()));
+			logger.info("File exists: {}", file.getAbsoluteFile().exists());
 		}
 	}
 

@@ -123,7 +123,7 @@ public class InterviewController {
 			interviewDTO.setProcessId(env.getProcessId());
 			ProcessStateProvider.setProcessStatus(env.getProcessId(), EProcessState.INTERVIEW);
 		} catch (Exception e) {
-			logger.error("Error in creating a construction process for domain " + domainName + ". The exception is as follows:");
+			logger.error("Error in creating a construction process for domain {}. The exception is as follows:", domainName);
 			logger.error(e.getMessage());
 		}
 		this.saveInterviewState(interviewDTO);
@@ -297,7 +297,7 @@ public class InterviewController {
 	public ResponseEntity<Object> postCandidateFoundEvent(@PathVariable("id") final String id, @RequestBody final StrategyCandidateFoundEvent e) {
 		Map<String, Object> result = new HashMap<>();
 		if (logger.isDebugEnabled()) {
-			logger.debug(String.format("Received candidate from strategy %s:%n %s", id, e));
+			logger.debug("Received candidate from strategy {}:%n {}", id, e);
 		}
 		result.put(STATUS, this.datastore.put(id, e));
 		return new ResponseEntity<>(result, HttpStatus.OK);

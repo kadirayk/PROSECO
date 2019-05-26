@@ -49,9 +49,9 @@ public interface DomainConfig extends Mutable {
 		try {
 			props.load(new FileInputStream(file));
 		} catch (FileNotFoundException e) {
-			logger.error(String.format("Could not find config file %s. Assuming default configuration", file));
+			logger.error("Could not find config file {}. Assuming default configuration", file);
 		} catch (IOException e) {
-			logger.error(String.format("Encountered problem with config file %s. Assuming default configuration. Problem: %s", file, e.getMessage()));
+			logger.error("Encountered problem with config file {}. Assuming default configuration. Problem: {}", file, e.getMessage());
 		}
 
 		return ConfigFactory.create(DomainConfig.class, props);
