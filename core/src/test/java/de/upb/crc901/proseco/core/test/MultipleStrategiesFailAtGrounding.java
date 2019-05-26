@@ -8,12 +8,10 @@ import java.io.IOException;
 import java.util.Map;
 
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import de.upb.crc901.proseco.commons.controller.CannotFixDomainInThisProcessException;
 import de.upb.crc901.proseco.commons.controller.GroundingNotSuccessfulForAnyStrategyException;
 import de.upb.crc901.proseco.commons.controller.NoStrategyFoundASolutionException;
 import de.upb.crc901.proseco.commons.controller.PROSECOSolution;
@@ -34,16 +32,14 @@ public class MultipleStrategiesFailAtGrounding {
 	static final Logger logger = LoggerFactory.getLogger(MultipleStrategiesFailAtGrounding.class);
 
 	@BeforeClass
-	public static void initialize() throws ProcessIdAlreadyExistsException, InvalidStateTransitionException,
-			CannotFixDomainInThisProcessException, IOException, NoStrategyFoundASolutionException,
-			PrototypeCouldNotBeExtractedException, GroundingNotSuccessfulForAnyStrategyException {
+	public static void initialize()
+			throws ProcessIdAlreadyExistsException, InvalidStateTransitionException, IOException, NoStrategyFoundASolutionException, PrototypeCouldNotBeExtractedException, GroundingNotSuccessfulForAnyStrategyException {
 		ProcessController processController = new FileBasedConfigurationProcess(new File(""));
 		processController.createNew(null);
 		processController.fixDomain("test");
 		env = processController.getProcessEnvironment();
 		processId = env.getProcessId();
-		File interviewFile = new File(
-				env.getInterviewDirectory().getAbsolutePath() + File.separator + "interview.yaml");
+		File interviewFile = new File(env.getInterviewDirectory().getAbsolutePath() + File.separator + "interview.yaml");
 		Parser parser = new Parser();
 		InterviewFillout fillout = new InterviewFillout(parser.initializeInterviewFromConfig(interviewFile));
 		Map<String, String> answers = fillout.retrieveQuestionAnswerMap();

@@ -43,20 +43,20 @@ public class ExpressionTest {
 		ExpressionEvaluator ev = new ExpressionEvaluator(exp);
 		assertTrue(ev.evaluateExpression());
 	}
-	
+
 	@Test
 	public void testNumericOperationFalse() {
 		String exp = "3>1 & (!(4>=4) | 2!=2 | !(3>=1))";
 		ExpressionEvaluator ev = new ExpressionEvaluator(exp);
 		assertFalse(ev.evaluateExpression());
 	}
-	
+
 	@Test
-	public void testStringEquals(){
+	public void testStringEquals() {
 		String exp = "a=b";
 		ExpressionEvaluator ev = new ExpressionEvaluator(exp);
 		assertFalse(ev.evaluateExpression());
-		
+
 		String exp2 = "a!=b";
 		ev = new ExpressionEvaluator(exp2);
 		assertTrue(ev.evaluateExpression());

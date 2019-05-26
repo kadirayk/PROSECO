@@ -122,13 +122,9 @@ public class InterviewDTO {
 		StringBuilder htmlElement = new StringBuilder();
 		htmlElement.append("<div id=\"debugBox\" ng-show=\"pac.showDebugTable();\">");
 		htmlElement.append(HTMLConstants.LINE_BREAK).append("Debug: ");
-		htmlElement.append("<table style=\"width: 100%\" border=\"1\">").append(HTMLConstants.TR_OPEN)
-				.append(HTMLConstants.TH_OPEN).append("State").append(HTMLConstants.TH_CLOSE)
-				.append(HTMLConstants.TH_OPEN).append("qId").append(HTMLConstants.TH_CLOSE)
-				.append(HTMLConstants.TH_OPEN).append("Question").append(HTMLConstants.TH_CLOSE)
-				.append(HTMLConstants.TH_OPEN).append("answer").append(HTMLConstants.TH_CLOSE)
-				.append(HTMLConstants.TR_CLOSE);
-		createStatesHTML(interviewFillout, htmlElement);
+		htmlElement.append("<table style=\"width: 100%\" border=\"1\">").append(HTMLConstants.TR_OPEN).append(HTMLConstants.TH_OPEN).append("State").append(HTMLConstants.TH_CLOSE).append(HTMLConstants.TH_OPEN).append("qId")
+				.append(HTMLConstants.TH_CLOSE).append(HTMLConstants.TH_OPEN).append("Question").append(HTMLConstants.TH_CLOSE).append(HTMLConstants.TH_OPEN).append("answer").append(HTMLConstants.TH_CLOSE).append(HTMLConstants.TR_CLOSE);
+		this.createStatesHTML(interviewFillout, htmlElement);
 		htmlElement.append("</table>").append("</div>");
 		this.debugHTML = htmlElement.toString();
 	}
@@ -142,10 +138,9 @@ public class InterviewDTO {
 			if (state.getName().equals(interviewFillout.getCurrentState().getName())) {
 				htmlElement.append(" class=\"currentState\" ");
 			}
-			htmlElement.append("><td rowspan=\"").append(state.getQuestions().size()).append("\">")
-					.append(state.getName()).append(HTMLConstants.TD_CLOSE);
+			htmlElement.append("><td rowspan=\"").append(state.getQuestions().size()).append("\">").append(state.getName()).append(HTMLConstants.TD_CLOSE);
 
-			createQuestionsHTML(interviewFillout, htmlElement, state);
+			this.createQuestionsHTML(interviewFillout, htmlElement, state);
 
 		}
 	}
@@ -205,10 +200,7 @@ public class InterviewDTO {
 
 	@Override
 	public String toString() {
-		return "InterviewDTO [processId=" + this.processId + ", content=" + this.content + ", interviewFillout="
-				+ this.interviewFillout + ", interviewHTML=" + this.interviewHTML + ", debugHTML=" + this.debugHTML
-				+ ", showInterview=" + this.showInterview + ", showSubmit=" + this.showSubmit
-				+ ", showConfigurationPane=" + this.showConfigurationPane + ", showConsole=" + this.showConsole
-				+ ", upload=" + this.upload + "]";
+		return "InterviewDTO [processId=" + this.processId + ", content=" + this.content + ", interviewFillout=" + this.interviewFillout + ", interviewHTML=" + this.interviewHTML + ", debugHTML=" + this.debugHTML + ", showInterview="
+				+ this.showInterview + ", showSubmit=" + this.showSubmit + ", showConfigurationPane=" + this.showConfigurationPane + ", showConsole=" + this.showConsole + ", upload=" + this.upload + "]";
 	}
 }

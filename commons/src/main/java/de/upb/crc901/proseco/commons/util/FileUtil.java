@@ -14,7 +14,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * File Utility class
- * 
+ *
  * @author kadirayk
  *
  */
@@ -37,11 +37,11 @@ public class FileUtil {
 			System.err.println("test");
 		}
 	}
-	
+
 	public static void f() {
 		System.out.println("test");
 	}
-	
+
 	public static String readFile(String filePath) {
 		byte[] encoded = null;
 		String content = null;

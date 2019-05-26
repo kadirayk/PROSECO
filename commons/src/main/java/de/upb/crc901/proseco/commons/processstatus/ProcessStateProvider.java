@@ -24,8 +24,7 @@ public class ProcessStateProvider {
 	private static final String NO_PROCESS_PROCESSID = "NaN";
 	private static final EProcessState DEFAULT_PROCESS_STATE = EProcessState.DOMAIN_DEFINITION;
 
-	private static final DefaultProcessController PROCESS_CONTROLLER = new DefaultProcessController(
-			new File("conf/proseco.conf"));
+	private static final DefaultProcessController PROCESS_CONTROLLER = new DefaultProcessController(new File("conf/proseco.conf"));
 	private static final Map<String, PROSECOProcessEnvironment> envCache = new HashMap<>();
 
 	private ProcessStateProvider() {
@@ -56,8 +55,7 @@ public class ProcessStateProvider {
 	}
 
 	public static EProcessState readProcessStateValue(final String value) {
-		Optional<EProcessState> res = Arrays.stream(EProcessState.values()).filter(x -> x.toString().equals(value))
-				.findFirst();
+		Optional<EProcessState> res = Arrays.stream(EProcessState.values()).filter(x -> x.toString().equals(value)).findFirst();
 		if (res.isPresent()) {
 			return res.get();
 		} else {
@@ -65,8 +63,7 @@ public class ProcessStateProvider {
 		}
 	}
 
-	public static PROSECOProcessEnvironment getProcessEnvironment(final String processID,
-			final boolean invalidateIfExists) {
+	public static PROSECOProcessEnvironment getProcessEnvironment(final String processID, final boolean invalidateIfExists) {
 		if (invalidateIfExists && envCache.containsKey(processID)) {
 			envCache.remove(processID);
 		}
@@ -76,12 +73,12 @@ public class ProcessStateProvider {
 	public static PROSECOProcessEnvironment getProcessEnvironment(final String processID) {
 		if (envCache.containsKey(processID)) {
 			if (logger.isTraceEnabled()) {
-				logger.trace(String.format("return env from cache for processid %s", processID));
+				logger.trace("return env from cache for processid {}", processID);
 			}
 			return envCache.get(processID);
 		} else {
 			if (logger.isTraceEnabled()) {
-				logger.trace(String.format("create new process environment for %s", processID));
+				logger.trace("create new process environment for {}", processID);
 			}
 			PROSECOProcessEnvironment env = PROCESS_CONTROLLER.getConstructionProcessEnvironment(processID);
 			envCache.put(processID, env);

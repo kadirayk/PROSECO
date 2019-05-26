@@ -78,9 +78,9 @@ public class PROSECOProcessEnvironment {
 
 	/**
 	 * @param processFolder The process folder MUST, by convention, contain a
-	 *                      process.json that contains its id, the domain, the
-	 *                      prototype, and the proseco configuration that is used to
-	 *                      run it
+	 *            process.json that contains its id, the domain, the
+	 *            prototype, and the proseco configuration that is used to
+	 *            run it
 	 * @throws FileNotFoundException
 	 * @throws IOException
 	 */
@@ -96,9 +96,7 @@ public class PROSECOProcessEnvironment {
 		}
 
 		/* read PROSECO configuration and configure process */
-		File prosecoConfigFile = processConfig.getProsecoConfigFile().isAbsolute()
-				? processConfig.getProsecoConfigFile()
-				: new File(processFolder + File.separator + processConfig.getProsecoConfigFile());
+		File prosecoConfigFile = processConfig.getProsecoConfigFile().isAbsolute() ? processConfig.getProsecoConfigFile() : new File(processFolder + File.separator + processConfig.getProsecoConfigFile());
 		L.debug("Load PROSECO config from {}", prosecoConfigFile);
 		this.prosecoConfig = PROSECOConfig.get(prosecoConfigFile);
 
@@ -108,52 +106,34 @@ public class PROSECOProcessEnvironment {
 		L.debug("Current process with process id {} is located in {}", this.processId, this.processDirectory);
 
 		/* General domain directories and config */
-		this.domainDirectory = new File(
-				this.prosecoConfig.getDirectoryForDomains() + File.separator + processConfig.getDomain())
-						.getCanonicalFile();
+		this.domainDirectory = new File(this.prosecoConfig.getDirectoryForDomains() + File.separator + processConfig.getDomain()).getCanonicalFile();
 		this.domainConfig = DomainConfig.get(this.domainDirectory + File.separator + "domain.conf");
-		L.debug("Domain directory is set to {} and domain config is loaded from file {}", this.domainDirectory,
-				new File(this.domainDirectory + File.separator + "domain.conf"));
+		L.debug("Domain directory is set to {} and domain config is loaded from file {}", this.domainDirectory, new File(this.domainDirectory + File.separator + "domain.conf"));
 
 		/* domain specific folders */
-		this.interviewDirectory = new File(
-				this.domainDirectory + File.separator + this.domainConfig.getNameOfInterviewFolder());
-		this.interviewStateDirectory = new File(
-				this.processDirectory + File.separator + this.domainConfig.getNameOfInterviewFolder());
-		this.interviewStateFile = new File(
-				this.interviewStateDirectory + File.separator + this.domainConfig.getNameOfInterviewStateFile());
-		this.interviewResourcesDirectory = new File(
-				this.interviewStateDirectory + File.separator + this.domainConfig.getNameOfInterviewResourceFolder());
+		this.interviewDirectory = new File(this.domainDirectory + File.separator + this.domainConfig.getNameOfInterviewFolder());
+		this.interviewStateDirectory = new File(this.processDirectory + File.separator + this.domainConfig.getNameOfInterviewFolder());
+		this.interviewStateFile = new File(this.interviewStateDirectory + File.separator + this.domainConfig.getNameOfInterviewStateFile());
+		this.interviewResourcesDirectory = new File(this.interviewStateDirectory + File.separator + this.domainConfig.getNameOfInterviewResourceFolder());
 
 		this.searchDirectory = new File(this.processDirectory, "search");
 
 		/* extract prototype from interview */
-		L.debug("Trying to read interview from file {}. Existent: {}", this.interviewStateFile.getAbsolutePath(),
-				this.interviewStateFile.exists());
-		this.interviewFillout = this.interviewStateFile.exists() ? SerializationUtil.readAsJSON(this.interviewStateFile)
-				: null;
+		L.debug("Trying to read interview from file {}. Existent: {}", this.interviewStateFile.getAbsolutePath(), this.interviewStateFile.exists());
+		this.interviewFillout = this.interviewStateFile.exists() ? SerializationUtil.readAsJSON(this.interviewStateFile) : null;
 		L.debug("Interview fillout is {}", this.interviewFillout);
 
 		/* prototype specific folders if prototype has been set in the interview */
 		if (this.interviewFillout != null && this.interviewFillout.getAnswer("prototype") != null) {
 			this.prototypeName = this.interviewFillout.getAnswer("prototype");
-			this.prototypeDirectory = new File(this.domainDirectory + File.separator
-					+ this.domainConfig.getPrototypeFolder() + File.separator + this.prototypeName);
+			this.prototypeDirectory = new File(this.domainDirectory + File.separator + this.domainConfig.getPrototypeFolder() + File.separator + this.prototypeName);
 			this.prototypeConfig = PrototypeConfig.get(this.prototypeDirectory + File.separator + "prototype.conf");
-			this.benchmarksDirectory = new File(
-					this.prototypeDirectory + File.separator + this.prototypeConfig.getBenchmarkPath());
-			this.groundingDirectory = new File(
-					this.prototypeDirectory + File.separator + this.prototypeConfig.getNameOfGroundingFolder());
-			this.groundingFile = this
-					.appendExecutableScriptExtension(new File(
-							this.groundingDirectory + File.separator + this.prototypeConfig.getGroundingCommand()))
-					.getCanonicalFile();
-			this.strategyDirectory = new File(
-					this.prototypeDirectory + File.separator + this.prototypeConfig.getNameOfStrategyFolder());
-			this.analysisRoutineExecutable = new File(
-					this.prototypeDirectory + File.separator + this.prototypeConfig.getHookForPreGrounding());
-			this.deploymentFile = this.appendExecutableScriptExtension(
-					new File(this.prototypeDirectory + File.separator + this.prototypeConfig.getDeploymentCommand()));
+			this.benchmarksDirectory = new File(this.prototypeDirectory + File.separator + this.prototypeConfig.getBenchmarkPath());
+			this.groundingDirectory = new File(this.prototypeDirectory + File.separator + this.prototypeConfig.getNameOfGroundingFolder());
+			this.groundingFile = this.appendExecutableScriptExtension(new File(this.groundingDirectory + File.separator + this.prototypeConfig.getGroundingCommand())).getCanonicalFile();
+			this.strategyDirectory = new File(this.prototypeDirectory + File.separator + this.prototypeConfig.getNameOfStrategyFolder());
+			this.analysisRoutineExecutable = new File(this.prototypeDirectory + File.separator + this.prototypeConfig.getHookForPreGrounding());
+			this.deploymentFile = this.appendExecutableScriptExtension(new File(this.prototypeDirectory + File.separator + this.prototypeConfig.getDeploymentCommand()));
 		} else {
 			L.debug("Either the interview is not filled out or the prototype has not been set. So setting all prototype specific configs to null");
 			this.prototypeName = null;
@@ -174,8 +154,7 @@ public class PROSECOProcessEnvironment {
 		String processConfigFilename = GLOBAL_CONFIG.processConfigFilename();
 		File processConfigFile = new File(processFolder, processConfigFilename);
 		if (!processConfigFile.exists()) {
-			throw new FileNotFoundException(
-					"Cannot create a PROSECOProcess environment for a folder without " + processConfigFilename);
+			throw new FileNotFoundException("Cannot create a PROSECOProcess environment for a folder without " + processConfigFilename);
 		}
 		ProcessConfig processConfig = new ObjectMapper().readValue(processConfigFile, ProcessConfig.class);
 		if (processConfig.getProcessId() == null) {
@@ -275,7 +254,7 @@ public class PROSECOProcessEnvironment {
 	 * Returns a strategy's output directory for a given strategy.
 	 *
 	 * @param strategy The name of the strategy for which the output directory shall
-	 *                 be provided.
+	 *            be provided.
 	 * @return The output directory of the given strategy.
 	 */
 	public File getSearchStrategyOutputDirectory(final String strategy) {
@@ -367,8 +346,7 @@ public class PROSECOProcessEnvironment {
 		fileMap.put("Analysis Routine: ", this.analysisRoutineExecutable);
 
 		for (Entry<String, File> file : fileMap.entrySet()) {
-			sb.append(file.getKey() + ": " + ((file.getValue() == null) ? "null" : file.getValue().getAbsolutePath())
-					+ "\n");
+			sb.append(file.getKey() + ": " + ((file.getValue() == null) ? "null" : file.getValue().getAbsolutePath()) + "\n");
 		}
 
 		return sb.toString();

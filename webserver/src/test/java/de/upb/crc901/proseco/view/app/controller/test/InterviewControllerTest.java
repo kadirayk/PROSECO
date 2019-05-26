@@ -48,8 +48,7 @@ public class InterviewControllerTest {
 		interviewDTO.setContent("test");
 		controller.initSubmit(interviewDTO);
 		File testFile = new File("testdata/test.txt");
-		DiskFileItem fileItem = (DiskFileItem) new DiskFileItemFactory().createItem("fileData", "text/plain", true,
-				testFile.getName());
+		DiskFileItem fileItem = (DiskFileItem) new DiskFileItemFactory().createItem("fileData", "text/plain", true, testFile.getName());
 		try (InputStream input = new FileInputStream(testFile)) {
 			OutputStream os = fileItem.getOutputStream();
 			int ret = input.read();

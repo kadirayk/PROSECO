@@ -49,8 +49,7 @@ public class APIController {
 
 	private final PROSECOConfig config = ConfigCache.getOrCreate(PROSECOConfig.class);
 
-	private final ProcessController processController = new FileBasedConfigurationProcess(
-			PROSECO_ENV_CONFIG.prosecoConfigFile());
+	private final ProcessController processController = new FileBasedConfigurationProcess(PROSECO_ENV_CONFIG.prosecoConfigFile());
 
 	/**
 	 * Returns SystemOut and SystemError logs of Strategies of prototype with the
@@ -80,8 +79,7 @@ public class APIController {
 	public ResponseEntity<Object> getLog(@PathVariable("id") final String id) {
 		LogResponseBody result = new LogResponseBody();
 		result.setLogList(this.findLogById(id));
-		return new ResponseEntity<>(Arrays.asList(ToJSONStringUtil.parseObjectToJsonNode(result, new ObjectMapper())),
-				HttpStatus.OK);
+		return new ResponseEntity<>(Arrays.asList(ToJSONStringUtil.parseObjectToJsonNode(result, new ObjectMapper())), HttpStatus.OK);
 	}
 
 	/**
@@ -94,8 +92,7 @@ public class APIController {
 	 * @throws ProcessIdDoesNotExistException
 	 */
 	@GetMapping("/api/stopService/{id}")
-	public String stopService(@PathVariable("id") final String id)
-			throws ProcessIdDoesNotExistException, InvalidStateTransitionException {
+	public String stopService(@PathVariable("id") final String id) throws ProcessIdDoesNotExistException, InvalidStateTransitionException {
 		String result = "success";
 		String pid = this.findServicePID(id);
 		try {
@@ -116,9 +113,8 @@ public class APIController {
 	 * @throws InvalidStateTransitionException
 	 * @throws ProcessIdDoesNotExistException
 	 */
-	private String getServiceLog(final String id)
-			throws ProcessIdDoesNotExistException, InvalidStateTransitionException {
-		processController.attach(id);
+	private String getServiceLog(final String id) throws ProcessIdDoesNotExistException, InvalidStateTransitionException {
+		this.processController.attach(id);
 		PROSECOProcessEnvironment env = this.processController.getProcessEnvironment();
 		String serviceLogFile = env.getGroundingDirectory() + File.separator + this.config.getNameOfServiceLogFile();
 		return FileUtil.readFile(serviceLogFile);
@@ -132,8 +128,7 @@ public class APIController {
 	 * @throws InvalidStateTransitionException
 	 * @throws ProcessIdDoesNotExistException
 	 */
-	private String findServicePID(final String id)
-			throws ProcessIdDoesNotExistException, InvalidStateTransitionException {
+	private String findServicePID(final String id) throws ProcessIdDoesNotExistException, InvalidStateTransitionException {
 		String pid = null;
 		String serviceLog = this.getServiceLog(id);
 

@@ -18,7 +18,7 @@ import de.upb.crc901.proseco.commons.interview.InterviewFillout;
 
 /**
  * Serialization utility class
- * 
+ *
  * @author kadirayk
  *
  */
@@ -33,8 +33,7 @@ public class SerializationUtil {
 		ObjectMapper mapper = new ObjectMapper();
 		try {
 			if (logger.isInfoEnabled()) {
-				logger.info(String.format("Saving interview state %s to %s", interview,
-						file.getAbsoluteFile().getAbsolutePath()));
+				logger.info("Saving interview state {} to {}", interview, file.getAbsoluteFile().getAbsolutePath());
 			}
 			if (!file.getParentFile().exists()) {
 				FileUtils.forceMkdir(file.getParentFile());
@@ -44,7 +43,7 @@ public class SerializationUtil {
 			logger.error(e.getMessage());
 		}
 		if (logger.isInfoEnabled()) {
-			logger.info(String.format("File exists: %s", file.getAbsoluteFile().exists()));
+			logger.info("File exists: {}", file.getAbsoluteFile().exists());
 		}
 	}
 
@@ -61,8 +60,7 @@ public class SerializationUtil {
 
 	public static void write(String path, Interview interview) {
 		String filePath = path + "interview_state";
-		try (FileOutputStream f = new FileOutputStream(new File(filePath));
-				ObjectOutputStream o = new ObjectOutputStream(f)) {
+		try (FileOutputStream f = new FileOutputStream(new File(filePath)); ObjectOutputStream o = new ObjectOutputStream(f)) {
 			o.writeObject(interview);
 		} catch (IOException e) {
 			logger.error(e.getMessage());
@@ -72,8 +70,7 @@ public class SerializationUtil {
 	public static Interview read(String path) {
 		String filePath = path + "interview_state";
 		Interview interview = null;
-		try (FileInputStream f = new FileInputStream(new File(filePath));
-				ObjectInputStream o = new ObjectInputStream(f)) {
+		try (FileInputStream f = new FileInputStream(new File(filePath)); ObjectInputStream o = new ObjectInputStream(f)) {
 			interview = (Interview) o.readObject();
 		} catch (IOException | ClassNotFoundException e) {
 			logger.error(e.getMessage());

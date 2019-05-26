@@ -25,11 +25,9 @@ public class NaturalLanguageSupportingConfigurationTest {
 	static String output;
 
 	@BeforeClass
-	public static void initialize() throws ProcessIdAlreadyExistsException, InvalidStateTransitionException,
-			DomainCouldNotBeDetectedException, NoStrategyFoundASolutionException, PrototypeCouldNotBeExtractedException,
+	public static void initialize() throws ProcessIdAlreadyExistsException, InvalidStateTransitionException, DomainCouldNotBeDetectedException, NoStrategyFoundASolutionException, PrototypeCouldNotBeExtractedException,
 			GroundingNotSuccessfulForAnyStrategyException {
-		NaturalLanguageSupportingConfigurationProcess processController = new NaturalLanguageSupportingConfigurationProcess(
-				new File(""));
+		NaturalLanguageSupportingConfigurationProcess processController = new NaturalLanguageSupportingConfigurationProcess(new File(""));
 		processController.createNew(null);
 		processController.receiveGeneralTaskDescription("test");
 		env = processController.getProcessEnvironment();

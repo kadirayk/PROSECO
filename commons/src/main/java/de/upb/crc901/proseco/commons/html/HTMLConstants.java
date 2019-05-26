@@ -2,7 +2,7 @@ package de.upb.crc901.proseco.commons.html;
 
 /**
  * Constants class for HTML elements
- * 
+ *
  * @author kadirayk
  *
  */

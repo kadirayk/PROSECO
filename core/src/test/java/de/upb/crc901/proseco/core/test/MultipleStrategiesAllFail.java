@@ -9,7 +9,6 @@ import java.util.Map;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import de.upb.crc901.proseco.commons.controller.CannotFixDomainInThisProcessException;
 import de.upb.crc901.proseco.commons.controller.NoStrategyFoundASolutionException;
 import de.upb.crc901.proseco.commons.controller.ProcessController;
 import de.upb.crc901.proseco.commons.controller.ProcessIdAlreadyExistsException;
@@ -27,15 +26,13 @@ public class MultipleStrategiesAllFail {
 	static ProcessController processController;
 
 	@BeforeClass
-	public static void initialize() throws ProcessIdAlreadyExistsException, InvalidStateTransitionException,
-			CannotFixDomainInThisProcessException, IOException {
+	public static void initialize() throws ProcessIdAlreadyExistsException, InvalidStateTransitionException, IOException {
 		processController = new FileBasedConfigurationProcess(new File(""));
 		processController.createNew(null);
 		processController.fixDomain("test");
 		env = processController.getProcessEnvironment();
 		processId = env.getProcessId();
-		File interviewFile = new File(
-				env.getInterviewDirectory().getAbsolutePath() + File.separator + "interview.yaml");
+		File interviewFile = new File(env.getInterviewDirectory().getAbsolutePath() + File.separator + "interview.yaml");
 		Parser parser = new Parser();
 		InterviewFillout fillout = new InterviewFillout(parser.initializeInterviewFromConfig(interviewFile));
 		Map<String, String> answers = fillout.retrieveQuestionAnswerMap();
@@ -45,14 +42,13 @@ public class MultipleStrategiesAllFail {
 
 	/**
 	 * No winning strategy, process should not move to grounding step
-	 * 
+	 *
 	 * @throws PrototypeCouldNotBeExtractedException
 	 * @throws InvalidStateTransitionException
 	 * @throws NoStrategyFoundASolutionException
 	 */
 	@Test(expected = NoStrategyFoundASolutionException.class)
-	public void testGroundingNotExists() throws NoStrategyFoundASolutionException, InvalidStateTransitionException,
-			PrototypeCouldNotBeExtractedException {
+	public void testGroundingNotExists() throws NoStrategyFoundASolutionException, InvalidStateTransitionException, PrototypeCouldNotBeExtractedException {
 		processController.startComposition(1000);
 	}
 
