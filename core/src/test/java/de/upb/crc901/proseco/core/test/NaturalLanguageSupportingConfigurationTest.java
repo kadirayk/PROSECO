@@ -61,4 +61,11 @@ public class NaturalLanguageSupportingConfigurationTest {
 		processController.createNew(null);
 		processController.fixDomain("test");
 	}
+
+	@Test(expected = DomainCouldNotBeDetectedException.class)
+	public void testDomainCouldNotBeDetected() throws ProcessIdAlreadyExistsException, InvalidStateTransitionException, DomainCouldNotBeDetectedException {
+		final NaturalLanguageSupportingConfigurationProcess processController = new NaturalLanguageSupportingConfigurationProcess(new File(""));
+		processController.createNew(null);
+		processController.receiveGeneralTaskDescription("");
+	}
 }
