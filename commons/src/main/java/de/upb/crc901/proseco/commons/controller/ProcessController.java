@@ -6,6 +6,54 @@ import de.upb.crc901.proseco.commons.processstatus.EProcessState;
 import de.upb.crc901.proseco.commons.processstatus.InvalidStateTransitionException;
 import de.upb.crc901.proseco.commons.util.PROSECOProcessEnvironment;
 
+/**
+ * ProcessController interfaces defines a set of methods which should be called in a certain order to complete a configuration process.
+ * A PROSECO configuration process keeps an internal state to provide transparency on what is going on during the configuration process.
+ *
+ * <br>
+ * <br>
+ * <b>Method Call Order and State Transitions:</b><br>
+ *
+ * <table border="1">
+ * <tr>
+ * <td><b>Current State</b></td>
+ * <td><b>Method</b></td>
+ * <td><b>Next State</b></td>
+ * </tr>
+ * <tr>
+ * <td>INIT</td>
+ * <td>CreateNew()</td>
+ * <td>CREATED</td>
+ * </tr>
+ * <tr>
+ * <td>CREATED</td>
+ * <td>fixDomain()</td>
+ * <td>DOMAIN_DEFINITION</td>
+ * </tr>
+ * <tr>
+ * <td>DOMAIN_DEFINITION</td>
+ * <td>updateInterview()</td>
+ * <td>INTERVIEW</td>
+ * </tr>
+ * <tr>
+ * <td>INTERVIEW</td>
+ * <td>updateInterview()</td>
+ * <td>INTERVIEW</td>
+ * </tr>
+ * <tr>
+ * <td>INTERVIEW</td>
+ * <td>startComposition()</td>
+ * <td>STRATEGY_CHOSEN</td>
+ * </tr>
+ * <td>STRATEGY_CHOSEN</td>
+ * <td>chooseAndDeploySolution()</td>
+ * <td>DONE</td>
+ * </tr>
+ * </table>
+ *
+ * @author kadirayk
+ *
+ */
 public interface ProcessController {
 
 	/**
