@@ -13,11 +13,10 @@ import de.upb.crc901.proseco.commons.config.ProcessConfig;
 import de.upb.crc901.proseco.commons.util.PROSECOProcessEnvironment;
 
 /**
- * @deprecated
  *
+ * DefaultProcessController
  *
  */
-@Deprecated
 public class DefaultProcessController {
 
 	private final File prosecoConfigFile;
@@ -26,7 +25,7 @@ public class DefaultProcessController {
 	/**
 	 * Instantiates a DefaultProcessController with given prosecoConfigFile
 	 *
-	 * @param prosecoConfigFile
+	 * @param prosecoConfigFile file pointing to prosecoConfig
 	 */
 	public DefaultProcessController(final File prosecoConfigFile) {
 		super();
@@ -52,7 +51,7 @@ public class DefaultProcessController {
 
 	/**
 	 * Returns {@link PROSECOProcessEnvironment} with given id
-	 * 
+	 *
 	 * @param processId id of process
 	 * @return {@link PROSECOProcessEnvironment}
 	 */

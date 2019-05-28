@@ -13,10 +13,10 @@ public interface IPrototypeExtractor {
 	/**
 	 * Returns a prototype name which is extracted from the given answers and a domain name
 	 *
-	 * @param domain
-	 * @param answers
+	 * @param domain domain name to search for a prototype
+	 * @param answers map of question-answer pairs
 	 * @return prototype name
-	 * @throws PrototypeCouldNotBeExtractedException
+	 * @throws PrototypeCouldNotBeExtractedException thrown when prototype could not be extracted
 	 */
 	String getPrototype(String domain, Map<String, String> answers) throws PrototypeCouldNotBeExtractedException;
 

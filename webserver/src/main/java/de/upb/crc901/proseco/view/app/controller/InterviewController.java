@@ -134,7 +134,7 @@ public class InterviewController {
 	 * interview with the given {id}
 	 *
 	 * @param id consists of a domain name and a 10-digit alpha-numeric value (e.g. test-00dc91ae4d)
-	 * @param interviewDTO
+	 * @param interviewDTO {@link InterviewDTO} UI-facing definition of the interview
 	 * @return String denoting the thymeleaf template name
 	 * @throws InvalidStateTransitionException thrown when a transition to an invalid state is wanted to be performed
 	 */
@@ -144,6 +144,12 @@ public class InterviewController {
 		return RESULT_TEMPLATE;
 	}
 
+	/**
+	 * for moving to previous interview state
+	 *
+	 * @param init {@link InterviewDTO} UI-facing definition of the interview
+	 * @return String denoting the thymeleaf template name
+	 */
 	@GetMapping("/prev")
 	public String prev(@ModelAttribute final InterviewDTO init) {
 		return RESULT_TEMPLATE;
@@ -153,10 +159,10 @@ public class InterviewController {
 	 * Http Post method for /interview/{id} to post form values and continue to the
 	 * next step
 	 *
-	 * @param interviewDTO
+	 * @param interviewDTO {@link InterviewDTO} UI-facing definition of the interview
 	 * @param response is any string value that is filled in the form
 	 * @param file is any file that is uploaded via the form
-	 * @return
+	 * @return String denoting the thymeleaf template name
 	 * @throws InvalidStateTransitionException
 	 * @throws NextStateNotFoundException
 	 */
@@ -281,9 +287,8 @@ public class InterviewController {
 	/**
 	 * saves interview state on current prototype instance's directory
 	 *
-	 * @param interviewDTO
-	 * @throws InvalidStateTransitionException
-	 * @throws Exception
+	 * @param interviewDTO {@link InterviewDTO} UI-facing definition of the interview
+	 * @throws InvalidStateTransitionException thrown when a transition to an invalid state is wanted to be performed
 	 */
 	private void saveInterviewState(final InterviewDTO interviewDTO) throws InvalidStateTransitionException {
 		final PROSECOProcessEnvironment env = this.processController.getProcessEnvironment();
