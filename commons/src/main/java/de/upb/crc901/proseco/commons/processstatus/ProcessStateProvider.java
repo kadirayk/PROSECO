@@ -90,7 +90,7 @@ public class ProcessStateProvider {
 
 	/**
 	 * returns {@link PROSECOProcessEnvironment} of the given processId
-	 * 
+	 *
 	 * @param processID consists of a domain name and a 10-digit alpha-numeric value (e.g. test-00dc91ae4d)
 	 * @param invalidateIfExists if set true remove the processId from cache
 	 * @return {@link PROSECOProcessEnvironment} of the given processId
@@ -105,8 +105,8 @@ public class ProcessStateProvider {
 	/**
 	 * Returns {@link PROSECOProcessEnvironment} by given processId
 	 *
-	 * @param processID
-	 * @return
+	 * @param processID consists of a domain name and a 10-digit alpha-numeric value (e.g. test-00dc91ae4d)
+	 * @return PROSECOProcessEnvironment
 	 */
 	public static PROSECOProcessEnvironment getProcessEnvironment(final String processID) {
 		if (envCache.containsKey(processID)) {

@@ -29,8 +29,8 @@ public class DefaultDomainScoreComputer implements IDomainScoreComputer<String> 
 
 	/**
 	 * Returns list of available domains in the domain folder
-	 * 
-	 * @param prosecoConfig
+	 *
+	 * @param prosecoConfig {@link PROSECOConfig} prosecoConfig
 	 * @return list of available domains
 	 */
 	public List<String> getAvailableDomains(final PROSECOConfig prosecoConfig) {
