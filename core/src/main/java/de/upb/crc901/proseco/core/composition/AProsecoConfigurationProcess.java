@@ -7,28 +7,38 @@ import java.net.Socket;
 import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.TreeMap;
+import java.util.UUID;
 
 import org.aeonbits.owner.ConfigFactory;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import de.upb.crc901.proseco.commons.config.GlobalConfig;
+import de.upb.crc901.proseco.commons.config.PROSECOConfig;
+import de.upb.crc901.proseco.commons.config.ProcessConfig;
 import de.upb.crc901.proseco.commons.controller.DefaultPrototypeExtractor;
 import de.upb.crc901.proseco.commons.controller.GroundingNotSuccessfulForAnyStrategyException;
 import de.upb.crc901.proseco.commons.controller.NoStrategyFoundASolutionException;
 import de.upb.crc901.proseco.commons.controller.PROSECOSolution;
 import de.upb.crc901.proseco.commons.controller.ProcessController;
+import de.upb.crc901.proseco.commons.controller.ProcessIdAlreadyExistsException;
 import de.upb.crc901.proseco.commons.controller.PrototypeCouldNotBeExtractedException;
+import de.upb.crc901.proseco.commons.interview.InterviewFillout;
 import de.upb.crc901.proseco.commons.processstatus.EProcessState;
 import de.upb.crc901.proseco.commons.processstatus.InvalidStateTransitionException;
 import de.upb.crc901.proseco.commons.processstatus.ProcessStateProvider;
 import de.upb.crc901.proseco.commons.processstatus.ProcessStateTransitionController;
 import de.upb.crc901.proseco.commons.util.PROSECOProcessEnvironment;
+import de.upb.crc901.proseco.commons.util.Parser;
+import de.upb.crc901.proseco.commons.util.SerializationUtil;
 
 /**
  * Abstract class that implements {@link ProcessController} interface
@@ -63,6 +73,11 @@ public abstract class AProsecoConfigurationProcess implements ProcessController 
 
 	protected void setProcessId(final String processId) {
 		this.processId = processId;
+	}
+
+	@Override
+	public void createNew() throws InvalidStateTransitionException {
+		this.updateProcessState(EProcessState.CREATED);
 	}
 
 	@Override
@@ -336,6 +351,70 @@ public abstract class AProsecoConfigurationProcess implements ProcessController 
 			logger.info("score file was not found in file {} for strategy {}", fValueFile.getAbsolutePath(), strategy.getName());
 		}
 		return fValueFile;
+	}
+
+	@Override
+	public void updateInterview(final Map<String, String> answers) throws InvalidStateTransitionException {
+		this.updateProcessState(EProcessState.INTERVIEW);
+		if (this.answers == null) {
+			this.answers = new HashMap<>();
+		}
+		this.answers.putAll(answers);
+
+		final File interviewFile = new File(this.processEnvironment.getInterviewDirectory().getAbsolutePath() + File.separator + "interview.yaml");
+		final Parser parser = new Parser();
+		InterviewFillout fillout = null;
+		try {
+			fillout = new InterviewFillout(parser.initializeInterviewFromConfig(interviewFile));
+			fillout.updateAnswers(this.answers);
+			fillout = new InterviewFillout(fillout.getInterview(), fillout.getAnswers());
+		} catch (final IOException e) {
+			logger.error(e.getMessage());
+		}
+
+		SerializationUtil.writeAsJSON(this.processEnvironment.getInterviewStateFile(), fillout);
+
+	}
+
+	protected void createEnvironment(final String domain, final File prosecoConfigFile, final PROSECOConfig config) {
+		if (this.processId == null) {
+			final String id = domain + "-" + UUID.randomUUID().toString().replace("-", "").substring(0, 10).toLowerCase();
+			this.processId = id;
+		}
+		final File processFolder = new File(config.getDirectoryForProcesses() + File.separator + this.processId);
+
+		try {
+			FileUtils.forceMkdir(processFolder);
+		} catch (final IOException e) {
+			// File IO exception is only relevant for FileBasedConfigurationProcess
+			logger.error(e.getMessage());
+		}
+
+		final ProcessConfig pc = new ProcessConfig(this.processId, domain, prosecoConfigFile);
+		try {
+			new ObjectMapper().writeValue(new File(processFolder + File.separator + "process.json"), pc);
+		} catch (final IOException e1) {
+			logger.error(e1.getMessage());
+		}
+		try {
+			this.processEnvironment = new PROSECOProcessEnvironment(processFolder);
+		} catch (final IOException e) {
+			logger.error(e.getMessage());
+		}
+
+	}
+
+	public void createNewForConfig(final String processId, final PROSECOConfig config) throws ProcessIdAlreadyExistsException, InvalidStateTransitionException {
+		if (processId != null) {
+			final File processFolder = new File(config.getDirectoryForProcesses() + File.separator + processId);
+			if (processFolder.exists()) {
+				throw new ProcessIdAlreadyExistsException();
+			}
+		}
+
+		this.processId = processId;
+
+		this.updateProcessState(EProcessState.CREATED);
 	}
 
 	protected void updateProcessState(final EProcessState newState) throws InvalidStateTransitionException {
