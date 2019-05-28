@@ -23,8 +23,8 @@ public class Script extends UIElement {
 
 	/**
 	 * Constructor that sets content
-	 * 
-	 * @param content
+	 *
+	 * @param content content of the script element
 	 */
 	public Script(final String content) {
 		this.setTag(TAG);

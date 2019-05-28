@@ -40,7 +40,7 @@ public class NaturalLanguageSupportingConfigurationProcess extends AProsecoConfi
 	/**
 	 * Constructor that creates a {@link NaturalLanguageSupportingConfigurationProcess} with given prosecoConfigFile
 	 *
-	 * @param prosecoConfigFile
+	 * @param prosecoConfigFile file that points to the prosecoConfigFile that configures the values described in {@link PROSECOConfig}
 	 */
 	public NaturalLanguageSupportingConfigurationProcess(final File prosecoConfigFile) {
 		try {
@@ -56,9 +56,9 @@ public class NaturalLanguageSupportingConfigurationProcess extends AProsecoConfi
 	 * Method that accepts a general task description and detects the desired domain from the given description.
 	 * A description can be any type of class, String type is currently supported
 	 *
-	 * @param description
-	 * @throws DomainCouldNotBeDetectedException
-	 * @throws InvalidStateTransitionException
+	 * @param description Task description that can be in any type
+	 * @throws DomainCouldNotBeDetectedException thrown when domain could not be detected
+	 * @throws InvalidStateTransitionException thrown when a transition to an invalid state is wanted to be performed
 	 */
 	public <T> void receiveGeneralTaskDescription(final T description) throws DomainCouldNotBeDetectedException, InvalidStateTransitionException {
 		if (description instanceof String) {
@@ -137,7 +137,7 @@ public class NaturalLanguageSupportingConfigurationProcess extends AProsecoConfi
 	}
 
 	@Override
-	public void createNew() throws ProcessIdAlreadyExistsException, InvalidStateTransitionException {
+	public void createNew() throws InvalidStateTransitionException {
 		super.updateProcessState(EProcessState.CREATED);
 	}
 

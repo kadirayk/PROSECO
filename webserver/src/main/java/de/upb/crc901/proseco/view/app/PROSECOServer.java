@@ -32,10 +32,20 @@ public class PROSECOServer {
 		return multipart;
 	}
 
+	/**
+	 * launches PROSECOServer
+	 *
+	 * @param args arguments to pass to SpringApplication
+	 */
 	public void launch(final String... args) {
 		SpringApplication.run(PROSECOServer.class, args);
 	}
 
+	/**
+	 * main method to start PROSECOServer
+	 *
+	 * @param args main method arguments
+	 */
 	public static void main(final String[] args) {
 		new PROSECOServer().launch();
 	}

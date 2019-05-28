@@ -7,6 +7,7 @@ package de.upb.crc901.proseco.commons.controller;
 public class PROSECORuntimeException extends RuntimeException {
 
 	/**
+	 * Constructor with message and exception
 	 *
 	 * @param msg message
 	 * @param e exception
@@ -16,7 +17,8 @@ public class PROSECORuntimeException extends RuntimeException {
 	}
 
 	/**
-	 *
+	 * Constructor with message
+	 * 
 	 * @param msg message
 	 */
 	public PROSECORuntimeException(final String msg) {

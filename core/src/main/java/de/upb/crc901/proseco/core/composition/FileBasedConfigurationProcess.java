@@ -36,7 +36,7 @@ public class FileBasedConfigurationProcess extends AProsecoConfigurationProcess 
 	/**
 	 * Default constructor that initiates a FileBasedConfigurationProcess with the given prosecoConfig file
 	 *
-	 * @param prosecoConfigFile
+	 * @param prosecoConfigFile file that points to the prosecoConfigFile that configures the values described in {@link PROSECOConfig}
 	 */
 	public FileBasedConfigurationProcess(final File prosecoConfigFile) {
 		try {
@@ -49,7 +49,7 @@ public class FileBasedConfigurationProcess extends AProsecoConfigurationProcess 
 	}
 
 	@Override
-	public void createNew() throws ProcessIdAlreadyExistsException, InvalidStateTransitionException {
+	public void createNew() throws InvalidStateTransitionException {
 		super.updateProcessState(EProcessState.CREATED);
 	}
 

@@ -26,10 +26,10 @@ public class Select extends UIElement {
 
 	/**
 	 * Constructor that sets content, attributes, options
-	 * 
-	 * @param content
-	 * @param attributes
-	 * @param options
+	 *
+	 * @param content content of Select tag
+	 * @param attributes atributes map by name and value
+	 * @param options option list
 	 */
 	public Select(final String content, final Map<String, String> attributes, final List<Option> options) {
 		this.setTag(TAG);

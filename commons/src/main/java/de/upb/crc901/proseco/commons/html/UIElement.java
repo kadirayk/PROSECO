@@ -55,7 +55,7 @@ public abstract class UIElement implements Serializable {
 	/**
 	 * Generate actual HTML element
 	 *
-	 * @return
+	 * @return String consists of HTML element
 	 */
 	public String toHTML() {
 		final StringBuilder html = new StringBuilder("<");

@@ -11,6 +11,7 @@ import java.util.Map;
 public interface IPrototypeExtractor {
 
 	/**
+	 * Returns a prototype name which is extracted from the given answers and a domain name
 	 *
 	 * @param domain
 	 * @param answers

@@ -21,8 +21,8 @@ public class InvalidStateTransitionException extends Exception {
 
 	/**
 	 * Constructor with message
-	 * 
-	 * @param msg
+	 *
+	 * @param msg String message
 	 */
 	public InvalidStateTransitionException(final String msg) {
 		super(msg);
