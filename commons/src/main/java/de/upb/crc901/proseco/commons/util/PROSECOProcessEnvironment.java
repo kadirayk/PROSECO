@@ -77,17 +77,18 @@ public class PROSECOProcessEnvironment {
 	private final InterviewFillout interviewFillout;
 
 	/**
+	 * Default constructor
+	 *
 	 * @param processFolder The process folder MUST, by convention, contain a
 	 *            process.json that contains its id, the domain, the
 	 *            prototype, and the proseco configuration that is used to
 	 *            run it
-	 * @throws FileNotFoundException
 	 * @throws IOException
 	 */
 	public PROSECOProcessEnvironment(final File processFolder) throws IOException {
 		L.debug("Initializing PROSECO process environment for process folder {}.", processFolder.getAbsolutePath());
 
-		ProcessConfig processConfig = this.loadAndValidateProcessConfig(processFolder);
+		final ProcessConfig processConfig = this.loadAndValidateProcessConfig(processFolder);
 
 		/* Figure out what operating system PROSECO is running in. */
 		this.os = (SystemUtils.IS_OS_WINDOWS ? OperatingSystem.WINDOWS : OperatingSystem.NON_WINDOWS);
@@ -96,7 +97,7 @@ public class PROSECOProcessEnvironment {
 		}
 
 		/* read PROSECO configuration and configure process */
-		File prosecoConfigFile = processConfig.getProsecoConfigFile().isAbsolute() ? processConfig.getProsecoConfigFile() : new File(processFolder + File.separator + processConfig.getProsecoConfigFile());
+		final File prosecoConfigFile = processConfig.getProsecoConfigFile().isAbsolute() ? processConfig.getProsecoConfigFile() : new File(processFolder + File.separator + processConfig.getProsecoConfigFile());
 		L.debug("Load PROSECO config from {}", prosecoConfigFile);
 		this.prosecoConfig = PROSECOConfig.get(prosecoConfigFile);
 
@@ -151,12 +152,12 @@ public class PROSECOProcessEnvironment {
 
 	private ProcessConfig loadAndValidateProcessConfig(final File processFolder) throws IOException {
 		/* read the process.json */
-		String processConfigFilename = GLOBAL_CONFIG.processConfigFilename();
-		File processConfigFile = new File(processFolder, processConfigFilename);
+		final String processConfigFilename = GLOBAL_CONFIG.processConfigFilename();
+		final File processConfigFile = new File(processFolder, processConfigFilename);
 		if (!processConfigFile.exists()) {
 			throw new FileNotFoundException("Cannot create a PROSECOProcess environment for a folder without " + processConfigFilename);
 		}
-		ProcessConfig processConfig = new ObjectMapper().readValue(processConfigFile, ProcessConfig.class);
+		final ProcessConfig processConfig = new ObjectMapper().readValue(processConfigFile, ProcessConfig.class);
 		if (processConfig.getProcessId() == null) {
 			throw new IllegalArgumentException("The " + processConfigFilename + " MUST define a process id");
 		}
@@ -321,7 +322,7 @@ public class PROSECOProcessEnvironment {
 
 	@Override
 	public String toString() {
-		StringBuilder sb = new StringBuilder();
+		final StringBuilder sb = new StringBuilder();
 		sb.append("##############################\n");
 		sb.append("# Environment				#\n");
 		sb.append("##############################\n");
@@ -333,7 +334,7 @@ public class PROSECOProcessEnvironment {
 		sb.append("Prototype Name: " + this.prototypeName + "\n");
 		sb.append("Interview Fillout: " + this.interviewFillout + "\n\n");
 
-		Map<String, File> fileMap = new HashMap<>();
+		final Map<String, File> fileMap = new HashMap<>();
 		fileMap.put("Process Directory", this.processDirectory);
 		fileMap.put("Interview Directory: ", this.interviewDirectory);
 		fileMap.put("Domain Directory: ", this.domainDirectory);
@@ -345,7 +346,7 @@ public class PROSECOProcessEnvironment {
 		fileMap.put("Search Directory: ", this.searchDirectory);
 		fileMap.put("Analysis Routine: ", this.analysisRoutineExecutable);
 
-		for (Entry<String, File> file : fileMap.entrySet()) {
+		for (final Entry<String, File> file : fileMap.entrySet()) {
 			sb.append(file.getKey() + ": " + ((file.getValue() == null) ? "null" : file.getValue().getAbsolutePath()) + "\n");
 		}
 

@@ -12,6 +12,10 @@ import de.upb.crc901.proseco.commons.html.HTMLConstants;
 import de.upb.crc901.proseco.commons.html.UIElement;
 import de.upb.crc901.proseco.commons.util.ListUtil;
 
+/**
+ * Keeps a state of interview with already given answers, and the current state of the interview
+ *
+ */
 @SuppressWarnings("serial")
 public class InterviewFillout implements Serializable {
 	/**
@@ -51,10 +55,10 @@ public class InterviewFillout implements Serializable {
 		super();
 		this.interview = interview;
 		this.answers = answers;
-		for (State s : interview.getStates()) {
-			List<Question> questions = s.getQuestions();
+		for (final State s : interview.getStates()) {
+			final List<Question> questions = s.getQuestions();
 			if (ListUtil.isNotEmpty(questions)) {
-				for (Question q : questions) {
+				for (final Question q : questions) {
 					if (!answers.containsKey(q.getId())) {
 						this.currentState = s;
 						return;
@@ -69,12 +73,17 @@ public class InterviewFillout implements Serializable {
 		return this.interview;
 	}
 
+	/**
+	 * Returns a map of questions and their answers
+	 *
+	 * @return
+	 */
 	public Map<String, String> retrieveQuestionAnswerMap() {
-		Map<String, String> questionAnswerMap = new HashMap<>();
-		for (State s : this.interview.getStates()) {
-			List<Question> questions = s.getQuestions();
+		final Map<String, String> questionAnswerMap = new HashMap<>();
+		for (final State s : this.interview.getStates()) {
+			final List<Question> questions = s.getQuestions();
 			if (ListUtil.isNotEmpty(questions)) {
-				for (Question q : questions) {
+				for (final Question q : questions) {
 					questionAnswerMap.put(q.getContent(), null);
 					if (this.answers.containsKey(q.getId())) {
 						questionAnswerMap.put(q.getContent(), this.answers.get(q.getId()));
@@ -85,20 +94,25 @@ public class InterviewFillout implements Serializable {
 		return questionAnswerMap;
 	}
 
-	public void updateAnswers(Map<String, String> questionAnswerMap) {
-		for (Entry<String, String> e : questionAnswerMap.entrySet()) {
+	/**
+	 * Update the interview state according to given questionAnswerMap
+	 *
+	 * @param questionAnswerMap
+	 */
+	public void updateAnswers(final Map<String, String> questionAnswerMap) {
+		for (final Entry<String, String> e : questionAnswerMap.entrySet()) {
 			if (e.getValue() != null) {
-				for (State s : this.interview.getStates()) {
+				for (final State s : this.interview.getStates()) {
 					this.handleQuestions(e, s);
 				}
 			}
 		}
 	}
 
-	private void handleQuestions(Entry<String, String> e, State s) {
-		List<Question> questions = s.getQuestions();
+	private void handleQuestions(final Entry<String, String> e, final State s) {
+		final List<Question> questions = s.getQuestions();
 		if (ListUtil.isNotEmpty(questions)) {
-			for (Question q : questions) {
+			for (final Question q : questions) {
 				if ((q.getContent() != null && q.getContent().equals(e.getKey())) || (q.getId().equals(e.getKey()))) {
 					this.answers.put(q.getId(), e.getValue());
 				}
@@ -129,9 +143,9 @@ public class InterviewFillout implements Serializable {
 
 	public boolean allQuestionsInCurrentStateAnswered() {
 		// if current state has unanswered questions return current state
-		List<Question> questions = this.currentState.getQuestions();
+		final List<Question> questions = this.currentState.getQuestions();
 		if (ListUtil.isNotEmpty(questions)) {
-			for (Question q : questions) {
+			for (final Question q : questions) {
 				if (!this.answers.containsKey(q.getId())) {
 					return false;
 				}
@@ -147,15 +161,15 @@ public class InterviewFillout implements Serializable {
 	 * @return
 	 */
 	public String getHTMLOfOpenQuestionsInState(final State s) {
-		StringBuilder htmlElement = new StringBuilder();
+		final StringBuilder htmlElement = new StringBuilder();
 
-		for (Question q : s.getQuestions()) {
+		for (final Question q : s.getQuestions()) {
 			if (!this.answers.containsKey(q.getId())) {
-				String formQuestion = q.getContent();
+				final String formQuestion = q.getContent();
 				if (formQuestion != null) {
 					htmlElement.append(HTMLConstants.LINE_BREAK).append("<h1>" + formQuestion + "</h1>").append(HTMLConstants.LINE_BREAK);
 				}
-				UIElement formUiElement = q.getUiElement();
+				final UIElement formUiElement = q.getUiElement();
 				if (formUiElement != null) {
 					htmlElement.append(formUiElement.toHTML()).append(HTMLConstants.LINE_BREAK).append("\n");
 				}
@@ -172,8 +186,8 @@ public class InterviewFillout implements Serializable {
 
 	@JsonIgnore
 	public String getHTMLOfAllOpenQuestions() {
-		StringBuilder html = new StringBuilder();
-		for (State s : this.interview.getStates()) {
+		final StringBuilder html = new StringBuilder();
+		for (final State s : this.interview.getStates()) {
 			html.append(this.getHTMLOfOpenQuestionsInState(s)).append("\n");
 		}
 		return html.toString();
@@ -200,7 +214,7 @@ public class InterviewFillout implements Serializable {
 		if (this.getClass() != obj.getClass()) {
 			return false;
 		}
-		InterviewFillout other = (InterviewFillout) obj;
+		final InterviewFillout other = (InterviewFillout) obj;
 		if (this.answers == null) {
 			if (other.answers != null) {
 				return false;

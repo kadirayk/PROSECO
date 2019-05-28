@@ -18,7 +18,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import de.upb.crc901.proseco.commons.config.GlobalConfig;
-import de.upb.crc901.proseco.commons.controller.CannotFixDomainInThisProcessException;
 import de.upb.crc901.proseco.commons.controller.DefaultPrototypeExtractor;
 import de.upb.crc901.proseco.commons.controller.GroundingNotSuccessfulForAnyStrategyException;
 import de.upb.crc901.proseco.commons.controller.NoStrategyFoundASolutionException;
@@ -31,6 +30,12 @@ import de.upb.crc901.proseco.commons.processstatus.ProcessStateProvider;
 import de.upb.crc901.proseco.commons.processstatus.ProcessStateTransitionController;
 import de.upb.crc901.proseco.commons.util.PROSECOProcessEnvironment;
 
+/**
+ * Abstract class that implements {@link ProcessController} interface
+ *
+ * @author kadirayk
+ *
+ */
 public abstract class AProsecoConfigurationProcess implements ProcessController {
 
 	private EProcessState processState;
@@ -44,6 +49,9 @@ public abstract class AProsecoConfigurationProcess implements ProcessController 
 	protected Map<String, String> answers;
 	protected PROSECOSolution solution;
 
+	/**
+	 * Default constructor
+	 */
 	public AProsecoConfigurationProcess() {
 		this.processState = EProcessState.INIT;
 	}
@@ -53,35 +61,35 @@ public abstract class AProsecoConfigurationProcess implements ProcessController 
 		return this.processId;
 	}
 
-	protected void setProcessId(String processId) {
+	protected void setProcessId(final String processId) {
 		this.processId = processId;
 	}
 
 	@Override
-	public void fixDomain(String domain) throws CannotFixDomainInThisProcessException, InvalidStateTransitionException {
+	public void fixDomain(final String domain) throws InvalidStateTransitionException {
 		this.domain = domain;
 		this.updateProcessState(EProcessState.DOMAIN_DEFINITION);
 
 	}
 
 	protected void extractPrototype() throws PrototypeCouldNotBeExtractedException, InvalidStateTransitionException {
-		DefaultPrototypeExtractor prototypeExtractor = new DefaultPrototypeExtractor();
+		final DefaultPrototypeExtractor prototypeExtractor = new DefaultPrototypeExtractor();
 		this.prototype = prototypeExtractor.getPrototype(this.domain, this.answers);
 		this.updateProcessState(EProcessState.PROTOTYPE_EXTRACTED);
 	}
 
 	@Override
-	public PROSECOSolution startComposition(int timeoutInSeconds) throws NoStrategyFoundASolutionException, InvalidStateTransitionException, PrototypeCouldNotBeExtractedException {
+	public PROSECOSolution startComposition(final int timeoutInSeconds) throws NoStrategyFoundASolutionException, InvalidStateTransitionException, PrototypeCouldNotBeExtractedException {
 		this.updateProcessState(EProcessState.COMPOSITION);
 
 		this.extractPrototype();
 
-		int secondsReservedForGrounding = this.processEnvironment.getPrototypeConfig().getSecondsReservedForGrounding();
-		int secondsReservedForDeployment = this.processEnvironment.getPrototypeConfig().getSecondsReservedForDeployment();
-		int timeout = Math.max(1, this.timeoutInSeconds - (secondsReservedForGrounding + secondsReservedForDeployment));
+		final int secondsReservedForGrounding = this.processEnvironment.getPrototypeConfig().getSecondsReservedForGrounding();
+		final int secondsReservedForDeployment = this.processEnvironment.getPrototypeConfig().getSecondsReservedForDeployment();
+		final int timeout = Math.max(1, this.timeoutInSeconds - (secondsReservedForGrounding + secondsReservedForDeployment));
 		logger.debug("Create command for executing strategies and execute them with a timeout of {} = max(1, specifiedTimeout - (secondsForGrounding + secondsForDeployment)) = max(1, {} - ({} + {})) ...", timeout, this.timeoutInSeconds,
 				secondsReservedForGrounding, secondsReservedForDeployment);
-		StrategyExecutor executeStrategiesCommand = new StrategyExecutor(this.processEnvironment);
+		final StrategyExecutor executeStrategiesCommand = new StrategyExecutor(this.processEnvironment);
 		try {
 			this.updateProcessState(EProcessState.STRATEGY_CHOSEN);
 			executeStrategiesCommand.execute(timeout * 1000);
@@ -122,7 +130,7 @@ public abstract class AProsecoConfigurationProcess implements ProcessController 
 			throw new NoStrategyFoundASolutionException();
 		}
 		logger.info("Identified {} as a winning strategy with score {}", winningStrategy.get(), bestScoreSeen);
-		PROSECOSolution prosecoSolution = new PROSECOSolution();
+		final PROSECOSolution prosecoSolution = new PROSECOSolution();
 		prosecoSolution.setProcessId(this.processId);
 		prosecoSolution.setWinningScore(bestScoreSeen);
 		prosecoSolution.setWinningStrategyFolder(winningStrategy.get());
@@ -146,7 +154,7 @@ public abstract class AProsecoConfigurationProcess implements ProcessController 
 		}
 		try {
 			ProcessStateProvider.setProcessStatus(this.processEnvironment.getProcessId(), EProcessState.GROUNDING);
-		} catch (Exception e) {
+		} catch (final Exception e) {
 			logger.error(e.getMessage());
 		}
 		this.handleGrounding(solution);
@@ -163,7 +171,7 @@ public abstract class AProsecoConfigurationProcess implements ProcessController 
 	private void handleDeployment() throws InvalidStateTransitionException {
 		this.updateProcessState(EProcessState.DEPLOYMENT);
 		ProcessStateProvider.setProcessStatus(this.processEnvironment.getProcessId(), EProcessState.DEPLOYMENT);
-		String host = this.processEnvironment.getPrototypeConfig().getDeploymentHost();
+		final String host = this.processEnvironment.getPrototypeConfig().getDeploymentHost();
 		int port = this.processEnvironment.getPrototypeConfig().getDeploymentMinPort();
 		boolean portIsAvailable = true;
 		do {
@@ -171,11 +179,11 @@ public abstract class AProsecoConfigurationProcess implements ProcessController 
 			try (Socket s = new Socket(host, port)) {
 				portIsAvailable = false;
 				port++;
-			} catch (IOException ex) {
+			} catch (final IOException ex) {
 				logger.error(ex.getMessage());
 			}
 		} while (!portIsAvailable);
-		String[] deploymentCommand = new String[4];
+		final String[] deploymentCommand = new String[4];
 		deploymentCommand[0] = this.processEnvironment.deploymentExecutable().getAbsolutePath();
 		deploymentCommand[1] = this.processEnvironment.getProcessId();
 		deploymentCommand[2] = host;
@@ -205,14 +213,14 @@ public abstract class AProsecoConfigurationProcess implements ProcessController 
 		/* create handle file */
 		try {
 			FileUtils.writeStringToFile(this.processEnvironment.getServiceHandle(), "http://" + deploymentCommand[2] + ":" + port + "/" + this.processEnvironment.getPrototypeConfig().getDeploymentEntryPoint(), Charset.defaultCharset());
-		} catch (IOException e) {
+		} catch (final IOException e) {
 			logger.error(e.getMessage());
 		}
 	}
 
-	private void handleGrounding(PROSECOSolution solution) throws GroundingNotSuccessfulForAnyStrategyException {
+	private void handleGrounding(final PROSECOSolution solution) throws GroundingNotSuccessfulForAnyStrategyException {
 		int groundingStatus = 0;
-		String[] groundingCommand = new String[4];
+		final String[] groundingCommand = new String[4];
 		groundingCommand[0] = this.processEnvironment.groundingExecutable().getAbsolutePath();
 		groundingCommand[1] = this.processEnvironment.getProcessId();
 		groundingCommand[2] = this.processEnvironment.getSearchOutputDirectory().getAbsolutePath() + File.separator + solution.getWinningStrategyFolder().getName();
@@ -229,17 +237,17 @@ public abstract class AProsecoConfigurationProcess implements ProcessController 
 			logger.warn("Grounding has been disabled for debugging! You can enable it in the GlobalConfig properties.");
 		} else {
 			try {
-				Process p = pb.start();
+				final Process p = pb.start();
 				p.waitFor();
 				groundingStatus = p.exitValue();
-			} catch (Exception e) {
+			} catch (final Exception e) {
 				logger.error(e.getMessage());
 			}
 		}
 		if (groundingStatus != 0) {
 			try {
 				this.executeGroundingForBackupStrategy(solution.getWinningScore());
-			} catch (IOException e) {
+			} catch (final IOException e) {
 				logger.error(e.getMessage());
 			}
 		}
@@ -247,7 +255,7 @@ public abstract class AProsecoConfigurationProcess implements ProcessController 
 	}
 
 	private void executeGroundingForBackupStrategy(double bestScoreSeen) throws GroundingNotSuccessfulForAnyStrategyException, IOException {
-		Entry<Double, File> secondBestStrategy = this.findSecondBestStrategy(bestScoreSeen);
+		final Entry<Double, File> secondBestStrategy = this.findSecondBestStrategy(bestScoreSeen);
 		if (secondBestStrategy == null) {
 			logger.error("Grounding did not succeed for any of the strategies");
 			throw new GroundingNotSuccessfulForAnyStrategyException();
@@ -256,9 +264,9 @@ public abstract class AProsecoConfigurationProcess implements ProcessController 
 		this.handleGroundingForBackup(bestScoreSeen, secondBestStrategy);
 	}
 
-	private void handleGroundingForBackup(double bestScoreSeen, Entry<Double, File> secondBestStrategy) throws IOException, GroundingNotSuccessfulForAnyStrategyException {
+	private void handleGroundingForBackup(final double bestScoreSeen, final Entry<Double, File> secondBestStrategy) throws IOException, GroundingNotSuccessfulForAnyStrategyException {
 		int groundingStatus = 0;
-		String[] groundingCommand = new String[4];
+		final String[] groundingCommand = new String[4];
 		groundingCommand[0] = this.processEnvironment.groundingExecutable().getAbsolutePath();
 		groundingCommand[1] = this.processEnvironment.getProcessId();
 		groundingCommand[2] = this.processEnvironment.getSearchOutputDirectory().getAbsolutePath() + File.separator + secondBestStrategy.getValue().getName();
@@ -274,10 +282,10 @@ public abstract class AProsecoConfigurationProcess implements ProcessController 
 		if (GLOBAL_CONFIG.debugMode() && GLOBAL_CONFIG.debugDisableGrounding()) {
 			logger.warn("Grounding has been disabled for debugging! You can enable it in the GlobalConfig properties.");
 		} else {
-			Process p = pb.start();
+			final Process p = pb.start();
 			try {
 				p.waitFor();
-			} catch (InterruptedException e) {
+			} catch (final InterruptedException e) {
 				logger.error(e.getMessage());
 				Thread.currentThread().interrupt();
 			}
@@ -290,8 +298,8 @@ public abstract class AProsecoConfigurationProcess implements ProcessController 
 		logger.info("Grounding completed.");
 	}
 
-	private Entry<Double, File> findSecondBestStrategy(Double bestScore) {
-		TreeMap<Double, File> strategiesByScore = new TreeMap<>(Collections.reverseOrder());
+	private Entry<Double, File> findSecondBestStrategy(final Double bestScore) {
+		final TreeMap<Double, File> strategiesByScore = new TreeMap<>(Collections.reverseOrder());
 		Entry<Double, File> secondBestStrategy = null;
 		for (final File strategy : this.processEnvironment.getStrategyDirectory().listFiles()) {
 			if (!strategy.isDirectory()) {
@@ -310,7 +318,7 @@ public abstract class AProsecoConfigurationProcess implements ProcessController 
 			}
 			strategiesByScore.put(parsedValue, strategy);
 		}
-		Entry<Double, File> secondBest = strategiesByScore.lowerEntry(bestScore);
+		final Entry<Double, File> secondBest = strategiesByScore.lowerEntry(bestScore);
 		if (secondBest == null) {
 			return null;
 		} else {
@@ -320,7 +328,7 @@ public abstract class AProsecoConfigurationProcess implements ProcessController 
 		return secondBestStrategy;
 	}
 
-	protected void updateProcessState(EProcessState newState) throws InvalidStateTransitionException {
+	protected void updateProcessState(final EProcessState newState) throws InvalidStateTransitionException {
 		this.processState = ProcessStateTransitionController.moveToNextState(this.processState, newState);
 	}
 

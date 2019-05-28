@@ -12,12 +12,18 @@ import de.upb.crc901.proseco.commons.config.PROSECOConfig;
 import de.upb.crc901.proseco.commons.config.ProcessConfig;
 import de.upb.crc901.proseco.commons.util.PROSECOProcessEnvironment;
 
+/**
+ * @deprecated
+ *
+ *
+ */
+@Deprecated
 public class DefaultProcessController {
 
 	private final File prosecoConfigFile;
 	private final PROSECOConfig config;
 
-	public DefaultProcessController(File prosecoConfigFile) {
+	public DefaultProcessController(final File prosecoConfigFile) {
 		super();
 		this.prosecoConfigFile = prosecoConfigFile;
 		this.config = PROSECOConfig.get(prosecoConfigFile);
@@ -29,20 +35,20 @@ public class DefaultProcessController {
 	 * @return id The id for the newly created process
 	 * @throws IOException
 	 */
-	public PROSECOProcessEnvironment createConstructionProcessEnvironment(String domainName) throws IOException {
-		String id = domainName + "-" + UUID.randomUUID().toString().replace("-", "").substring(0, 10).toLowerCase();
-		File processFolder = new File(this.config.getDirectoryForProcesses() + File.separator + id);
+	public PROSECOProcessEnvironment createConstructionProcessEnvironment(final String domainName) throws IOException {
+		final String id = domainName + "-" + UUID.randomUUID().toString().replace("-", "").substring(0, 10).toLowerCase();
+		final File processFolder = new File(this.config.getDirectoryForProcesses() + File.separator + id);
 		FileUtils.forceMkdir(processFolder);
-		ProcessConfig pc = new ProcessConfig(id, domainName, this.prosecoConfigFile);
+		final ProcessConfig pc = new ProcessConfig(id, domainName, this.prosecoConfigFile);
 		new ObjectMapper().writeValue(new File(processFolder + File.separator + "process.json"), pc);
 		return new PROSECOProcessEnvironment(processFolder);
 	}
 
-	public PROSECOProcessEnvironment getConstructionProcessEnvironment(String processId) {
+	public PROSECOProcessEnvironment getConstructionProcessEnvironment(final String processId) {
 		try {
-			File processFolder = new File(this.config.getDirectoryForProcesses() + File.separator + processId);
+			final File processFolder = new File(this.config.getDirectoryForProcesses() + File.separator + processId);
 			return new PROSECOProcessEnvironment(processFolder);
-		} catch (Exception e) {
+		} catch (final Exception e) {
 			throw new PROSECORuntimeException("Could not create an environment object for process id " + processId, e);
 		}
 	}

@@ -8,10 +8,16 @@ import org.apache.commons.lang3.StringUtils;
 
 import de.upb.crc901.proseco.commons.config.PROSECOConfig;
 
+/**
+ * Implements IDomainScoreComputer<T> interface for String type.
+ *
+ * @author kadirayk
+ *
+ */
 public class DefaultDomainScoreComputer implements IDomainScoreComputer<String> {
 
 	@Override
-	public Double getDomainScore(String description, String domain) throws DomainCouldNotBeDetectedException {
+	public Double getDomainScore(final String description, final String domain) throws DomainCouldNotBeDetectedException {
 		if (StringUtils.isEmpty(description) || StringUtils.isEmpty(domain)) {
 			throw new DomainCouldNotBeDetectedException();
 		}
@@ -21,10 +27,15 @@ public class DefaultDomainScoreComputer implements IDomainScoreComputer<String> 
 		return 0.0;
 	}
 
-	public List<String> getAvailableDomains(PROSECOConfig prosecoConfig) {
-		List<String> domains = new ArrayList<>();
-		File domainsDir = prosecoConfig.getDirectoryForDomains();
-		for (File domain : domainsDir.listFiles()) {
+	/**
+	 *
+	 * @param prosecoConfig
+	 * @return list of available domains
+	 */
+	public List<String> getAvailableDomains(final PROSECOConfig prosecoConfig) {
+		final List<String> domains = new ArrayList<>();
+		final File domainsDir = prosecoConfig.getDirectoryForDomains();
+		for (final File domain : domainsDir.listFiles()) {
 			domains.add(domain.getName());
 		}
 		return domains;

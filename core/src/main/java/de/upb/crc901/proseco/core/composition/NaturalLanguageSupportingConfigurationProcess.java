@@ -26,11 +26,22 @@ import de.upb.crc901.proseco.commons.util.PROSECOProcessEnvironment;
 import de.upb.crc901.proseco.commons.util.Parser;
 import de.upb.crc901.proseco.commons.util.SerializationUtil;
 
+/**
+ * Implementation of {@link AProsecoConfigurationProcess} for natural language supporting configuration
+ *
+ * @author kadirayk
+ *
+ */
 public class NaturalLanguageSupportingConfigurationProcess extends AProsecoConfigurationProcess {
 
 	private final File prosecoConfigFile;
 	private final PROSECOConfig config;
 
+	/**
+	 * Constructor that creates a {@link NaturalLanguageSupportingConfigurationProcess} with given prosecoConfigFile
+	 *
+	 * @param prosecoConfigFile
+	 */
 	public NaturalLanguageSupportingConfigurationProcess(final File prosecoConfigFile) {
 		try {
 			super.updateProcessState(EProcessState.INIT);
@@ -41,6 +52,14 @@ public class NaturalLanguageSupportingConfigurationProcess extends AProsecoConfi
 		this.config = PROSECOConfig.get(prosecoConfigFile);
 	}
 
+	/**
+	 * Method that accepts a general task description and detects the desired domain from the given description.
+	 * A description can be any type of class, String type is currently supported
+	 *
+	 * @param description
+	 * @throws DomainCouldNotBeDetectedException
+	 * @throws InvalidStateTransitionException
+	 */
 	public <T> void receiveGeneralTaskDescription(final T description) throws DomainCouldNotBeDetectedException, InvalidStateTransitionException {
 		if (description instanceof String) {
 			final String descriptionString = (String) description;
@@ -72,14 +91,12 @@ public class NaturalLanguageSupportingConfigurationProcess extends AProsecoConfi
 		} catch (final IOException e) {
 			logger.error(e.getMessage());
 		}
-		if (fillout != null) {
-			final Map<String, String> answers = fillout.retrieveQuestionAnswerMap();
-			for (final String question : answers.keySet()) {
-				final String answer = this.askOracle(question);
-				answers.put(question, answer);
-			}
-			this.updateInterview(answers);
+		final Map<String, String> answers = fillout.retrieveQuestionAnswerMap();
+		for (final String question : answers.keySet()) {
+			final String answer = this.askOracle(question);
+			answers.put(question, answer);
 		}
+		this.updateInterview(answers);
 	}
 
 	private String askOracle(final String question) {

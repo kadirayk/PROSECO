@@ -25,58 +25,72 @@ public class FileUtil {
 	private FileUtil() {
 	}
 
-	public static void writeToFile(String filePath, String content) {
+	/**
+	 * Write given string content to given filePath
+	 *
+	 * @param filePath
+	 * @param content
+	 */
+	public static void writeToFile(final String filePath, final String content) {
 		PrintWriter writer;
 		try {
-			File output = new File(filePath);
+			final File output = new File(filePath);
 			writer = new PrintWriter(output);
 			writer.print(content);
 			writer.close();
-		} catch (FileNotFoundException e) {
+		} catch (final FileNotFoundException e) {
 			logger.error(e.getMessage());
-			System.err.println("test");
 		}
 	}
 
-	public static void f() {
-		System.out.println("test");
-	}
-
-	public static String readFile(String filePath) {
+	/**
+	 * Returns content of a file as String by given filePath
+	 *
+	 * @param filePath
+	 * @return
+	 */
+	public static String readFile(final String filePath) {
 		byte[] encoded = null;
 		String content = null;
 		try {
 			encoded = Files.readAllBytes(Paths.get(filePath));
-		} catch (NoSuchFileException e) {
+		} catch (final NoSuchFileException e) {
 			return content;
-		} catch (IOException e) {
+		} catch (final IOException e) {
 			logger.error(e.getMessage());
 		}
 		try {
 			if (encoded != null) {
 				content = new String(encoded, "utf-8");
 			}
-		} catch (UnsupportedEncodingException e) {
+		} catch (final UnsupportedEncodingException e) {
 			logger.error(e.getMessage());
 		}
 		return content;
 	}
 
-	public static String readFileByLineNumber(String filePath, Integer line) {
+	/**
+	 * Returns the content of a file after given line number
+	 *
+	 * @param filePath
+	 * @param line
+	 * @return
+	 */
+	public static String readFileByLineNumber(final String filePath, final Integer line) {
 		byte[] encoded = null;
 		String content = null;
 		try {
 			encoded = Files.readAllBytes(Paths.get(filePath));
-		} catch (NoSuchFileException e) {
+		} catch (final NoSuchFileException e) {
 			return content;
-		} catch (IOException e) {
+		} catch (final IOException e) {
 			logger.error(e.getMessage());
 		}
 		try {
 			if (encoded != null) {
 				content = new String(encoded, "utf-8");
-				String[] arr = content.split("\n");
-				StringBuilder str = new StringBuilder();
+				final String[] arr = content.split("\n");
+				final StringBuilder str = new StringBuilder();
 				if (arr.length > line) {
 					for (int i = line; i < arr.length; i++) {
 						str.append(arr[i]).append("\n");
@@ -86,7 +100,7 @@ public class FileUtil {
 					return "";
 				}
 			}
-		} catch (UnsupportedEncodingException e) {
+		} catch (final UnsupportedEncodingException e) {
 			logger.error(e.getMessage());
 		}
 		return content;

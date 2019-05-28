@@ -17,6 +17,11 @@ import de.upb.crc901.proseco.commons.controller.DefaultProcessController;
 import de.upb.crc901.proseco.commons.util.FileUtil;
 import de.upb.crc901.proseco.commons.util.PROSECOProcessEnvironment;
 
+/**
+ *
+ * Utility class for keeping track of the process state
+ *
+ */
 public class ProcessStateProvider {
 
 	private static final Logger logger = LoggerFactory.getLogger(ProcessStateProvider.class);
@@ -30,12 +35,19 @@ public class ProcessStateProvider {
 	private ProcessStateProvider() {
 	}
 
+	/**
+	 * Returns current status of the process by given processId
+	 * Status of the processes are stored in "process.status" file in the process directory
+	 *
+	 * @param processID
+	 * @return
+	 */
 	public static String getProcessStatus(final String processID) {
 		if (processID.equals(NO_PROCESS_PROCESSID)) {
 			return DEFAULT_PROCESS_STATE.toString();
 		}
-		PROSECOProcessEnvironment env = getProcessEnvironment(processID);
-		File processStatus = new File(env.getProcessDirectory(), "process.status");
+		final PROSECOProcessEnvironment env = getProcessEnvironment(processID);
+		final File processStatus = new File(env.getProcessDirectory(), "process.status");
 		if (processStatus.exists()) {
 			return FileUtil.readFile(processStatus.getAbsolutePath());
 		} else {
@@ -44,18 +56,31 @@ public class ProcessStateProvider {
 		}
 	}
 
+	/**
+	 * Updates the status of the process by given processId and with given status
+	 * Status of the processes are stored in "process.status" file in the process directory
+	 *
+	 * @param processID
+	 * @param newStatus
+	 */
 	public static void setProcessStatus(final String processID, final EProcessState newStatus) {
-		PROSECOProcessEnvironment env = getProcessEnvironment(processID);
-		File processStatus = new File(env.getProcessDirectory(), "process.status");
+		final PROSECOProcessEnvironment env = getProcessEnvironment(processID);
+		final File processStatus = new File(env.getProcessDirectory(), "process.status");
 		try (BufferedWriter bw = new BufferedWriter(new FileWriter(processStatus))) {
 			bw.write(newStatus.toString());
-		} catch (IOException e) {
+		} catch (final IOException e) {
 			logger.error(e.getMessage());
 		}
 	}
 
+	/**
+	 * Returns {@link EProcessState} value of the given state
+	 *
+	 * @param value
+	 * @return
+	 */
 	public static EProcessState readProcessStateValue(final String value) {
-		Optional<EProcessState> res = Arrays.stream(EProcessState.values()).filter(x -> x.toString().equals(value)).findFirst();
+		final Optional<EProcessState> res = Arrays.stream(EProcessState.values()).filter(x -> x.toString().equals(value)).findFirst();
 		if (res.isPresent()) {
 			return res.get();
 		} else {
@@ -70,6 +95,12 @@ public class ProcessStateProvider {
 		return getProcessEnvironment(processID);
 	}
 
+	/**
+	 * Returns {@link PROSECOProcessEnvironment} by given processId
+	 *
+	 * @param processID
+	 * @return
+	 */
 	public static PROSECOProcessEnvironment getProcessEnvironment(final String processID) {
 		if (envCache.containsKey(processID)) {
 			if (logger.isTraceEnabled()) {
@@ -80,7 +111,7 @@ public class ProcessStateProvider {
 			if (logger.isTraceEnabled()) {
 				logger.trace("create new process environment for {}", processID);
 			}
-			PROSECOProcessEnvironment env = PROCESS_CONTROLLER.getConstructionProcessEnvironment(processID);
+			final PROSECOProcessEnvironment env = PROCESS_CONTROLLER.getConstructionProcessEnvironment(processID);
 			envCache.put(processID, env);
 			return env;
 		}
