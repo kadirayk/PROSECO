@@ -108,17 +108,11 @@ public abstract class AProsecoConfigurationProcess implements ProcessController 
 			if (!strategy.isDirectory()) {
 				continue;
 			}
-			final File fValueFile = new File(this.processEnvironment.getSearchOutputDirectory() + File.separator + strategy.getName() + File.separator + "score");
+			final File fValueFile = this.getFvalueFile(strategy);
 			if (!fValueFile.exists()) {
-				logger.info("score file was not found in file {} for strategy {}", fValueFile.getAbsolutePath(), strategy.getName());
 				continue;
 			}
-			Double parsedValue = Double.MAX_VALUE;
-			try {
-				parsedValue = Double.parseDouble(FileUtils.readFileToString(fValueFile, Charset.defaultCharset()));
-			} catch (NumberFormatException | IOException e) {
-				logger.error(e.getMessage());
-			}
+			final Double parsedValue = this.getParsedScore(fValueFile);
 			if (parsedValue < bestScoreSeen) {
 				winningStrategy = Optional.of(strategy);
 				bestScoreSeen = parsedValue;
@@ -136,6 +130,16 @@ public abstract class AProsecoConfigurationProcess implements ProcessController 
 		prosecoSolution.setWinningStrategyFolder(winningStrategy.get());
 		this.solution = prosecoSolution;
 		return prosecoSolution;
+	}
+
+	private Double getParsedScore(final File fValueFile) {
+		Double parsedValue = Double.MAX_VALUE;
+		try {
+			parsedValue = Double.parseDouble(FileUtils.readFileToString(fValueFile, Charset.defaultCharset()));
+		} catch (NumberFormatException | IOException e) {
+			logger.error(e.getMessage());
+		}
+		return parsedValue;
 	}
 
 	public PROSECOSolution getSolution() {
@@ -301,23 +305,7 @@ public abstract class AProsecoConfigurationProcess implements ProcessController 
 	private Entry<Double, File> findSecondBestStrategy(final Double bestScore) {
 		final TreeMap<Double, File> strategiesByScore = new TreeMap<>(Collections.reverseOrder());
 		Entry<Double, File> secondBestStrategy = null;
-		for (final File strategy : this.processEnvironment.getStrategyDirectory().listFiles()) {
-			if (!strategy.isDirectory()) {
-				continue;
-			}
-			final File fValueFile = new File(this.processEnvironment.getSearchOutputDirectory() + File.separator + strategy.getName() + File.separator + "score");
-			if (!fValueFile.exists()) {
-				logger.info("score file was not found in file {} for strategy {}", fValueFile.getAbsolutePath(), strategy.getName());
-				continue;
-			}
-			Double parsedValue = Double.MAX_VALUE;
-			try {
-				parsedValue = Double.parseDouble(FileUtils.readFileToString(fValueFile, Charset.defaultCharset()));
-			} catch (NumberFormatException | IOException e) {
-				logger.error(e.getMessage());
-			}
-			strategiesByScore.put(parsedValue, strategy);
-		}
+		this.orderStrategiesByScore(strategiesByScore);
 		final Entry<Double, File> secondBest = strategiesByScore.lowerEntry(bestScore);
 		if (secondBest == null) {
 			return null;
@@ -326,6 +314,28 @@ public abstract class AProsecoConfigurationProcess implements ProcessController 
 		}
 
 		return secondBestStrategy;
+	}
+
+	private void orderStrategiesByScore(final TreeMap<Double, File> strategiesByScore) {
+		for (final File strategy : this.processEnvironment.getStrategyDirectory().listFiles()) {
+			if (!strategy.isDirectory()) {
+				continue;
+			}
+			final File fValueFile = this.getFvalueFile(strategy);
+			if (!fValueFile.exists()) {
+				continue;
+			}
+			final Double parsedValue = this.getParsedScore(fValueFile);
+			strategiesByScore.put(parsedValue, strategy);
+		}
+	}
+
+	private File getFvalueFile(final File strategy) {
+		final File fValueFile = new File(this.processEnvironment.getSearchOutputDirectory() + File.separator + strategy.getName() + File.separator + "score");
+		if (!fValueFile.exists()) {
+			logger.info("score file was not found in file {} for strategy {}", fValueFile.getAbsolutePath(), strategy.getName());
+		}
+		return fValueFile;
 	}
 
 	protected void updateProcessState(final EProcessState newState) throws InvalidStateTransitionException {
