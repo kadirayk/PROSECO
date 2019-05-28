@@ -6,8 +6,60 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Manages transitions between states. Each state is allowed to move to only certain states.
+ * Manages transitions between states ({@link EProcessState}). Each state is allowed to move to only certain states.
  * If an invalid transition is wanted to be performed {@link InvalidStateTransitionException} is thrown
+ *
+ * <br>
+ * <br>
+ * <b>Allowed State Transitions:</b><br>
+ *
+ * <table border="1">
+ * <tr>
+ * <td><b>Current State</b></td>
+ * <td><b>Allowed Next States</b></td>
+ * </tr>
+ * <tr>
+ * <td>INIT</td>
+ * <td>INIT, CREATED</td>
+ * </tr>
+ * <tr>
+ * <td>CREATED</td>
+ * <td>DOMAIN_DEFINITION</td>
+ * </tr>
+ * <tr>
+ * <td>DOMAIN_DEFINITION</td>
+ * <td>INTERVIEW</td>
+ * </tr>
+ * <tr>
+ * <td>INTERVIEW</td>
+ * <td>INTERVIEW, COMPOSITION</td>
+ * </tr>
+ * </tr>
+ * <tr>
+ * <td>COMPOSITION</td>
+ * <td>PROTOTYPE_EXTRACTED</td>
+ * </tr>
+ * <tr>
+ * <td>PROTOTYPE_EXTRACTED</td>
+ * <td>STRATEGY_CHOSEN</td>
+ * </tr>
+ * <tr>
+ * <td>STRATEGY_CHOSEN</td>
+ * <td>GROUNDING</td>
+ * </tr>
+ * <tr>
+ * <td>GROUNDING</td>
+ * <td>DEPLOYMENT</td>
+ * </tr>
+ * <tr>
+ * <td>DEPLOYMENT</td>
+ * <td>DONE</td>
+ * </tr>
+ * <tr>
+ * <td>DONE</td>
+ * <td>-</td>
+ * </tr>
+ * </table>
  *
  * @author kadirayk
  *
