@@ -77,31 +77,16 @@ public class FileUtil {
 	 * @return content of the file after the given line number
 	 */
 	public static String readFileByLineNumber(final String filePath, final Integer line) {
-		byte[] encoded = null;
-		String content = null;
-		try {
-			encoded = Files.readAllBytes(Paths.get(filePath));
-		} catch (final NoSuchFileException e) {
-			return content;
-		} catch (final IOException e) {
-			logger.error(e.getMessage());
-		}
-		try {
-			if (encoded != null) {
-				content = new String(encoded, "utf-8");
-				final String[] arr = content.split("\n");
-				final StringBuilder str = new StringBuilder();
-				if (arr.length > line) {
-					for (int i = line; i < arr.length; i++) {
-						str.append(arr[i]).append("\n");
-					}
-					content = str.toString();
-				} else {
-					return "";
+		String content = readFile(filePath);
+		if (content != null) {
+			final String[] arr = content.split("\n");
+			final StringBuilder str = new StringBuilder();
+			if (arr.length > line) {
+				for (int i = line; i < arr.length; i++) {
+					str.append(arr[i]).append("\n");
 				}
+				content = str.toString();
 			}
-		} catch (final UnsupportedEncodingException e) {
-			logger.error(e.getMessage());
 		}
 		return content;
 	}
