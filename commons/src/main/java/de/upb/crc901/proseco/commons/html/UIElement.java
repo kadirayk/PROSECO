@@ -29,7 +29,7 @@ public abstract class UIElement implements Serializable {
 		return this.tag;
 	}
 
-	protected void setTag(String tag) {
+	protected void setTag(final String tag) {
 		this.tag = tag;
 	}
 
@@ -37,7 +37,7 @@ public abstract class UIElement implements Serializable {
 		return this.content;
 	}
 
-	public void setContent(String content) {
+	public void setContent(final String content) {
 		this.content = content;
 	}
 
@@ -45,22 +45,27 @@ public abstract class UIElement implements Serializable {
 		return this.attributes;
 	}
 
-	public void setAttributes(Map<String, String> attributes) {
+	public void setAttributes(final Map<String, String> attributes) {
 		this.attributes = attributes;
 	}
 
 	public UIElement() {
 	}
 
+	/**
+	 * Generate actual HTML element
+	 *
+	 * @return
+	 */
 	public String toHTML() {
-		StringBuilder html = new StringBuilder("<");
+		final StringBuilder html = new StringBuilder("<");
 		html.append(this.tag);
 		if (this.attributes != null) {
 			boolean isFile = false;
 			if ("file".equals(this.attributes.get("type"))) {
 				isFile = true;
 			}
-			for (Map.Entry<String, String> entry : this.attributes.entrySet()) {
+			for (final Map.Entry<String, String> entry : this.attributes.entrySet()) {
 				if (!isFile && entry.getKey().equals("name")) {
 					entry.setValue("response");
 				} else if (isFile && entry.getKey().equals("name")) {
@@ -88,7 +93,7 @@ public abstract class UIElement implements Serializable {
 	}
 
 	@Override
-	public boolean equals(Object obj) {
+	public boolean equals(final Object obj) {
 		if (this == obj) {
 			return true;
 		}
@@ -98,7 +103,7 @@ public abstract class UIElement implements Serializable {
 		if (this.getClass() != obj.getClass()) {
 			return false;
 		}
-		UIElement other = (UIElement) obj;
+		final UIElement other = (UIElement) obj;
 		if (this.attributes == null) {
 			if (other.attributes != null) {
 				return false;

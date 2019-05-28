@@ -5,51 +5,58 @@ import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Manages transitions between states. Each state is allowed to move to only certain states.
+ * If an invalid transition is wanted to be performed {@link InvalidStateTransitionException} is thrown
+ *
+ * @author kadirayk
+ *
+ */
 public class ProcessStateTransitionController {
 
 	// currentState, possible next states
 	private static Map<EProcessState, List<EProcessState>> transitionMap = new EnumMap<>(EProcessState.class);
 
 	static {
-		List<EProcessState> initStates = new ArrayList<>();
+		final List<EProcessState> initStates = new ArrayList<>();
 		initStates.add(EProcessState.CREATED);
 		initStates.add(EProcessState.INIT);
 		transitionMap.put(EProcessState.INIT, initStates);
 
-		List<EProcessState> createdStates = new ArrayList<>();
+		final List<EProcessState> createdStates = new ArrayList<>();
 		createdStates.add(EProcessState.DOMAIN_DEFINITION);
 		transitionMap.put(EProcessState.CREATED, createdStates);
 
-		List<EProcessState> domainStates = new ArrayList<>();
+		final List<EProcessState> domainStates = new ArrayList<>();
 		domainStates.add(EProcessState.INTERVIEW);
 		transitionMap.put(EProcessState.DOMAIN_DEFINITION, domainStates);
 
-		List<EProcessState> interviewStates = new ArrayList<>();
+		final List<EProcessState> interviewStates = new ArrayList<>();
 		interviewStates.add(EProcessState.INTERVIEW);
 		interviewStates.add(EProcessState.COMPOSITION);
 		transitionMap.put(EProcessState.INTERVIEW, interviewStates);
 
-		List<EProcessState> compositionStates = new ArrayList<>();
+		final List<EProcessState> compositionStates = new ArrayList<>();
 		compositionStates.add(EProcessState.PROTOTYPE_EXTRACTED);
 		transitionMap.put(EProcessState.COMPOSITION, compositionStates);
 
-		List<EProcessState> prototypeStates = new ArrayList<>();
+		final List<EProcessState> prototypeStates = new ArrayList<>();
 		prototypeStates.add(EProcessState.STRATEGY_CHOSEN);
 		transitionMap.put(EProcessState.PROTOTYPE_EXTRACTED, prototypeStates);
 
-		List<EProcessState> searchStates = new ArrayList<>();
+		final List<EProcessState> searchStates = new ArrayList<>();
 		searchStates.add(EProcessState.GROUNDING);
 		transitionMap.put(EProcessState.STRATEGY_CHOSEN, searchStates);
 
-		List<EProcessState> groundingStates = new ArrayList<>();
+		final List<EProcessState> groundingStates = new ArrayList<>();
 		groundingStates.add(EProcessState.DEPLOYMENT);
 		transitionMap.put(EProcessState.GROUNDING, groundingStates);
 
-		List<EProcessState> deploymentStates = new ArrayList<>();
+		final List<EProcessState> deploymentStates = new ArrayList<>();
 		deploymentStates.add(EProcessState.DONE);
 		transitionMap.put(EProcessState.DEPLOYMENT, deploymentStates);
 
-		List<EProcessState> doneStates = new ArrayList<>();
+		final List<EProcessState> doneStates = new ArrayList<>();
 		transitionMap.put(EProcessState.DONE, doneStates);
 
 	}
@@ -57,7 +64,15 @@ public class ProcessStateTransitionController {
 	private ProcessStateTransitionController() {
 	}
 
-	public static EProcessState moveToNextState(EProcessState currentState, EProcessState nextState) throws InvalidStateTransitionException {
+	/**
+	 * Returns the nextState if it is allowed to moved to it from currentState. Else {@link InvalidStateTransitionException} is thrown
+	 *
+	 * @param currentState
+	 * @param nextState
+	 * @return {@link EProcessState}
+	 * @throws InvalidStateTransitionException
+	 */
+	public static EProcessState moveToNextState(final EProcessState currentState, final EProcessState nextState) throws InvalidStateTransitionException {
 		if (transitionMap.get(currentState).contains(nextState)) {
 			return nextState;
 		} else {

@@ -55,13 +55,13 @@ public class APIController {
 	 * Returns SystemOut and SystemError logs of Strategies of prototype with the
 	 * given ID
 	 *
-	 * @param id
-	 * @return
+	 * @param id consists of a domain name and a 10-digit alpha-numeric value (e.g. test-00dc91ae4d)
+	 * @return StrategyLogs
 	 * @throws Exception
 	 */
 	@GetMapping(value = "/api/strategyLogs/{id}")
 	public ResponseEntity<Object> getStrategyLogs(@PathVariable("id") final String id) {
-		LogResponseBody result = new LogResponseBody();
+		final LogResponseBody result = new LogResponseBody();
 		result.setLogList(this.findLogById(id));
 		return new ResponseEntity<>(result, HttpStatus.OK);
 	}
@@ -70,14 +70,14 @@ public class APIController {
 	 * Returns SystemOut and SystemError logs of Strategies of prototype with the
 	 * given ID
 	 *
-	 * @param id
-	 * @return
+	 * @param id consists of a domain name and a 10-digit alpha-numeric value (e.g. test-00dc91ae4d)
+	 * @return log as json object
 	 * @throws Exception
 	 */
 	@GetMapping("/api/log/{id}")
 	@ResponseBody
 	public ResponseEntity<Object> getLog(@PathVariable("id") final String id) {
-		LogResponseBody result = new LogResponseBody();
+		final LogResponseBody result = new LogResponseBody();
 		result.setLogList(this.findLogById(id));
 		return new ResponseEntity<>(Arrays.asList(ToJSONStringUtil.parseObjectToJsonNode(result, new ObjectMapper())), HttpStatus.OK);
 	}
@@ -88,17 +88,17 @@ public class APIController {
 	 *
 	 * @param id id of the session
 	 * @return success if task is killed, failure if exception occured
-	 * @throws InvalidStateTransitionException
-	 * @throws ProcessIdDoesNotExistException
+	 * @throws InvalidStateTransitionException thrown if tried to access invalid state
+	 * @throws ProcessIdDoesNotExistException thrown if process with the given id does not exist
 	 */
 	@GetMapping("/api/stopService/{id}")
 	public String stopService(@PathVariable("id") final String id) throws ProcessIdDoesNotExistException, InvalidStateTransitionException {
-		String result = "success";
-		String pid = this.findServicePID(id);
+		final String result = "success";
+		final String pid = this.findServicePID(id);
 		try {
-			String cmd = "tskill " + pid;
+			final String cmd = "tskill " + pid;
 			Runtime.getRuntime().exec(cmd);
-		} catch (IOException e) {
+		} catch (final IOException e) {
 			return "failure";
 		}
 
@@ -108,15 +108,15 @@ public class APIController {
 	/**
 	 * Returns the service log file content as string with the given id.
 	 *
-	 * @param id
+	 * @param id processId
 	 * @return
-	 * @throws InvalidStateTransitionException
-	 * @throws ProcessIdDoesNotExistException
+	 * @throws InvalidStateTransitionException thrown if tried to access invalid state
+	 * @throws ProcessIdDoesNotExistException thrown if process with the given id does not exist
 	 */
 	private String getServiceLog(final String id) throws ProcessIdDoesNotExistException, InvalidStateTransitionException {
 		this.processController.attach(id);
-		PROSECOProcessEnvironment env = this.processController.getProcessEnvironment();
-		String serviceLogFile = env.getGroundingDirectory() + File.separator + this.config.getNameOfServiceLogFile();
+		final PROSECOProcessEnvironment env = this.processController.getProcessEnvironment();
+		final String serviceLogFile = env.getGroundingDirectory() + File.separator + this.config.getNameOfServiceLogFile();
 		return FileUtil.readFile(serviceLogFile);
 	}
 
@@ -130,11 +130,11 @@ public class APIController {
 	 */
 	private String findServicePID(final String id) throws ProcessIdDoesNotExistException, InvalidStateTransitionException {
 		String pid = null;
-		String serviceLog = this.getServiceLog(id);
+		final String serviceLog = this.getServiceLog(id);
 
 		if (serviceLog != null) {
-			String searchStartString = "with PID ";
-			String searchEndString = " ";
+			final String searchStartString = "with PID ";
+			final String searchEndString = " ";
 			int startIndex = serviceLog.indexOf(searchStartString);
 			if (startIndex < 0) {
 				return pid;
@@ -142,7 +142,7 @@ public class APIController {
 
 			startIndex += searchStartString.length();
 
-			int endIndex = serviceLog.indexOf(searchEndString, startIndex);
+			final int endIndex = serviceLog.indexOf(searchEndString, startIndex);
 			if (endIndex < 0) {
 				return pid;
 			}
@@ -162,29 +162,29 @@ public class APIController {
 	 * @throws Exception
 	 */
 	private List<LogPair> findLogById(final String id) {
-		List<LogPair> logList = new ArrayList<>();
-		PROSECOProcessEnvironment env = ProcessStateProvider.getProcessEnvironment(id);
+		final List<LogPair> logList = new ArrayList<>();
+		final PROSECOProcessEnvironment env = ProcessStateProvider.getProcessEnvironment(id);
 
-		File processFolder = env.getProcessDirectory();
+		final File processFolder = env.getProcessDirectory();
 		if (processFolder == null || env.getPrototypeName() == null || !env.getSearchOutputDirectory().exists()) {
 			return logList;
 		}
-		File strategyDirectory = env.getStrategyDirectory();
+		final File strategyDirectory = env.getStrategyDirectory();
 
 		final File[] strategySubFolders = strategyDirectory.listFiles(File::isDirectory);
 
-		String outputPath = env.getSearchOutputDirectory().getAbsolutePath();
+		final String outputPath = env.getSearchOutputDirectory().getAbsolutePath();
 		for (final File strategyFolder : strategySubFolders) {
-			String outputPathOfThisStrategy = outputPath + File.separator + strategyFolder.getName();
-			String systemOut = outputPathOfThisStrategy + File.separator + this.config.getSystemOutFileName();
-			String systemErr = outputPathOfThisStrategy + File.separator + this.config.getSystemErrFileName();
-			String systemAll = outputPathOfThisStrategy + File.separator + this.config.getSystemMergedOutputFileName();
+			final String outputPathOfThisStrategy = outputPath + File.separator + strategyFolder.getName();
+			final String systemOut = outputPathOfThisStrategy + File.separator + this.config.getSystemOutFileName();
+			final String systemErr = outputPathOfThisStrategy + File.separator + this.config.getSystemErrFileName();
+			final String systemAll = outputPathOfThisStrategy + File.separator + this.config.getSystemMergedOutputFileName();
 
-			LogLine logLine = LogLineTracker.getLogLines(id, strategyFolder.getName());
+			final LogLine logLine = LogLineTracker.getLogLines(id, strategyFolder.getName());
 
-			String outLog = FileUtil.readFileByLineNumber(systemOut, logLine.getOutLineNumber());
-			String errLog = FileUtil.readFileByLineNumber(systemErr, logLine.getErrLineNumber());
-			String allLog = FileUtil.readFileByLineNumber(systemAll, logLine.getAllLineNumber());
+			final String outLog = FileUtil.readFileByLineNumber(systemOut, logLine.getOutLineNumber());
+			final String errLog = FileUtil.readFileByLineNumber(systemErr, logLine.getErrLineNumber());
+			final String allLog = FileUtil.readFileByLineNumber(systemAll, logLine.getAllLineNumber());
 
 			logLine.setStrategyName(strategyFolder.getName());
 			logLine.setAllLineNumber(logLine.getAllLineNumber() + allLog.split("\n").length);
@@ -192,7 +192,7 @@ public class APIController {
 			logLine.setOutLineNumber(logLine.getOutLineNumber() + outLog.split("\n").length);
 			LogLineTracker.updateLog(id, logLine);
 
-			LogPair logPair = new LogPair(env.getPrototypeName(), strategyFolder.getName(), outLog, errLog, allLog);
+			final LogPair logPair = new LogPair(env.getPrototypeName(), strategyFolder.getName(), outLog, errLog, allLog);
 			logList.add(logPair);
 		}
 

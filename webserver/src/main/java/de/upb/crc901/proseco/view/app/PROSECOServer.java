@@ -19,20 +19,24 @@ public class PROSECOServer {
 
 	private static final int MAX_MB_UPLOAD = 150;
 
+	/**
+	 *
+	 * @return {@link CommonsMultipartResolver}
+	 */
 	@Bean
 	@Order(0)
 	public CommonsMultipartResolver multipartResolver() {
-		CommonsMultipartResolver multipart = new CommonsMultipartResolver();
+		final CommonsMultipartResolver multipart = new CommonsMultipartResolver();
 		multipart.setMaxUploadSize(MAX_MB_UPLOAD * 1024 * 1024L);
 		multipart.setMaxUploadSizePerFile(MAX_MB_UPLOAD * 1024 * 1024L);
 		return multipart;
 	}
 
-	public void launch(String... args) {
+	public void launch(final String... args) {
 		SpringApplication.run(PROSECOServer.class, args);
 	}
 
-	public static void main(String[] args) {
+	public static void main(final String[] args) {
 		new PROSECOServer().launch();
 	}
 }

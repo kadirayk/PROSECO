@@ -3,10 +3,17 @@ package de.upb.crc901.proseco.commons.controller;
 import java.io.File;
 import java.util.Map;
 
+/**
+ * Default implementation of IPrototypeExtractor interface.
+ * Extracts prototype from interview fillout.
+ *
+ * @author kadirayk
+ *
+ */
 public class DefaultPrototypeExtractor implements IPrototypeExtractor {
 
 	@Override
-	public String getPrototype(String domain, Map<String, String> answers) throws PrototypeCouldNotBeExtractedException {
+	public String getPrototype(final String domain, final Map<String, String> answers) throws PrototypeCouldNotBeExtractedException {
 		String prototype = null;
 		if (answers != null) {
 			prototype = answers.get("Please select prototype");
@@ -21,10 +28,10 @@ public class DefaultPrototypeExtractor implements IPrototypeExtractor {
 		return prototype;
 	}
 
-	private static boolean prototypeExists(String domain, String prototype) {
+	private static boolean prototypeExists(final String domain, final String prototype) {
 		boolean exists = false;
-		File prototypesFolder = new File("domains/" + domain + "/prototypes");
-		for (File file : prototypesFolder.listFiles()) {
+		final File prototypesFolder = new File("domains/" + domain + "/prototypes");
+		for (final File file : prototypesFolder.listFiles()) {
 			if (file.getName().equalsIgnoreCase(prototype)) {
 				exists = true;
 				break;

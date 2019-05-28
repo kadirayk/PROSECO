@@ -1,5 +1,12 @@
 package de.upb.crc901.proseco.commons.controller;
 
+/**
+ * Interface describing domain score computation
+ *
+ * @author kadirayk
+ *
+ * @param <T>
+ */
 public interface IDomainScoreComputer<T> {
 
 	/**

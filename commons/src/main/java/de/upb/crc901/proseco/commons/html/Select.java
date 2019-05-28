@@ -17,10 +17,20 @@ public class Select extends UIElement {
 	private List<Option> options;
 	private static final String TAG = "select";
 
+	/**
+	 * Empty constructor
+	 */
 	public Select() {
 		this.setTag(TAG);
 	}
 
+	/**
+	 * Constructor that sets content, attributes, options
+	 * 
+	 * @param content
+	 * @param attributes
+	 * @param options
+	 */
 	public Select(final String content, final Map<String, String> attributes, final List<Option> options) {
 		this.setTag(TAG);
 		this.setContent(content);

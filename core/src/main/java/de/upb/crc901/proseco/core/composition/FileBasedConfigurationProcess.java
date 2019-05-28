@@ -22,11 +22,22 @@ import de.upb.crc901.proseco.commons.util.PROSECOProcessEnvironment;
 import de.upb.crc901.proseco.commons.util.Parser;
 import de.upb.crc901.proseco.commons.util.SerializationUtil;
 
+/**
+ * Implementation of {@link AProsecoConfigurationProcess} for file based configuration
+ *
+ * @author kadirayk
+ *
+ */
 public class FileBasedConfigurationProcess extends AProsecoConfigurationProcess {
 
 	private final File prosecoConfigFile;
 	private final PROSECOConfig config;
 
+	/**
+	 * Default constructor that initiates a FileBasedConfigurationProcess with the given prosecoConfig file
+	 *
+	 * @param prosecoConfigFile
+	 */
 	public FileBasedConfigurationProcess(final File prosecoConfigFile) {
 		try {
 			super.updateProcessState(EProcessState.INIT);
