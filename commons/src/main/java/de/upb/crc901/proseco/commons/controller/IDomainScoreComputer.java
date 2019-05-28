@@ -5,11 +5,12 @@ package de.upb.crc901.proseco.commons.controller;
  *
  * @author kadirayk
  *
- * @param <T>
+ * @param <T> task description
  */
 public interface IDomainScoreComputer<T> {
 
 	/**
+	 * Returns a score between 0.0 - 1.0 for the given task description and the domain name
 	 *
 	 * @param description
 	 * @param domain

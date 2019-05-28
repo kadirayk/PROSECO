@@ -23,6 +23,11 @@ public class DefaultProcessController {
 	private final File prosecoConfigFile;
 	private final PROSECOConfig config;
 
+	/**
+	 * Instantiates a DefaultProcessController with given prosecoConfigFile
+	 *
+	 * @param prosecoConfigFile
+	 */
 	public DefaultProcessController(final File prosecoConfigFile) {
 		super();
 		this.prosecoConfigFile = prosecoConfigFile;
@@ -32,8 +37,9 @@ public class DefaultProcessController {
 	/**
 	 * Creates a new PROSECO service construction process for a given prototype. The prototype skeleton is copied for the new process.
 	 *
-	 * @return id The id for the newly created process
-	 * @throws IOException
+	 * @param domainName domainName
+	 * @return {@link PROSECOProcessEnvironment}
+	 * @throws IOException thrown when dealing with file system
 	 */
 	public PROSECOProcessEnvironment createConstructionProcessEnvironment(final String domainName) throws IOException {
 		final String id = domainName + "-" + UUID.randomUUID().toString().replace("-", "").substring(0, 10).toLowerCase();
@@ -44,6 +50,12 @@ public class DefaultProcessController {
 		return new PROSECOProcessEnvironment(processFolder);
 	}
 
+	/**
+	 * Returns {@link PROSECOProcessEnvironment} with given id
+	 * 
+	 * @param processId id of process
+	 * @return {@link PROSECOProcessEnvironment}
+	 */
 	public PROSECOProcessEnvironment getConstructionProcessEnvironment(final String processId) {
 		try {
 			final File processFolder = new File(this.config.getDirectoryForProcesses() + File.separator + processId);

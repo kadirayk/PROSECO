@@ -83,7 +83,7 @@ public class PROSECOProcessEnvironment {
 	 *            process.json that contains its id, the domain, the
 	 *            prototype, and the proseco configuration that is used to
 	 *            run it
-	 * @throws IOException
+	 * @throws IOException thrown on IO error in File System
 	 */
 	public PROSECOProcessEnvironment(final File processFolder) throws IOException {
 		L.debug("Initializing PROSECO process environment for process folder {}.", processFolder.getAbsolutePath());

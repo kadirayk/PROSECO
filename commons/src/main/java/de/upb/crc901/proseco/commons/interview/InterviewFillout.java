@@ -76,7 +76,7 @@ public class InterviewFillout implements Serializable {
 	/**
 	 * Returns a map of questions and their answers
 	 *
-	 * @return
+	 * @return map of question-answer pairs
 	 */
 	public Map<String, String> retrieveQuestionAnswerMap() {
 		final Map<String, String> questionAnswerMap = new HashMap<>();
@@ -97,7 +97,7 @@ public class InterviewFillout implements Serializable {
 	/**
 	 * Update the interview state according to given questionAnswerMap
 	 *
-	 * @param questionAnswerMap
+	 * @param questionAnswerMap map of question-answer pairs
 	 */
 	public void updateAnswers(final Map<String, String> questionAnswerMap) {
 		for (final Entry<String, String> e : questionAnswerMap.entrySet()) {

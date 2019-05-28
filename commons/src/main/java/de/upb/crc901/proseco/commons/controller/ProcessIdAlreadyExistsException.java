@@ -15,7 +15,7 @@ public class ProcessIdAlreadyExistsException extends Exception {
 	/**
 	 * Constructor with errorMessage
 	 *
-	 * @param errorMessage
+	 * @param errorMessage error message string
 	 */
 	public ProcessIdAlreadyExistsException(final String errorMessage) {
 		super(errorMessage);

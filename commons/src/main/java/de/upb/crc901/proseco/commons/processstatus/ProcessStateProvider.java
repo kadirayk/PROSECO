@@ -39,8 +39,8 @@ public class ProcessStateProvider {
 	 * Returns current status of the process by given processId
 	 * Status of the processes are stored in "process.status" file in the process directory
 	 *
-	 * @param processID
-	 * @return
+	 * @param processID consists of a domain name and a 10-digit alpha-numeric value (e.g. test-00dc91ae4d)
+	 * @return Status of the process as String
 	 */
 	public static String getProcessStatus(final String processID) {
 		if (processID.equals(NO_PROCESS_PROCESSID)) {
@@ -60,8 +60,8 @@ public class ProcessStateProvider {
 	 * Updates the status of the process by given processId and with given status
 	 * Status of the processes are stored in "process.status" file in the process directory
 	 *
-	 * @param processID
-	 * @param newStatus
+	 * @param processID consists of a domain name and a 10-digit alpha-numeric value (e.g. test-00dc91ae4d)
+	 * @param newStatus new status as {@link EProcessState}
 	 */
 	public static void setProcessStatus(final String processID, final EProcessState newStatus) {
 		final PROSECOProcessEnvironment env = getProcessEnvironment(processID);
@@ -88,6 +88,13 @@ public class ProcessStateProvider {
 		}
 	}
 
+	/**
+	 * returns {@link PROSECOProcessEnvironment} of the given processId
+	 * 
+	 * @param processID consists of a domain name and a 10-digit alpha-numeric value (e.g. test-00dc91ae4d)
+	 * @param invalidateIfExists if set true remove the processId from cache
+	 * @return {@link PROSECOProcessEnvironment} of the given processId
+	 */
 	public static PROSECOProcessEnvironment getProcessEnvironment(final String processID, final boolean invalidateIfExists) {
 		if (invalidateIfExists && envCache.containsKey(processID)) {
 			envCache.remove(processID);

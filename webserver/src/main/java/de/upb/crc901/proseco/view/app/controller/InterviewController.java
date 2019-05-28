@@ -96,9 +96,8 @@ public class InterviewController {
 	 * information
 	 *
 	 * @param interviewDTO {@link InterviewDTO} UI-facing definition of the interview
-	 * @return
-	 * @throws InvalidStateTransitionException
-	 * @throws Exception
+	 * @return String denoting the thymeleaf template name
+	 * @throws InvalidStateTransitionException thrown when a transition to an invalid state is wanted to be performed
 	 */
 	@PostMapping("/")
 	public String initSubmit(@ModelAttribute final InterviewDTO interviewDTO) throws InvalidStateTransitionException {
@@ -134,11 +133,10 @@ public class InterviewController {
 	 * Http Get method for /interview/{id} to display the current state of the
 	 * interview with the given {id}
 	 *
-	 * @param id
+	 * @param id consists of a domain name and a 10-digit alpha-numeric value (e.g. test-00dc91ae4d)
 	 * @param interviewDTO
-	 * @return
-	 * @throws InvalidStateTransitionException
-	 * @throws Exception
+	 * @return String denoting the thymeleaf template name
+	 * @throws InvalidStateTransitionException thrown when a transition to an invalid state is wanted to be performed
 	 */
 	@GetMapping("/interview/{id}")
 	public String next(@PathVariable("id") final String id, @ModelAttribute final InterviewDTO interviewDTO) throws InvalidStateTransitionException {
@@ -321,6 +319,12 @@ public class InterviewController {
 		return result;
 	}
 
+	/**
+	 * returns status of the process
+	 *
+	 * @param processID consists of a domain name and a 10-digit alpha-numeric value (e.g. test-00dc91ae4d)
+	 * @return status of the process
+	 */
 	@GetMapping("/api/process/{id}/status")
 	@ResponseBody
 	public Map<String, String> processStatus(@PathVariable("id") final String processID) {
@@ -330,6 +334,13 @@ public class InterviewController {
 		return result;
 	}
 
+	/**
+	 * set process of the status
+	 *
+	 * @param processID consists of a domain name and a 10-digit alpha-numeric value (e.g. test-00dc91ae4d)
+	 * @param e status to be set
+	 * @return {@link ResponseEntity} with http status
+	 */
 	@PostMapping("/api/process/{id}/status")
 	@ResponseBody
 	public ResponseEntity<Object> setProcessStatus(@PathVariable("id") final String processID, @RequestBody final Map<String, String> e) {
@@ -339,10 +350,10 @@ public class InterviewController {
 	}
 
 	/**
+	 * Returns remainingTime, completion status and service handle to deployed service
 	 *
-	 * @param id
-	 * @return
-	 * @throws Exception
+	 * @param id consists of a domain name and a 10-digit alpha-numeric value (e.g. test-00dc91ae4d)
+	 * @return Result of the process
 	 */
 	@GetMapping(value = "/api/result/{id}")
 	@ResponseBody

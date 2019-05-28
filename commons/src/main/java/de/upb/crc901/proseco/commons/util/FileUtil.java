@@ -28,8 +28,8 @@ public class FileUtil {
 	/**
 	 * Write given string content to given filePath
 	 *
-	 * @param filePath
-	 * @param content
+	 * @param filePath path in file system
+	 * @param content string value
 	 */
 	public static void writeToFile(final String filePath, final String content) {
 		PrintWriter writer;
@@ -46,8 +46,8 @@ public class FileUtil {
 	/**
 	 * Returns content of a file as String by given filePath
 	 *
-	 * @param filePath
-	 * @return
+	 * @param filePath path in file system
+	 * @return String content
 	 */
 	public static String readFile(final String filePath) {
 		byte[] encoded = null;
@@ -72,9 +72,9 @@ public class FileUtil {
 	/**
 	 * Returns the content of a file after given line number
 	 *
-	 * @param filePath
-	 * @param line
-	 * @return
+	 * @param filePath path in file system
+	 * @param line line number in file
+	 * @return content of the file after the given line number
 	 */
 	public static String readFileByLineNumber(final String filePath, final Integer line) {
 		byte[] encoded = null;

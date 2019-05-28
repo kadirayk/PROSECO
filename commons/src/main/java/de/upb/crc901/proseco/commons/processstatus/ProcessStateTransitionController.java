@@ -67,10 +67,10 @@ public class ProcessStateTransitionController {
 	/**
 	 * Returns the nextState if it is allowed to moved to it from currentState. Else {@link InvalidStateTransitionException} is thrown
 	 *
-	 * @param currentState
-	 * @param nextState
+	 * @param currentState the state process is currently in
+	 * @param nextState the desired state to move process to
 	 * @return {@link EProcessState}
-	 * @throws InvalidStateTransitionException
+	 * @throws InvalidStateTransitionException thrown when a transition to an invalid state is wanted to be performed
 	 */
 	public static EProcessState moveToNextState(final EProcessState currentState, final EProcessState nextState) throws InvalidStateTransitionException {
 		if (transitionMap.get(currentState).contains(nextState)) {
