@@ -37,7 +37,8 @@ public abstract class SearchStrategy implements Runnable {
 		this.dirOfInputs = new File(args[1]);
 		this.dirOfOutputs = new File(args[2]);
 		this.strategyName = this.dirOfOutputs.getName();
-		L.debug("Recognized strategy {} by output dir name. Using {} as input folder.", this.strategyName, this.dirOfInputs.getAbsolutePath());
+		L.debug("Recognized strategy {} by output dir name. Using {} as input folder.", this.strategyName,
+				this.dirOfInputs.getAbsolutePath());
 		this.deadline = System.currentTimeMillis() + Integer.valueOf(args[3]) * 1000;
 	}
 
@@ -64,9 +65,11 @@ public abstract class SearchStrategy implements Runnable {
 	protected boolean checkCandidate(final File candidateOutputFolder) throws InterruptedException, IOException {
 		File analysisProcessFile = this.environment.verificationExecutable();
 		if (L.isDebugEnabled()) {
-			L.debug("Running analysis {} on {}", analysisProcessFile.getAbsolutePath(), candidateOutputFolder.getAbsolutePath());
+			L.debug("Running analysis {} on {}", analysisProcessFile.getAbsolutePath(),
+					candidateOutputFolder.getAbsolutePath());
 		}
-		ProcessBuilder sb = new ProcessBuilder(analysisProcessFile.getAbsolutePath(), candidateOutputFolder.getAbsolutePath());
+		ProcessBuilder sb = new ProcessBuilder(analysisProcessFile.getAbsolutePath(),
+				candidateOutputFolder.getAbsolutePath());
 		Process p = sb.start();
 		int exitCode = p.waitFor();
 		if (L.isDebugEnabled()) {
@@ -99,7 +102,8 @@ public abstract class SearchStrategy implements Runnable {
 	}
 
 	protected File getStrategyDirectory() throws IOException {
-		return new File(this.getEnvironment().getStrategyDirectory() + File.separator + this.getStrategyName()).getCanonicalFile();
+		return new File(this.getEnvironment().getStrategyDirectory() + File.separator + this.getStrategyName())
+				.getCanonicalFile();
 	}
 
 	protected int getRemainingSeconds() {
