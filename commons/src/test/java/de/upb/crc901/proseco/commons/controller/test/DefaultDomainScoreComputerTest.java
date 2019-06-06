@@ -28,7 +28,7 @@ public class DefaultDomainScoreComputerTest {
 	@Test
 	public void findDomainTest() throws DomainCouldNotBeDetectedException {
 		final IDomainScoreComputer<String> computer = new DefaultDomainScoreComputer();
-		assertEquals(Double.valueOf(0.0), computer.getDomainScore("test", "test"));
+		assertEquals(Double.valueOf(1.0), computer.getDomainScore("test", "test"));
 	}
 
 	@Test
