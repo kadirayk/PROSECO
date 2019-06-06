@@ -24,6 +24,7 @@ public class PROSECOSolutionTest {
 		assertEquals(new File("winningFolder"), solution.getWinningStrategyFolder());
 		solution.setBackupStrategies(new TreeMap<>());
 		assertEquals(new TreeMap<>(), solution.getBackupStrategies());
+
 		solution.setBackupStrategyFolders(new TreeMap<>());
 		assertEquals(new TreeMap<>(), solution.getBackupStrategyFolders());
 
