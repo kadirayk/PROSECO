@@ -22,7 +22,7 @@ Core submodule contains the implementation of the composition logic of PROSECO.
 
 - **FileBasedConfigurationProcess**: `FileBasedConfigurationProcess` is an implementation of the `ProcessController` interface defined in the commons submodule.
 In FileBasedConfigurationProcess, domain is set from outside using the domain selection provided in the interview. The figure below shows the process state transitions
-during the configuration process. The a new process is created and a processId is generated when the `createNew()` method is called, this method can also be called with an ID (`createNew(processId)')
+during the configuration process. The a new process is created and a processId is generated when the `createNew()` method is called, this method can also be called with an ID (`createNew(processId)`)
 in that case given ID will be used for the process. The domain of the process is defined by calling the `fixDomain()` method, after that interview update can be received with `updateInterview()` method.
 Once answering the interview is done, `startComposition()` method should be called to start the composition process. When the composition process started; prototype extraction, execution of the strategies,
 grounding and deployment states will be handled internally. At the end of the deployment configuration process will be done.
