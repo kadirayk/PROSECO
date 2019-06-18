@@ -1,7 +1,3 @@
-* [Introduction](introduction.md)
-* [Project Structure](project-structure.md)
-* [User Manual](user-manual.md)
-
 # PROSECO
 The PROtotype-based SErvice COmposition (PROSECO) Framework is a free and open-source Java tool 
 for automated service composition. PROSECO uses prototypes as basis of the services, and builds 
