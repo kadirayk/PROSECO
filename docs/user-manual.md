@@ -1,6 +1,6 @@
 ## Building and Running PROSECO
 In order to build PROSECO:
-* clone or download the source code
+* clone or download the [source code](https://github.com/fmohr/PROSECO): `git clone https://github.com/fmohr/PROSECO.git`
 * in the root folder run `gradle build`
 
 A web server is contained withing PROSECO's web server submodule to provide an interface to the user. A Prototype-specific interview is presented via this web server to get necessary inputs of the prototype from the user.
