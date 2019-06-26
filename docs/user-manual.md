@@ -8,6 +8,17 @@ In order to build PROSECO:
 PROSECO needs prototypes to operate:
 * AutoML Prototype can be set up using instructions at: https://git.cs.upb.de/SFB901-Testbed/automl-prototype
 * Cloud Gaming Prototype can be set up using instructions at: https://github.com/kadirayk/game
+
+## Setting up your IDE
+### Eclipse
+In the root folder run: 
+
+```./gradlew eclipse```
+
+This automatically creates the eclipse project files and configures the dependencies among the projects. 
+Then open Eclipse and go to the import menu, e.g., in the package manager. 
+Choose to import Existing Projects into Workspace, select the root folder, 
+and check the **Search for nested projects** option.
  
 ## Creating a Prototype
 In order to create a prototype domain folder structure must be followed. 
